@@ -1737,19 +1737,31 @@
         </div>
         <form id="form-polls" onsubmit="event.preventDefault();">
             <details class="settings-category" open>
-                <summary><span>Simulación y Pruebas</span></summary>
+                <summary><span>Simulación de Encuestas</span></summary>
                 <div class="category-content">
-                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.4;">
-                        Utiliza estos controles para probar el overlay glassmorphic de encuestas directamente en tu escena de OBS:
-                    </p>
                     <div class="form-group">
-                        <label>Pregunta de Prueba</label>
+                        <label>Pregunta de Encuesta</label>
                         <input type="text" class="form-control" id="poll-test-title" value="¿Qué lenguaje de programación prefieres?">
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
                         <button type="button" class="btn-toggle-tool disabled" style="margin-top: 0; background: rgba(99, 102, 241, 0.15); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.3);" onclick="triggerTestPollStart()"><i class="fa-solid fa-play"></i> Iniciar Encuesta de Prueba</button>
                         <button type="button" class="btn-toggle-tool disabled" style="margin-top: 0; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);" onclick="triggerTestPollVote()"><i class="fa-solid fa-plus"></i> Simular Votos Aleatorios</button>
                         <button type="button" class="btn-toggle-tool enabled" style="margin-top: 0;" onclick="triggerTestPollEnd()"><i class="fa-solid fa-stop"></i> Finalizar Encuesta</button>
+                    </div>
+                </div>
+            </details>
+
+            <details class="settings-category" open>
+                <summary><span>Simulación de Predicciones</span></summary>
+                <div class="category-content">
+                    <div class="form-group">
+                        <label>Pregunta de Predicción</label>
+                        <input type="text" class="form-control" id="pred-test-title" value="¿Lograremos pasarnos el jefe en este intento?">
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
+                        <button type="button" class="btn-toggle-tool disabled" style="margin-top: 0; background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3);" onclick="triggerTestPredictionStart()"><i class="fa-solid fa-play"></i> Iniciar Predicción de Prueba</button>
+                        <button type="button" class="btn-toggle-tool disabled" style="margin-top: 0; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);" onclick="triggerTestPredictionVote()"><i class="fa-solid fa-coins"></i> Simular Puntos Apostados</button>
+                        <button type="button" class="btn-toggle-tool enabled" style="margin-top: 0;" onclick="triggerTestPredictionEnd()"><i class="fa-solid fa-stop"></i> Finalizar Predicción</button>
                     </div>
                 </div>
             </details>
@@ -2151,6 +2163,73 @@
             });
             showToast("Encuesta de prueba finalizada!");
             activeTestPoll = null;
+        }
+
+        let activeTestPrediction = null;
+
+        function triggerTestPredictionStart() {
+            const titleInput = document.getElementById("pred-test-title");
+            const title = titleInput ? titleInput.value.trim() : "¿Lograremos pasarnos el jefe en este intento?";
+            const duration = parseInt(document.getElementById("poll-default-duration").value) || 60;
+            
+            activeTestPrediction = {
+                title: title,
+                lock_duration: duration,
+                outcomes: [
+                    { id: "outcome_1", title: "SÍ, ES UN PRO 🏆", channel_points: 0 },
+                    { id: "outcome_2", title: "NO, F EN EL CHAT 💀", channel_points: 0 }
+                ]
+            };
+
+            fetch('/api/trigger-poll', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    event: "prediction_begin",
+                    data: activeTestPrediction
+                })
+            });
+            showToast("Predicción de prueba iniciada!");
+        }
+
+        function triggerTestPredictionVote() {
+            if (!activeTestPrediction) {
+                showToast("¡Primero inicia una predicción!");
+                return;
+            }
+            const randIndex = Math.floor(Math.random() * activeTestPrediction.outcomes.length);
+            activeTestPrediction.outcomes[randIndex].channel_points += Math.floor(Math.random() * 800) + 150;
+
+            fetch('/api/trigger-poll', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    event: "prediction_progress",
+                    data: activeTestPrediction
+                })
+            });
+            showToast("Puntos de canal simulados!");
+        }
+
+        function triggerTestPredictionEnd() {
+            if (!activeTestPrediction) {
+                showToast("No hay ninguna predicción activa.");
+                return;
+            }
+            
+            const winnerId = Math.random() > 0.5 ? "outcome_1" : "outcome_2";
+            activeTestPrediction.winning_outcome_id = winnerId;
+
+            fetch('/api/trigger-poll', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    event: "prediction_end",
+                    data: activeTestPrediction
+                })
+            });
+            showToast("Predicción finalizada!");
+            activeTestPrediction = null;
         }
 
         function openPanel(tool) {
