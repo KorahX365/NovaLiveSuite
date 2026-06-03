@@ -1613,7 +1613,7 @@ async fn post_twitch_logout(State(state): State<Arc<AppState>>) -> impl IntoResp
 
 async fn get_twitch_auth() -> impl IntoResponse {
     let auth_url = format!(
-        "https://id.twitch.tv/oauth2/authorize?client_id={}&redirect_uri=http%3A%2F%2Flocalhost%3A777%2Ftwitch%2Fcallback&response_type=code&scope=moderator:read:followers+channel:read:subscriptions+bits:read",
+        "https://id.twitch.tv/oauth2/authorize?client_id={}&redirect_uri=http%3A%2F%2Flocalhost%3A777%2Ftwitch%2Fcallback&response_type=code&scope=moderator:read:followers+channel:read:subscriptions+bits:read+channel:read:polls+channel:read:predictions",
         TWITCH_CLIENT_ID
     );
     axum::response::Redirect::temporary(&auth_url)
