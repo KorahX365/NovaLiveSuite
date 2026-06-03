@@ -1,0 +1,3343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova Live Suite — OBS Stream Engine</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-base: #09090b;
+            --bg-surface: #18181b;
+            --bg-card: #27272a;
+            --border-light: #27272a;
+            --border-hover: #3f3f46;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --accent: #0ea5e9;
+            --success: #10b981;
+            --text-main: #fafafa;
+            --text-muted: #a1a1aa;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            height: 100%;
+            max-height: calc(100vh - 2rem);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 1.5rem;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+        }
+
+        .logo-section h1 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-section p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .twitch-btn {
+            background: #6441a5;
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 4px;
+            font-weight: 500;
+            font-family: inherit;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.15s ease;
+        }
+
+        .twitch-btn:hover {
+            background: #7a55c2;
+        }
+
+        .twitch-btn.connected {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .twitch-btn.connected:hover {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 1rem;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            padding: 1rem 1.25rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 0.75rem;
+            transition: border-color 0.15s ease;
+            min-height: 0;
+        }
+
+        .card:hover {
+            border-color: var(--border-hover);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-icon {
+            font-size: 1.2rem;
+            color: var(--text-main);
+            background: #27272a;
+            padding: 0.6rem;
+            border-radius: 4px;
+        }
+
+        .chat-icon { color: #a855f7; background: rgba(168, 85, 247, 0.1); }
+        /* Categories Accordion Styles */
+        details.settings-category {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+        details.settings-category[open] {
+            border-color: var(--border-hover);
+            background: rgba(255, 255, 255, 0.03);
+        }
+        details.settings-category summary {
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            color: var(--text-main);
+        }
+        details.settings-category summary::-webkit-details-marker {
+            display: none;
+        }
+        details.settings-category summary::after {
+            content: '\f107';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            transition: transform 0.2s ease;
+        }
+        details.settings-category[open] summary::after {
+            transform: rotate(180deg);
+        }
+        details.settings-category .category-content {
+            padding: 1rem;
+            border-top: 1px solid var(--border-light);
+        }
+
+        /* Enable/Disable button */
+        .btn-toggle-tool {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+            margin-top: 1.5rem;
+            text-align: center;
+            border: none;
+        }
+        .btn-toggle-tool.enabled {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .btn-toggle-tool.enabled:hover {
+            background: #ef4444;
+            color: white;
+        }
+        .btn-toggle-tool.disabled {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .btn-toggle-tool.disabled:hover {
+            background: #10b981;
+            color: white;
+        }
+
+        /* Redesign homepage card aspect ratio & layout */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
+            gap: 1.5rem !important;
+            flex: 1;
+            min-height: 0;
+        }
+        .card {
+            background: var(--bg-surface);
+            border: 2px solid #ef4444 !important; /* solid red border */
+            border-radius: 12px !important;
+            padding: 2rem 1.5rem !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            text-align: center !important;
+            position: relative !important;
+            aspect-ratio: 1 / 1 !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+            min-height: auto !important;
+            height: auto !important;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(239, 68, 68, 0.25) !important;
+            border-color: #f87171 !important;
+        }
+        .card-icon-container {
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .card-icon {
+            font-size: 2.8rem !important;
+            padding: 0 !important;
+            background: transparent !important;
+            transition: filter 0.2s ease, opacity 0.2s ease;
+        }
+        .card.is-disabled .card-icon {
+            filter: grayscale(100%) opacity(0.3) !important;
+        }
+        .card-info h2 {
+            font-size: 1.25rem !important;
+            font-weight: 700 !important;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+        .card-info p {
+            font-size: 0.85rem !important;
+            color: var(--text-muted) !important;
+            line-height: 1.4;
+        }
+        .card-cog-btn {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-light);
+            color: var(--text-muted);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            z-index: 10;
+        }
+        .card-cog-btn:hover {
+            background: #ef4444;
+            color: white;
+            border-color: #ef4444;
+            transform: rotate(45deg);
+        }
+
+        .alert-icon { color: #eab308; background: rgba(234, 179, 8, 0.1); }
+        .music-icon { color: #10b981; background: rgba(16, 185, 129, 0.1); }
+
+        .card-title-text h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .card-title-text p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.15rem;
+        }
+
+        /* Custom Switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .switch input { opacity: 0; width: 0; height: 0; }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #27272a;
+            transition: .2s;
+            border-radius: 24px;
+            border: 1px solid #3f3f46;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #fafafa;
+            transition: .2s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider { background-color: var(--primary); border-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        /* Preview Window */
+        .preview-box {
+            flex: 1;
+            min-height: 80px;
+            height: auto;
+            background: #09090b;
+            border: 1px solid var(--border-light);
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preview-label {
+            position: absolute;
+            top: 8px;
+            left: 10px;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            font-weight: 500;
+            z-index: 10;
+        }
+
+        /* Live Chat Preview Elements */
+        .chat-preview-container {
+            width: 100%; height: 100%;
+            padding: 24px 15px 12px;
+            display: flex; flex-direction: column;
+            justify-content: flex-end;
+            box-sizing: border-box;
+        }
+
+        .preview-msg {
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            width: fit-content;
+            max-width: 95%;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .badge-preview {
+            font-size: 10px;
+            border-radius: 2px;
+            padding: 1px 3px;
+            font-weight: bold;
+        }
+
+        /* Action Buttons */
+        .card-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .url-box {
+            flex: 1;
+            background: #09090b;
+            border: 1px solid var(--border-light);
+            border-radius: 4px;
+            padding: 0.6rem 0.85rem;
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: var(--text-main);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .url-text { overflow: hidden; text-overflow: ellipsis; color: #a1a1aa; }
+
+        .copy-btn {
+            background: transparent; border: none;
+            color: var(--text-muted); cursor: pointer;
+            transition: color 0.15s ease; font-size: 0.95rem;
+            padding-left: 0.5rem;
+        }
+
+        .copy-btn:hover { color: white; }
+
+        .config-btn {
+            background: #18181b;
+            border: 1px solid var(--border-light);
+            color: var(--text-main);
+            width: 38px;
+            height: 38px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: all 0.15s ease;
+        }
+
+        .config-btn:hover {
+            background: #27272a;
+            border-color: var(--border-hover);
+        }
+
+        /* Config Modal Panels */
+        .settings-panel {
+            display: flex;
+            visibility: hidden;
+            pointer-events: none;
+            position: fixed;
+            top: 0; right: 0;
+            width: 680px; height: 100%;
+            background: #18181b;
+            border-left: 1px solid var(--border-light);
+            box-shadow: -8px 0 32px rgba(0, 0, 0, 0.4);
+            z-index: 1000;
+            padding: 2rem 1.5rem;
+            overflow-y: auto;
+            flex-direction: column;
+            gap: 1.5rem;
+            transform: translateX(100%);
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .settings-panel.open {
+            transform: translateX(0);
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        /* Custom range sliders styling */
+        input[type="range"].form-control {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 6px;
+            background: #27272a;
+            border-radius: 9999px;
+            outline: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+        input[type="range"].form-control:hover {
+            background: #3f3f46;
+        }
+        input[type="range"].form-control::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #fafafa;
+            border: 1px solid #e4e4e7;
+            cursor: pointer;
+            transition: transform 0.1s ease, background 0.1s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        input[type="range"].form-control::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            background: #ffffff;
+        }
+        input[type="range"].form-control::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #fafafa;
+            border: 1px solid #e4e4e7;
+            cursor: pointer;
+            transition: transform 0.1s ease, background 0.1s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        input[type="range"].form-control::-moz-range-thumb:hover {
+            transform: scale(1.2);
+            background: #ffffff;
+        }
+
+        /* Comparison Popup styling */
+        .comparison-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            width: 720px;
+            max-width: 90vw;
+            background: rgba(15, 15, 20, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 80px rgba(255, 255, 255, 0.03);
+            z-index: 9999;
+            display: none;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+        }
+        .comparison-popup.visible {
+            display: block;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        .comparison-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+        }
+        .comparison-header h4 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #f4f4f5;
+        }
+        .comparison-field-info {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            font-variant-numeric: tabular-nums;
+        }
+        .comparison-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .comparison-pane {
+            background: rgba(9, 9, 11, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 12px;
+            padding: 16px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+            overflow: hidden;
+        }
+        .pane-label {
+            position: absolute;
+            top: 10px;
+            left: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 2px 6px;
+            border-radius: 4px;
+            z-index: 10;
+        }
+        .before-pane .pane-label {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+        .after-pane .pane-label {
+            background: rgba(34, 197, 94, 0.15);
+            color: #4ade80;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+        .pane-content {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform: scale(0.9);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-light);
+            padding-bottom: 1rem;
+        }
+
+        .panel-header h3 { font-size: 1.2rem; font-weight: 600; }
+        .close-panel-btn { background: transparent; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; }
+        .close-panel-btn:hover { color: white; }
+
+        .form-group { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1.25rem; }
+        .form-group label { font-size: 0.8rem; font-weight: 500; color: var(--text-muted); }
+        
+        .form-control {
+            background: #09090b;
+            border: 1px solid var(--border-light);
+            border-radius: 4px;
+            padding: 0.6rem 0.85rem;
+            color: white;
+            font-family: inherit;
+            font-size: 0.85rem;
+            outline: none;
+            transition: border-color 0.15s ease;
+        }
+        .form-control:focus { border-color: var(--border-hover); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+        .submit-btn {
+            background: #ffffff;
+            color: #09090b; border: 1px solid #ffffff;
+            padding: 0.75rem; border-radius: 4px;
+            font-weight: 500; font-family: inherit;
+            font-size: 0.85rem; cursor: pointer;
+            margin-top: 0.75rem; transition: background 0.15s ease;
+        }
+
+        .submit-btn:hover { background: #e4e4e7; }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-main);
+            cursor: pointer;
+            margin-bottom: 0.5rem;
+        }
+
+        .checkbox-group input {
+            accent-color: var(--primary);
+            width: 14px;
+            height: 14px;
+        }
+
+        /* Alerts Test Area */
+        .test-alert-btn-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+        .test-btn {
+            background: #27272a;
+            border: 1px solid var(--border-light);
+            color: var(--text-main);
+            padding: 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: background 0.15s ease;
+        }
+        .test-btn:hover {
+            background: #3f3f46;
+        }
+
+        /* Overlay blur */
+        .overlay-bg {
+            display: none; position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 900;
+        }
+        .overlay-bg.open { display: block; }
+
+        .toast {
+            position: fixed; bottom: 20px; right: 20px;
+            background: var(--success); color: white;
+            padding: 0.75rem 1.25rem; border-radius: 4px;
+            font-weight: 500; font-size: 0.85rem;
+            display: none; z-index: 2000;
+        }
+        
+        .carousel-items-list {
+            display: flex; flex-direction: column; gap: 0.5rem;
+            max-height: 200px; overflow-y: auto;
+            border: 1px solid var(--border-light);
+            border-radius: 4px; padding: 0.5rem;
+            background: #09090b;
+        }
+        .carousel-item-row {
+            display: flex; gap: 0.5rem; align-items: center;
+            background: #18181b;
+            padding: 0.4rem; border-radius: 4px;
+        }
+        .carousel-item-row img { width: 32px; height: 32px; object-fit: cover; border-radius: 3px; }
+        .carousel-item-row input { flex: 1; padding: 0.35rem; font-size: 11px; }
+        .remove-item-btn { background: transparent; border: none; color: #ef4444; cursor: pointer; padding: 4px; font-size: 0.85rem; }
+        .add-item-btn {
+            background: #27272a; color: var(--text-main);
+            border: 1px dashed var(--border-hover); border-radius: 4px;
+            padding: 0.55rem; font-size: 0.8rem; cursor: pointer;
+            font-weight: 500; text-align: center; margin-top: 0.5rem;
+        }
+
+        /* Tooltip Styles */
+        .tooltip-container {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            cursor: help;
+        }
+
+        .tooltip-container::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%) scale(0.95);
+            background: #18181b;
+            color: #fafafa;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 400;
+            white-space: normal;
+            width: 200px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            border: 1px solid var(--border-light);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.1s ease, transform 0.1s ease, visibility 0.1s;
+            z-index: 1000;
+            line-height: 1.3;
+            text-align: center;
+        }
+
+        .tooltip-container:hover::after {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) scale(1);
+        }
+        
+        .info-icon {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            opacity: 0.5;
+            transition: opacity 0.15s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .tooltip-container:hover .info-icon {
+            opacity: 0.9;
+        }
+
+        /* Compact Dashboard layout overrides */
+        #dashboardContainer .preview-box {
+            display: none !important;
+        }
+        #dashboardContainer .card-actions {
+            display: none !important;
+        }
+        #dashboardContainer .card {
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        #dashboardContainer .card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(59, 130, 246, 0.4);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+        #dashboardContainer .cards-grid {
+            grid-template-rows: auto auto;
+            align-content: start;
+        }
+
+        /* Split Editor Layout styling */
+        .editor-layout {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+            background: #09090b;
+            color: #fafafa;
+        }
+        .editor-sidebar {
+            width: 440px;
+            height: 100vh;
+            background: #18181b;
+            border-right: 1px solid var(--border-light);
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+        .editor-sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .editor-sidebar::-webkit-scrollbar-thumb {
+            background: #27272a;
+            border-radius: 3px;
+        }
+        .editor-sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .editor-sidebar-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        .editor-back-btn {
+            background: transparent;
+            border: 1px solid var(--border-light);
+            color: var(--text-muted);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s;
+        }
+        .editor-back-btn:hover {
+            border-color: var(--border-hover);
+            color: var(--text-main);
+            background: #27272a;
+        }
+        .editor-preview-area {
+            flex: 1;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 2.5rem;
+            background: radial-gradient(circle at center, #18181b 0%, #09090b 100%);
+            overflow: hidden;
+        }
+        .editor-preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-shrink: 0;
+        }
+        .editor-preview-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .editor-preview-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            background: #050507;
+            overflow: hidden;
+            position: relative;
+        }
+        /* Overlay scale controls */
+        .preview-scale-bar {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.03);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            flex-shrink: 0;
+        }
+        .preview-scale-bar label {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+        .preview-scale-bar input[type=range] {
+            width: 100px;
+            accent-color: #3b82f6;
+            cursor: pointer;
+        }
+        .preview-scale-bar span {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            min-width: 38px;
+        }
+        #overlay-iframe-wrapper {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            padding: 24px;
+            position: relative;
+        }
+        #overlay-iframe {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 24px 80px rgba(0,0,0,0.9);
+            background: transparent;
+            transform-origin: center center;
+            transition: transform 0.2s ease;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay-bg" id="overlayBg"></div>
+
+    <!-- Split Screen Editor Workspace -->
+    <div class="editor-layout" id="editorLayout">
+        <aside class="editor-sidebar">
+            <div class="editor-sidebar-header">
+                <h3 id="editor-title">Overlay Settings</h3>
+                <button class="editor-back-btn" onclick="backToDashboard()">
+                    <i class="fa-solid fa-arrow-left"></i> <span data-i18n="back_to_overlays">Back</span>
+                </button>
+            </div>
+            <div id="editorSidebarContent">
+                <!-- Form goes here -->
+            </div>
+        </aside>
+        <main class="editor-preview-area">
+            <div class="editor-preview-header">
+                <h2 data-i18n="live_preview">Live Settings Preview</h2>
+                <div class="url-box" style="width: auto; max-width: 480px; display: flex; align-items: center; gap: 8px;">
+                    <span class="url-text" id="editor-overlay-url" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 320px;">URL</span>
+                    <button class="copy-btn" onclick="copyUrl('editor-overlay-url')"><i class="fa-solid fa-copy"></i></button>
+                </div>
+            </div>
+            <div class="editor-preview-body" id="editor-preview-content">
+                <div class="preview-scale-bar">
+                    <label>Zoom</label>
+                    <input type="range" id="iframe-scale-slider" min="20" max="100" step="5" value="100" oninput="applyIframeScale(this.value)">
+                    <span id="iframe-scale-val">100%</span>
+                    <button class="copy-btn" onclick="document.getElementById('overlay-iframe').src = document.getElementById('overlay-iframe').src" title="Reload preview" style="margin-left:8px;"><i class="fa-solid fa-rotate-right"></i></button>
+                </div>
+                <div id="overlay-iframe-wrapper">
+                    <iframe id="overlay-iframe" src="" width="1280" height="720"></iframe>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="container" id="dashboardContainer">
+        <header>
+            <div class="logo-section">
+                <h1><i class="fa-solid fa-wind"></i> Nova Live Suite</h1>
+                <p data-i18n="title_subtitle">Advanced real-time OBS overlay customization engine</p>
+            </div>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <select class="form-control" id="lang-selector" style="padding: 0.5rem; border-radius: 10px; width: 115px; height: 42px;" onchange="changeLanguage(this.value)">
+                    <option value="en">English 🇬🇧</option>
+                    <option value="es">Español 🇪🇸</option>
+                </select>
+                <button class="twitch-btn" id="twitchLoginBtn" onclick="window.location.href = '/twitch/login'">
+                    <i class="fa-brands fa-twitch"></i> <span data-i18n="twitch_connect">Connect Twitch</span>
+                </button>
+            </div>
+        </header>
+
+        <main class="cards-grid">
+            <!-- Cozy Chat Card -->
+            <div class="card" id="card-chat" onclick="openPanel('chat')">
+                <div class="card-icon-container">
+                    <i class="fa-solid fa-comments card-icon chat-icon"></i>
+                </div>
+                <div class="card-info">
+                    <h2 data-i18n="chat_card_title">Chat Overlay</h2>
+                    <p data-i18n="chat_card_desc">Highly configurable semitransparent cozy chat block</p>
+                </div>
+                <button class="card-cog-btn" onclick="event.stopPropagation(); openPanel('chat')" title="Settings">
+                    <i class="fa-solid fa-cog"></i>
+                </button>
+            </div>
+
+            <!-- Sponsor Carousel Card -->
+            <div class="card" id="card-carousel" onclick="openPanel('carousel')">
+                <div class="card-icon-container">
+                    <i class="fa-solid fa-images card-icon carousel-icon" style="color: #0ea5e9;"></i>
+                </div>
+                <div class="card-info">
+                    <h2 data-i18n="carousel_card_title">Sponsor Carousel</h2>
+                    <p data-i18n="carousel_card_desc">Autoscaling media rotations (images, videos, websites)</p>
+                </div>
+                <button class="card-cog-btn" onclick="event.stopPropagation(); openPanel('carousel')" title="Settings">
+                    <i class="fa-solid fa-cog"></i>
+                </button>
+            </div>
+
+            <!-- Now Playing Card -->
+            <div class="card" id="card-nowplaying" onclick="openPanel('nowplaying')">
+                <div class="card-icon-container">
+                    <i class="fa-solid fa-music card-icon music-icon"></i>
+                </div>
+                <div class="card-info">
+                    <h2 data-i18n="nowplaying_card_title">Now Playing Widget</h2>
+                    <p data-i18n="nowplaying_card_desc">Scrapes active Windows media player session metadata</p>
+                </div>
+                <button class="card-cog-btn" onclick="event.stopPropagation(); openPanel('nowplaying')" title="Settings">
+                    <i class="fa-solid fa-cog"></i>
+                </button>
+            </div>
+
+            <!-- Custom Alerts Card -->
+            <div class="card" id="card-alerts" onclick="openPanel('alerts')">
+                <div class="card-icon-container">
+                    <i class="fa-solid fa-bell card-icon alert-icon"></i>
+                </div>
+                <div class="card-info">
+                    <h2 data-i18n="alerts_card_title">Custom Alerts Box</h2>
+                    <p data-i18n="alerts_card_desc">Event alerts for followers, subs, and raids</p>
+                </div>
+                <button class="card-cog-btn" onclick="event.stopPropagation(); openPanel('alerts')" title="Settings">
+                    <i class="fa-solid fa-cog"></i>
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Chat Settings Panel -->
+    <div class="settings-panel" id="panel-chat">
+        <div class="panel-header">
+            <h3 data-i18n="chat_panel_title">Chat Settings</h3>
+            <button class="close-panel-btn" onclick="closePanel('chat')"><i class="fa-solid fa-times"></i></button>
+        </div>
+        <form id="form-chat" onsubmit="event.preventDefault();">
+            <details class="settings-category" open>
+                <summary><span data-i18n="cat_behavior">General & Behavior</span></summary>
+                <div class="category-content">
+                    <div class="form-group">
+                        <label><span class="tooltip-container" data-tooltip="Maximum number of chat messages visible on the screen at once."><span data-i18n="lbl_max_messages">Max Messages</span><i class="fa-solid fa-circle-info info-icon"></i></span></label>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="range" class="form-control" name="max_messages" id="chat-max_messages" min="1" max="50" step="1" style="flex: 1; height: 10px;">
+                            <span id="chat-max_messages-val" style="min-width: 45px; font-size: 0.85rem; font-variant-numeric: tabular-nums; text-align: right; color: var(--text-muted);">15</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><span class="tooltip-container" data-tooltip="Seconds a chat message remains visible before fading out."><span data-i18n="lbl_duration">Stay Duration (s)</span><i class="fa-solid fa-circle-info info-icon"></i></span></label>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="range" class="form-control" name="fade_duration_s" id="chat-fade_duration_s" min="1" max="120" step="1" style="flex: 1; height: 10px;">
+                            <span id="chat-fade_duration_s-val" style="min-width: 45px; font-size: 0.85rem; font-variant-numeric: tabular-nums; text-align: right; color: var(--text-muted);">30s</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><span class="tooltip-container" data-tooltip="Animation style for chat messages."><span data-i18n="lbl_animation">In Animation</span><i class="fa-solid fa-circle-info info-icon"></i></span></label>
+                        <select class="form-control" name="animation_in" id="chat-animation_in">
+                            <option value="slide-fade" data-i18n="opt_anim_slide_fade">Slide & Fade</option>
+                            <option value="fade" data-i18n="opt_anim_fade">Fade Only</option>
+                            <option value="scale" data-i18n="opt_anim_zoom">Zoom In</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><span class="tooltip-container" data-tooltip="Adjust chat box text alignment."><span data-i18n="lbl_align">Chat Box Alignment</span><i class="fa-solid fa-circle-info info-icon"></i></span></label>
+                        <select class="form-control" name="alignment" id="chat-alignment">
+                            <option value="left" data-i18n="opt_align_left">Left Align</option>
+                            <option value="center" data-i18n="opt_align_center">Center Align</option>
+                            <option value="right" data-i18n="opt_align_right">Right Align</option>
+                        </select>
+                    </div>
+                </div>
+            </details>
+
+            <details class="settings-category">
+                <summary><span data-i18n="cat_typography">Typography & Color</span></summary>
+                <div class="category-content">
+                    <div class="form-group">
+                        <label><span class="tooltip-container" data-tooltip="Select the font family."><span data-i18n="lbl_font_family">Font Family</span><i class="fa-solid fa-circle-info info-icon"></i></span></label>
+                        <select class="form-control" name="font_family" id="chat-font_family">
+                            <option value="Outfit">Outfit (Cozy)</option>
+                            <option value="Plus Jakarta Sans">Plus Jakarta Sans</option>
+                            <option value="'Courier New', Courier, monospace">Monospace</option>
+                            <option value="'Segoe UI', sans-serif">Segoe UI</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><span class="tooltip-container" data-tooltip="Set the text size."><span data-i18n="lbl_font_size">Font Size</span><i class="fa-solid fa-circle-info info-icon"></i></span></label>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="range" class="form-control" name="font_size" id="chat-font_size" min="8" max="72" step="1" style="flex: 1; height: 10px;">
+                            <span id="chat-font_size-val" style="min-width: 45px; font-size: 0.85rem; font-variant-numeric: tabular-nums; text-align: right; color: var(--text-muted);">18px</span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><span data-i18n="lbl_user_color">User Color</span></label>
+                            <input type="color" class="form-control" name="color_user" id="chat-color_user" style="height:40px; padding:4px;">
+                        </div>
+                        <div class="form-group">
+                            <label><span data-i18n="lbl_text_color">Text Color</span></label>
+                            <input type="color" class="form-control" name="color_text" id="chat-color_text" style="height:40px; padding:4px;">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><span data-i18n="lbl_shadow">Text Shadow CSS</span></label>
+                        <input type="text" class="form-control" name="text_shadow" id="chat-text_shadow">
+                    </div>
+                </div>
+            </details>
+
+            <details class="settings-category">
+                <summary><span data-i18n="cat_styling">Styling & Border</span></summary>
+                <div class="category-content">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><span data-i18n="lbl_bg_color">Background Color</span></label>
+                            <input type="color" class="form-control" name="bg_color" id="chat-bg_color" style="height:40px; padding:4px;">
+                        </div>
+                        <div class="form-group">
+                            <label><span data-i18n="lbl_border_color">Border Color</span></label>
+                            <input type="color" class="form-control" name="border_color" id="chat-border_color" style="height:40px; padding:4px;">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><span data-i18n="lbl_bg_opacity">Background Opacity</span></label>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="range" class="form-control" name="bg_opacity" id="chat-bg_opacity" min="0" max="1" step="0.05" style="flex: 1; height: 10px;">
+                            <span id="chat-bg_opacity-val" style="min-width: 45px; font-size: 0.85rem; font-variant-numeric: tabular-nums; text-align: right; color: var(--text-muted);">0.85</span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><span data-i18n="lbl_border_width">Border Width (px)</span></label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="range" class="form-control" name="border_width" id="chat-border_width" min="0" max="20" step="1" style="flex: 1; height: 10px;">
+                                <span id="chat-border_width-val" style="min-width: 45px; font-size: 0.85rem; font-variant-numeric: tabular-nums; text-align: right; color: var(--text-muted);">1px</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label><span data-i18n="lbl_border_radius">Border Radius</span></label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="range" class="form-control" name="border_radius" id="chat-border_radius" min="0" max="50" step="1" style="flex: 1; height: 10px;">
+                                <span id="chat-border_radius-val" style="min-width: 45px; font-size: 0.85rem; font-variant-numeric: tabular-nums; text-align: right; color: var(--text-muted);">12px</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><span data-i18n="lbl_padding">Padding (px)</span></label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="range" class="form-control" name="padding_px" id="chat-padding_px" min="0" max="40" step="1" style="flex: 1; height: 10px;">
+                                <span id="chat-padding_px-val" style="min-width: 45px; font-size: 0.85rem; font-variant-numeric: tabular-nums; text-align: right; color: var(--text-muted);">12px</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label><span data-i18n="lbl_spacing">Message Spacing</span></label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="range" class="form-control" name="message_spacing_px" id="chat-message_spacing_px" min="0" max="50" step="1" style="flex: 1; height: 10px;">
+                                <span id="chat-message_spacing_px-val" style="min-width: 45px; font-size: 0.85rem; font-variant-numeric: tabular-nums; text-align: right; color: var(--text-muted);">8px</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><span data-i18n="lbl_badge_size">Badge Size (px)</span></label>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="range" class="form-control" name="badge_size_px" id="chat-badge_size_px" min="8" max="48" step="1" style="flex: 1; height: 10px;">
+                            <span id="chat-badge_size_px-val" style="min-width: 45px; font-size: 0.85rem; font-variant-numeric: tabular-nums; text-align: right; color: var(--text-muted);">18px</span>
+                        </div>
+                    </div>
+                </div>
+            </details>
+
+            <div style="display: flex; gap: 8px; margin-top: 16px;">
+                <button type="button" class="config-btn" onclick="exportConfig(event)" style="flex: 1; height: 42px; border-radius: 8px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1); cursor: pointer;" title="Export Settings"><i class="fa-solid fa-download"></i> <span data-i18n="btn_export">Export</span></button>
+                <button type="button" class="config-btn" onclick="importConfig(event)" style="flex: 1; height: 42px; border-radius: 8px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1); cursor: pointer;" title="Import Settings"><i class="fa-solid fa-upload"></i> <span data-i18n="btn_import">Import</span></button>
+            </div>
+            
+            <button type="button" class="btn-toggle-tool" id="toggle-btn-chat" onclick="toggleToolEnabled('chat')">Habilitar / Deshabilitar</button>
+        </form>
+    </div>
+
+    <!-- Carousel Settings Panel -->
+    <div class="settings-panel" id="panel-carousel">
+        <div class="panel-header">
+            <h3 data-i18n="carousel_panel_title">Sponsor Carousel Settings</h3>
+            <button class="close-panel-btn" onclick="closePanel('carousel')"><i class="fa-solid fa-times"></i></button>
+        </div>
+        <form id="form-carousel" onsubmit="event.preventDefault();">
+            <details class="settings-category" open>
+                <summary><span data-i18n="cat_behavior">General & Behavior</span></summary>
+                <div class="category-content">
+                    <div class="form-group">
+                        <label><span class="tooltip-container" data-tooltip="Visual effect for transitioning between carousel items."><span data-i18n="lbl_transition">Transition</span><i class="fa-solid fa-circle-info info-icon"></i></span></label>
+                        <select class="form-control" name="transition" id="carousel-transition">
+                            <option value="fade" data-i18n="opt_transition_fade">Fade</option>
+                            <option value="slide" data-i18n="opt_transition_slide">Slide</option>
+                            <option value="zoom" data-i18n="opt_transition_zoom">Zoom</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><span class="tooltip-container" data-tooltip="Stay time in milliseconds for each carousel item."><span data-i18n="lbl_interval">Interval (ms)</span><i class="fa-solid fa-circle-info info-icon"></i></span></label>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="range" class="form-control" name="interval_ms" id="carousel-interval_ms" min="500" max="20000" step="500" style="flex: 1; height: 10px;">
+                            <span id="carousel-interval_ms-val" style="min-width: 55px; font-size: 0.85rem; font-variant-numeric: tabular-nums; text-align: right; color: var(--text-muted);">3000ms</span>
+                        </div>
+                    </div>
+                </div>
+            </details>
+
+            <details class="settings-category">
+                <summary><span data-i18n="cat_styling">Styling & Dimensions</span></summary>
+                <div class="category-content">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><span data-i18n="lbl_width">Width</span></label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="range" class="form-control" name="width_px" id="carousel-width_px" min="150" max="1200" step="10" style="flex: 1; height: 10px;">
+                                <span id="carousel-width_px-val" style="min-width: 45px; font-size: 0.85rem; font-variant-numeric: tabular-nums; text-align: right; color: var(--text-muted);">350px</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label><span data-i18n="lbl_height">Height</span></label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="range" class="form-control" name="height_px" id="carousel-height_px" min="50" max="800" step="10" style="flex: 1; height: 10px;">
+                                <span id="carousel-height_px-val" style="min-width: 45px; font-size: 0.85rem; font-variant-numeric: tabular-nums; text-align: right; color: var(--text-muted);">150px</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><span data-i18n="lbl_bg_color">Background Color</span></label>
+                            <input type="color" class="form-control" name="bg_color" id="carousel-bg_color" style="height:40px; padding:4px;">
+                        </div>
+                        <div class="form-group">
+                            <label><span data-i18n="lbl_bg_opacity">Background Opacity</span></label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="range" class="form-control" name="bg_opacity" id="carousel-bg_opacity" min="0" max="1" step="0.05" style="flex: 1; height: 10px;">
+                                <span id="carousel-bg_opacity-val" style="min-width: 45px; font-size: 0.85rem; font-variant-numeric: tabular-nums; text-align: right; color: var(--text-muted);">0.85</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><span data-i18n="lbl_border_color">Border Color</span></label>
+                            <input type="color" class="form-control" name="border_color" id="carousel-border_color" style="height:40px; padding:4px;">
+                        </div>
+                        <div class="form-group">
+                            <label><span data-i18n="lbl_border_width">Border Width (px)</span></label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="range" class="form-control" name="border_width" id="carousel-border_width" min="0" max="20" step="1" style="flex: 1; height: 10px;">
+                                <span id="carousel-border_width-val" style="min-width: 45px; font-size: 0.85rem; font-variant-numeric: tabular-nums; text-align: right; color: var(--text-muted);">1px</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><span data-i18n="lbl_border_radius">Border Radius</span></label>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="range" class="form-control" name="border_radius" id="carousel-border_radius" min="0" max="50" step="1" style="flex: 1; height: 10px;">
+                            <span id="carousel-border_radius-val" style="min-width: 45px; font-size: 0.85rem; font-variant-numeric: tabular-nums; text-align: right; color: var(--text-muted);">12px</span>
+                        </div>
+                    </div>
+                </div>
+            </details>
+
+            <details class="settings-category">
+                <summary><span data-i18n="lbl_media_items">Media Items</span></summary>
+                <div class="category-content">
+                    <div class="form-group" style="margin-bottom: 1.25rem;">
+                        <label>Drag & Drop Upload (Images/GIFs)</label>
+                        <div id="carousel-dropzone" style="border: 1px dashed var(--border-hover); border-radius: 4px; padding: 20px; text-align: center; background: #09090b; cursor: pointer; transition: all 0.15s;" ondragover="event.preventDefault(); this.style.borderColor='var(--text-muted)';" ondragleave="this.style.borderColor='var(--border-hover)';" ondrop="handleCarouselDrop(event)" onclick="triggerCarouselFileInput()">
+                            <i class="fa-solid fa-cloud-upload-alt" style="font-size: 1.4rem; color: var(--text-muted); margin-bottom: 6px;"></i>
+                            <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0;">Drag & drop image or GIF files here to add directly (or click to open file explorer)</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="carousel-items-list" id="carousel-items-list"></div>
+                        <button type="button" class="add-item-btn" onclick="addCarouselItem()" data-i18n="btn_add_item"><i class="fa-solid fa-plus"></i> Add New Image/Video/GIF URL</button>
+                    </div>
+                </div>
+            </details>
+
+            <div style="display: flex; gap: 8px; margin-top: 16px;">
+                <button type="button" class="config-btn" onclick="exportConfig(event)" style="flex: 1; height: 42px; border-radius: 8px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1); cursor: pointer;" title="Export Settings"><i class="fa-solid fa-download"></i> <span data-i18n="btn_export">Export</span></button>
+                <button type="button" class="config-btn" onclick="importConfig(event)" style="flex: 1; height: 42px; border-radius: 8px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1); cursor: pointer;" title="Import Settings"><i class="fa-solid fa-upload"></i> <span data-i18n="btn_import">Import</span></button>
+            </div>
+            
+            <button type="button" class="btn-toggle-tool" id="toggle-btn-carousel" onclick="toggleToolEnabled('carousel')">Habilitar / Deshabilitar</button>
+        </form>
+    </div>
+
+    <!-- Now Playing Settings Panel -->
+    <div class="settings-panel" id="panel-nowplaying">
+        <div class="panel-header">
+            <h3 data-i18n="nowplaying_panel_title">Now Playing Settings</h3>
+            <button class="close-panel-btn" onclick="closePanel('nowplaying')"><i class="fa-solid fa-times"></i></button>
+        </div>
+        <form id="form-nowplaying" onsubmit="event.preventDefault();">
+            <details class="settings-category" open>
+                <summary><span data-i18n="cat_detection">App Detection</span></summary>
+                <div class="category-content">
+                    <div class="form-group">
+                        <label class="checkbox-group">
+                            <input type="checkbox" name="detect_spotify" id="nowplaying-detect_spotify" checked>
+                            <span data-i18n="lbl_detect_spotify">Detect Spotify</span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-group">
+                            <input type="checkbox" name="detect_chrome" id="nowplaying-detect_chrome" checked>
+                            <span data-i18n="lbl_detect_chrome">Detect Chrome</span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-group">
+                            <input type="checkbox" name="detect_firefox" id="nowplaying-detect_firefox" checked>
+                            <span data-i18n="lbl_detect_firefox">Detect Firefox</span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-group">
+                            <input type="checkbox" name="detect_system" id="nowplaying-detect_system" checked>
+                            <span data-i18n="lbl_system_media">Other System Media Sessions</span>
+                        </label>
+                    </div>
+                </div>
+            </details>
+
+            <details class="settings-category">
+                <summary><span data-i18n="cat_behavior">Features & Behavior</span></summary>
+                <div class="category-content">
+                    <div class="form-group">
+                        <label class="checkbox-group">
+                            <input type="checkbox" name="scroll_text" id="nowplaying-scroll_text" checked>
+                            <span data-i18n="lbl_scroll_text">Scroll Long Text</span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-group">
+                            <input type="checkbox" name="vinyl_enabled" id="nowplaying-vinyl_enabled" checked>
+                            <span data-i18n="lbl_vinyl_enabled">Vinyl Rotation Enabled</span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-group">
+                            <input type="checkbox" name="lyrics_enabled" id="nowplaying-lyrics_enabled" checked>
+                            <span data-i18n="lbl_lyrics_enabled">Synced Lyrics Enabled</span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-group">
+                            <input type="checkbox" name="visualizer_enabled" id="nowplaying-visualizer_enabled" checked>
+                            <span data-i18n="lbl_visualizer_enabled">Visualizer Enabled</span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-group">
+                            <input type="checkbox" name="hide_on_alert" id="nowplaying-hide_on_alert">
+                            <span data-i18n="lbl_hide_on_alert">Hide Overlay on Alert Active</span>
+                        </label>
+                    </div>
+                </div>
+            </details>
+
+            <details class="settings-category">
+                <summary><span data-i18n="cat_typography">Typography & Text</span></summary>
+                <div class="category-content">
+                    <div class="form-group">
+                        <label><span data-i18n="lbl_font_family">Font Family</span></label>
+                        <select class="form-control" name="font_family" id="nowplaying-font_family">
+                            <option value="Outfit">Outfit</option>
+                            <option value="Plus Jakarta Sans">Plus Jakarta Sans</option>
+                            <option value="'Courier New', Courier, monospace">Monospace</option>
+                            <option value="'Segoe UI', sans-serif">Segoe UI</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><span data-i18n="lbl_font_size">Font Size</span></label>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="range" class="form-control" name="font_size" id="nowplaying-font_size" min="8" max="48" step="1" style="flex: 1; height: 10px;">
+                            <span id="nowplaying-font_size-val" style="min-width: 45px; font-size: 0.85rem; font-variant-numeric: tabular-nums; text-align: right; color: var(--text-muted);">16px</span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><span data-i18n="lbl_title_color">Title Color</span></label>
+                            <input type="color" class="form-control" name="color_title" id="nowplaying-color_title" style="height:40px; padding:4px;">
+                        </div>
+                        <div class="form-group">
+                            <label><span data-i18n="lbl_artist_color">Artist Color</span></label>
+                            <input type="color" class="form-control" name="color_artist" id="nowplaying-color_artist" style="height:40px; padding:4px;">
+                        </div>
+                    </div>
+                </div>
+            </details>
+
+            <details class="settings-category">
+                <summary><span data-i18n="cat_styling">Styling & Background</span></summary>
+                <div class="category-content">
+                    <div class="form-group">
+                        <label><span data-i18n="lbl_theme">Theme</span></label>
+                        <select class="form-control" name="theme" id="nowplaying-theme">
+                            <option value="glassmorphic" data-i18n="opt_theme_glass">Glassmorphic Theme</option>
+                            <option value="minimalist" data-i18n="opt_theme_flat">Flat Theme</option>
+                            <option value="vinyl-large" data-i18n="opt_theme_retro">Retro Vinyl</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><span data-i18n="lbl_accent_color">Accent Color Sync</span></label>
+                        <select class="form-control" name="accent_color" id="nowplaying-accent_color">
+                            <option value="auto">Auto-Extract Cover Art Color</option>
+                            <option value="static">Static Purple Accent</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><span data-i18n="lbl_bg_color">Background Color</span></label>
+                            <input type="color" class="form-control" name="color_bg" id="nowplaying-color_bg" style="height:40px; padding:4px;">
+                        </div>
+                        <div class="form-group">
+                            <label><span data-i18n="lbl_bg_opacity">Background Opacity</span></label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="range" class="form-control" name="bg_opacity" id="nowplaying-bg_opacity" min="0" max="1" step="0.05" style="flex: 1; height: 10px;">
+                                <span id="nowplaying-bg_opacity-val" style="min-width: 45px; font-size: 0.85rem; font-variant-numeric: tabular-nums; text-align: right; color: var(--text-muted);">0.5</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><span data-i18n="lbl_border_color">Border Color</span></label>
+                            <input type="color" class="form-control" name="border_color" id="nowplaying-border_color" style="height:40px; padding:4px;">
+                        </div>
+                        <div class="form-group">
+                            <label><span data-i18n="lbl_border_width">Border Width (px)</span></label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="range" class="form-control" name="border_width" id="nowplaying-border_width" min="0" max="20" step="1" style="flex: 1; height: 10px;">
+                                <span id="nowplaying-border_width-val" style="min-width: 45px; font-size: 0.85rem; font-variant-numeric: tabular-nums; text-align: right; color: var(--text-muted);">1px</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><span data-i18n="lbl_border_radius">Border Radius</span></label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="range" class="form-control" name="border_radius" id="nowplaying-border_radius" min="0" max="50" step="1" style="flex: 1; height: 10px;">
+                                <span id="nowplaying-border_radius-val" style="min-width: 45px; font-size: 0.85rem; font-variant-numeric: tabular-nums; text-align: right; color: var(--text-muted);">10px</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label><span data-i18n="lbl_padding">Padding (px)</span></label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="range" class="form-control" name="padding_px" id="nowplaying-padding_px" min="0" max="40" step="1" style="flex: 1; height: 10px;">
+                                <span id="nowplaying-padding_px-val" style="min-width: 45px; font-size: 0.85rem; font-variant-numeric: tabular-nums; text-align: right; color: var(--text-muted);">12px</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </details>
+
+            <div style="display: flex; gap: 8px; margin-top: 16px;">
+                <button type="button" class="config-btn" onclick="exportConfig(event)" style="flex: 1; height: 42px; border-radius: 8px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1); cursor: pointer;" title="Export Settings"><i class="fa-solid fa-download"></i> <span data-i18n="btn_export">Export</span></button>
+                <button type="button" class="config-btn" onclick="importConfig(event)" style="flex: 1; height: 42px; border-radius: 8px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1); cursor: pointer;" title="Import Settings"><i class="fa-solid fa-upload"></i> <span data-i18n="btn_import">Import</span></button>
+            </div>
+            
+            <button type="button" class="btn-toggle-tool" id="toggle-btn-nowplaying" onclick="toggleToolEnabled('nowplaying')">Habilitar / Deshabilitar</button>
+        </form>
+    </div>
+
+    <!-- Alerts Settings Panel -->
+    <div class="settings-panel" id="panel-alerts">
+        <div class="panel-header">
+            <h3 data-i18n="alerts_panel_title">Alert Box Settings</h3>
+            <button class="close-panel-btn" onclick="closePanel('alerts')"><i class="fa-solid fa-times"></i></button>
+        </div>
+        <form id="form-alerts" onsubmit="event.preventDefault();">
+            <details class="settings-category" open>
+                <summary><span data-i18n="cat_behavior">General & Timing</span></summary>
+                <div class="category-content">
+                    <div class="form-group">
+                        <label><span data-i18n="lbl_duration_follow">Follow Duration (ms)</span></label>
+                        <input type="number" class="form-control" name="follow_duration_ms" id="alerts-follow_duration_ms" min="500" max="60000" step="100">
+                    </div>
+                    <div class="form-group">
+                        <label><span data-i18n="lbl_duration_sub">Sub Duration (ms)</span></label>
+                        <input type="number" class="form-control" name="sub_duration_ms" id="alerts-sub_duration_ms" min="500" max="60000" step="100">
+                    </div>
+                    <div class="form-group">
+                        <label><span data-i18n="lbl_duration_raid">Raid Duration (ms)</span></label>
+                        <input type="number" class="form-control" name="raid_duration_ms" id="alerts-raid_duration_ms" min="500" max="60000" step="100">
+                    </div>
+                </div>
+            </details>
+
+            <details class="settings-category">
+                <summary><span data-i18n="cat_follow">Follow Alert Settings</span></summary>
+                <div class="category-content">
+                    <div class="form-group">
+                        <label><span data-i18n="lbl_follow_template">Follow Template</span></label>
+                        <input type="text" class="form-control" name="follow_template" id="alerts-follow_template">
+                    </div>
+                    <div class="form-group">
+                        <label><span data-i18n="lbl_follow_image">Follow Image/GIF URL</span></label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" class="form-control" name="follow_image" id="alerts-follow_image" style="flex:1;">
+                            <button type="button" class="config-btn" onclick="triggerFileInput('alerts-follow_image')" style="height:42px;"><i class="fa-solid fa-cloud-arrow-up"></i></button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><span data-i18n="lbl_follow_sound">Follow Sound URL</span></label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" class="form-control" name="follow_sound" id="alerts-follow_sound" style="flex:1;">
+                            <button type="button" class="config-btn" onclick="triggerFileInput('alerts-follow_sound')" style="height:42px;"><i class="fa-solid fa-cloud-arrow-up"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </details>
+
+            <details class="settings-category">
+                <summary><span data-i18n="cat_sub">Subscription Alert Settings</span></summary>
+                <div class="category-content">
+                    <div class="form-group">
+                        <label><span data-i18n="lbl_sub_template">Sub Template</span></label>
+                        <input type="text" class="form-control" name="sub_template" id="alerts-sub_template">
+                    </div>
+                    <div class="form-group">
+                        <label><span data-i18n="lbl_sub_image">Sub Image/GIF URL</span></label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" class="form-control" name="sub_image" id="alerts-sub_image" style="flex:1;">
+                            <button type="button" class="config-btn" onclick="triggerFileInput('alerts-sub_image')" style="height:42px;"><i class="fa-solid fa-cloud-arrow-up"></i></button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><span data-i18n="lbl_sub_sound">Sub Sound URL</span></label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" class="form-control" name="sub_sound" id="alerts-sub_sound" style="flex:1;">
+                            <button type="button" class="config-btn" onclick="triggerFileInput('alerts-sub_sound')" style="height:42px;"><i class="fa-solid fa-cloud-arrow-up"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </details>
+
+            <details class="settings-category">
+                <summary><span data-i18n="cat_raid">Raid Alert Settings</span></summary>
+                <div class="category-content">
+                    <div class="form-group">
+                        <label><span data-i18n="lbl_raid_template">Raid Template</span></label>
+                        <input type="text" class="form-control" name="raid_template" id="alerts-raid_template">
+                    </div>
+                    <div class="form-group">
+                        <label><span data-i18n="lbl_raid_image">Raid Image/GIF URL</span></label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" class="form-control" name="raid_image" id="alerts-raid_image" style="flex:1;">
+                            <button type="button" class="config-btn" onclick="triggerFileInput('alerts-raid_image')" style="height:42px;"><i class="fa-solid fa-cloud-arrow-up"></i></button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><span data-i18n="lbl_raid_sound">Raid Sound URL</span></label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" class="form-control" name="raid_sound" id="alerts-raid_sound" style="flex:1;">
+                            <button type="button" class="config-btn" onclick="triggerFileInput('alerts-raid_sound')" style="height:42px;"><i class="fa-solid fa-cloud-arrow-up"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </details>
+
+            <details class="settings-category">
+                <summary><span data-i18n="cat_typography_style">Typography & Styling</span></summary>
+                <div class="category-content">
+                    <div class="form-group">
+                        <label><span data-i18n="lbl_font_family">Font Family</span></label>
+                        <select class="form-control" name="font_family" id="alerts-font_family">
+                            <option value="Outfit">Outfit</option>
+                            <option value="Plus Jakarta Sans">Plus Jakarta Sans</option>
+                            <option value="'Courier New', Courier, monospace">Monospace</option>
+                            <option value="'Segoe UI', sans-serif">Segoe UI</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><span data-i18n="lbl_font_size">Font Size</span></label>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="range" class="form-control" name="font_size" id="alerts-font_size" min="8" max="72" step="1" style="flex: 1; height: 10px;">
+                            <span id="alerts-font_size-val" style="min-width: 45px; font-size: 0.85rem; font-variant-numeric: tabular-nums; text-align: right; color: var(--text-muted);">24px</span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><span data-i18n="lbl_font_color">Text Color</span></label>
+                            <input type="color" class="form-control" name="font_color" id="alerts-font_color" style="height:40px; padding:4px;">
+                        </div>
+                        <div class="form-group">
+                            <label><span data-i18n="lbl_bg_color">Background Color</span></label>
+                            <input type="color" class="form-control" name="bg_color" id="alerts-bg_color" style="height:40px; padding:4px;">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><span data-i18n="lbl_bg_opacity">Background Opacity</span></label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="range" class="form-control" name="bg_opacity" id="alerts-bg_opacity" min="0" max="1" step="0.05" style="flex: 1; height: 10px;">
+                                <span id="alerts-bg_opacity-val" style="min-width: 45px; font-size: 0.85rem; font-variant-numeric: tabular-nums; text-align: right; color: var(--text-muted);">0.6</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label><span data-i18n="lbl_border_color">Border Color</span></label>
+                            <input type="color" class="form-control" name="border_color" id="alerts-border_color" style="height:40px; padding:4px;">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><span data-i18n="lbl_border_width">Border Width (px)</span></label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="range" class="form-control" name="border_width" id="alerts-border_width" min="0" max="20" step="1" style="flex: 1; height: 10px;">
+                                <span id="alerts-border_width-val" style="min-width: 45px; font-size: 0.85rem; font-variant-numeric: tabular-nums; text-align: right; color: var(--text-muted);">2px</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label><span data-i18n="lbl_border_radius">Border Radius</span></label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="range" class="form-control" name="border_radius" id="alerts-border_radius" min="0" max="50" step="1" style="flex: 1; height: 10px;">
+                                <span id="alerts-border_radius-val" style="min-width: 45px; font-size: 0.85rem; font-variant-numeric: tabular-nums; text-align: right; color: var(--text-muted);">16px</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><span data-i18n="lbl_animation_in">In Animation</span></label>
+                            <select class="form-control" name="animation_in" id="alerts-animation_in">
+                                <option value="slide-fade" data-i18n="opt_anim_slide_fade">Slide & Fade</option>
+                                <option value="fade" data-i18n="opt_anim_fade">Fade Only</option>
+                                <option value="scale" data-i18n="opt_anim_zoom">Zoom In / Scale</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label><span data-i18n="lbl_animation_out">Out Animation</span></label>
+                            <select class="form-control" name="animation_out" id="alerts-animation_out">
+                                <option value="fade" data-i18n="opt_anim_fade_out">Fade Out</option>
+                                <option value="scale" data-i18n="opt_anim_scale_out">Scale Out</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><span data-i18n="lbl_image_size">Image/GIF Size (e.g. 100px)</span></label>
+                        <input type="text" class="form-control" name="image_size" id="alerts-image_size" placeholder="80px">
+                    </div>
+                    <div class="form-group">
+                        <label><span data-i18n="lbl_layout_mode">Layout Mode</span></label>
+                        <select class="form-control" name="layout" id="alerts-layout">
+                            <option value="top" data-i18n="opt_layout_top">Image Above Text</option>
+                            <option value="over" data-i18n="opt_layout_over">Text Overlaid on Image</option>
+                            <option value="left" data-i18n="opt_layout_left">Image on Left</option>
+                            <option value="right" data-i18n="opt_layout_right">Image on Right</option>
+                        </select>
+                    </div>
+                </div>
+            </details>
+
+            <details class="settings-category">
+                <summary><span data-i18n="lbl_triggers">Test Overlay Triggers</span></summary>
+                <div class="category-content">
+                    <div class="test-alert-btn-row">
+                        <button type="button" class="test-btn" onclick="testAlertTrigger('follow')" data-i18n="btn_test_follow">Test Follow</button>
+                        <button type="button" class="test-btn" onclick="testAlertTrigger('sub')" data-i18n="btn_test_sub">Test Sub</button>
+                        <button type="button" class="test-btn" onclick="testAlertTrigger('raid')" data-i18n="btn_test_raid">Test Raid</button>
+                    </div>
+                </div>
+            </details>
+
+            <div style="display: flex; gap: 8px; margin-top: 16px;">
+                <button type="button" class="config-btn" onclick="exportConfig(event)" style="flex: 1; height: 42px; border-radius: 8px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1); cursor: pointer;" title="Export Settings"><i class="fa-solid fa-download"></i> <span data-i18n="btn_export">Export</span></button>
+                <button type="button" class="config-btn" onclick="importConfig(event)" style="flex: 1; height: 42px; border-radius: 8px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1); cursor: pointer;" title="Import Settings"><i class="fa-solid fa-upload"></i> <span data-i18n="btn_import">Import</span></button>
+            </div>
+            
+            <button type="button" class="btn-toggle-tool" id="toggle-btn-alerts" onclick="toggleToolEnabled('alerts')">Habilitar / Deshabilitar</button>
+        </form>
+    </div>
+
+    <!-- Twitch Login Modal (Removed - Twitch Login now occurs on a separate page) -->
+
+    <!-- Real-time Comparison Popup -->
+    <div id="comparison-popup" class="comparison-popup">
+        <div class="comparison-header">
+            <h4 id="comparison-title">Adjusting Setting</h4>
+            <div class="comparison-field-info" id="comparison-field-info">Before: 12px | After: 18px</div>
+        </div>
+        <div class="comparison-body">
+            <div class="comparison-pane before-pane">
+                <div class="pane-label" data-i18n="comparison_before">Before</div>
+                <div class="pane-content" id="comparison-before-content"></div>
+            </div>
+            <div class="comparison-pane after-pane">
+                <div class="pane-label" data-i18n="comparison_after">After</div>
+                <div class="pane-content" id="comparison-after-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">Settings Saved Successfully!</div>
+
+    <script>
+        const tooltipTranslations = {
+            es: {
+                "Add standard text-shadow CSS to improve readability over stream backgrounds.": "Añade CSS de sombra de texto estándar para mejorar la legibilidad sobre el stream.",
+                "Adjust this configuration value.": "Ajusta este valor de configuración.",
+                "Animation style for chat messages or alert cards when they appear.": "Estilo de animación para los mensajes de chat o tarjetas de alerta al aparecer.",
+                "Animation transition when alert card enters the screen.": "Transición de animación cuando la tarjeta de alerta entra en pantalla.",
+                "Animation transition when alert card exits the screen.": "Transición de animación cuando la tarjeta de alerta sale de la pantalla.",
+                "Audio clip URL (mp3/wav) for follower alerts.": "URL del clip de audio (mp3/wav) para alertas de seguidores.",
+                "Audio clip URL (mp3/wav) for raid alerts.": "URL del clip de audio (mp3/wav) para alertas de raids.",
+                "Audio clip URL (mp3/wav) for sub alerts.": "URL del clip de audio (mp3/wav) para alertas de suscriptores.",
+                "Background fill color for the overlay cards/boxes.": "Color de relleno del fondo para las tarjetas/cajas del overlay.",
+                "Border thickness.": "Grosor del borde.",
+                "Color of the border outline around the cards.": "Color del contorno del borde al rededor de las tarjetas.",
+                "Color of the chat message contents.": "Color del contenido de los mensajes de chat.",
+                "Curvature of card corners.": "Curvatura de las esquinas de las tarjetas.",
+                "Default username color if the user does not have a Twitch color.": "Color de usuario por defecto si el usuario no tiene color en Twitch.",
+                "Dimensions in pixels of user badges.": "Dimensiones en píxeles de las insignias de usuario.",
+                "Follower alert stay duration in milliseconds.": "Duración de la alerta de seguidor en milisegundos.",
+                "Font color for alert texts.": "Color de fuente para los textos de alerta.",
+                "GIF or image URL for follower alerts.": "URL de imagen o GIF para alertas de seguidores.",
+                "GIF or image URL for raid alerts.": "URL de imagen o GIF para alertas de raids.",
+                "GIF or image URL for sub alerts.": "URL de imagen o GIF para alertas de suscriptores.",
+                "Height of the widget container.": "Altura del contenedor del widget.",
+                "Maximum number of chat messages visible on the screen at once.": "Número máximo de mensajes de chat visibles en pantalla a la vez.",
+                "Raid alert stay duration in milliseconds.": "Duración de la alerta de raid en milisegundos.",
+                "Seconds a chat message remains visible before fading out.": "Segundos que un mensaje de chat permanece visible antes de desvanecerse.",
+                "Select the font style for all texts in this overlay.": "Selecciona el estilo de fuente para todos los textos en este overlay.",
+                "Select which active media players this widget should track.": "Selecciona qué reproductores de medios activos debe seguir este widget.",
+                "Set the text height.": "Establece el tamaño del texto.",
+                "Space inside the card margins around elements.": "Espacio interior de los márgenes de la tarjeta alrededor de los elementos.",
+                "Stay time in milliseconds for each carousel item before changing.": "Tiempo de permanencia en milisegundos para cada elemento del carrusel antes de cambiar.",
+                "Subscriber alert stay duration in milliseconds.": "Duración de la alerta de suscriptor en milisegundos.",
+                "Text template for follower alerts. Use {user} placeholder.": "Plantilla de texto para alertas de seguidor. Usa el marcador {user}.",
+                "Text template for raid alerts. Use {user} and {count} placeholders.": "Plantilla de texto para alertas de raid. Usa los marcadores {user} y {count}.",
+                "Text template for sub alerts. Use {user} placeholder.": "Plantilla de texto para alertas de sub. Usa el marcador {user}.",
+                "Transparency of the card background (0 = clear, 1 = solid).": "Transparencia del fondo de la tarjeta (0 = transparente, 1 = opaco).",
+                "Trigger mock events to test overlay positions and animations in OBS.": "Dispara eventos de prueba para testear las posiciones y animaciones en OBS.",
+                "Vertical space/gap between messages in the chat stream.": "Espacio/separación vertical entre mensajes en el chat.",
+                "Visual effect for transitioning between carousel items.": "Efecto visual para la transición entre elementos del carrusel.",
+                "Width of the widget container.": "Ancho del contenedor del widget."
+            }
+        };
+
+        const langStrings = {
+            en: {
+                title_subtitle: "OBS widgets & overlays control panel.",
+                twitch_connect: "Connect Twitch",
+                twitch_connected: "Connected: #",
+                chat_card_title: "Chat Overlay",
+                chat_card_desc: "Twitch chat stream overlay.",
+                carousel_card_title: "Sponsor Carousel",
+                carousel_card_desc: "Display rotating images, GIFs, and videos.",
+                nowplaying_card_title: "Now Playing Widget",
+                nowplaying_card_desc: "Show active song info and synced lyrics.",
+                alerts_card_title: "Custom Alerts Box",
+                alerts_card_desc: "Animated follow, sub, and raid alerts.",
+                live_preview: "Live Settings Preview",
+                chat_panel_title: "Chat Settings",
+                carousel_panel_title: "Sponsor Carousel Settings",
+                nowplaying_panel_title: "Now Playing Settings",
+                alerts_panel_title: "Alert Box Settings",
+                twitch_panel_title: "Twitch Connection",
+                twitch_channel_lbl: "Twitch Channel Name",
+                twitch_sub: "Connects to chat IRC instantly without oauth logins.",
+                twitch_connect_btn: "Connect Chat",
+                
+                // Form Labels
+                lbl_font_family: "Font Family",
+                lbl_font_size: "Font Size",
+                lbl_max_messages: "Max Messages",
+                lbl_user_color: "User Name Color",
+                lbl_text_color: "Message Text Color",
+                lbl_bg_opacity: "Background Opacity",
+                lbl_bg_color: "Background Color",
+                lbl_border_color: "Border Color",
+                lbl_border_width: "Border Width (px)",
+                lbl_border_radius: "Border Radius",
+                lbl_padding: "Padding (px)",
+                lbl_spacing: "Message Spacing (px)",
+                lbl_badge_size: "Badge Size (px)",
+                lbl_duration: "Stay Duration (s)",
+                lbl_animation: "In Animation",
+                lbl_shadow: "Text Shadow CSS",
+                lbl_align: "Chat Box Alignment",
+                
+                lbl_transition: "Transition",
+                lbl_interval: "Interval (ms)",
+                lbl_width: "Width",
+                lbl_height: "Height",
+                lbl_media_items: "Media Items",
+                btn_add_item: "Add New Image/Video/GIF URL",
+                btn_enable_overlay: "Enable Overlay",
+                btn_disable_overlay: "Disable Overlay",
+                cat_behavior: "General & Behavior",
+                cat_typography: "Typography & Color",
+                cat_styling: "Styling & Border",
+                cat_detection: "App Detection",
+                cat_follow: "Follow Alert Settings",
+                cat_sub: "Subscription Alert Settings",
+                cat_raid: "Raid Alert Settings",
+                cat_typography_style: "Typography & Styling",
+                cat_triggers: "Test Overlay Triggers",
+                btn_export: "Export",
+                btn_import: "Import",
+                
+                lbl_title_color: "Title Color",
+                lbl_artist_color: "Artist Color",
+                lbl_scroll_text: "Scroll Long Text",
+                lbl_apps_detect: "Apps to Detect",
+                lbl_system_media: "Other System Media Sessions",
+                
+                lbl_follow_template: "Follow Template",
+                lbl_follow_image: "Follow Image/GIF URL",
+                lbl_follow_sound: "Follow Sound URL",
+                lbl_sub_template: "Sub Template",
+                lbl_sub_image: "Sub Image/GIF URL",
+                lbl_sub_sound: "Sub Sound URL",
+                lbl_raid_template: "Raid Template",
+                lbl_raid_image: "Raid Image/GIF URL",
+                lbl_raid_sound: "Raid Sound URL",
+                lbl_font_color: "Text Color",
+                lbl_animation_in: "In Animation",
+                lbl_animation_out: "Out Animation",
+                lbl_duration_follow: "Follow Dur. (ms)",
+                lbl_duration_sub: "Sub Dur. (ms)",
+                lbl_triggers: "Test Overlay Triggers",
+                
+                btn_test_follow: "Test Follow",
+                btn_test_sub: "Test Subscriber",
+                btn_test_raid: "Test Raid",
+                lbl_image_size: "Image/GIF Size (e.g. 100px or 150px)",
+                lbl_layout_mode: "Alert Layout Mode",
+                opt_layout_top: "Image Above Text",
+                opt_layout_over: "Text Overlaid on Image",
+                opt_layout_left: "Image on Left",
+                opt_layout_right: "Image on Right",
+                lbl_save: "Save & Apply Settings",
+                comparison_before: "Before",
+                comparison_after: "After",
+                comparison_adjusting: "Adjusting Setting",
+                opt_align_left: "Left Align",
+                opt_align_center: "Center Align",
+                opt_align_right: "Right Align",
+                opt_transition_fade: "Fade",
+                opt_transition_slide: "Slide",
+                opt_transition_zoom: "Zoom",
+                opt_theme_glass: "Glassmorphic Theme",
+                opt_theme_flat: "Flat Theme",
+                opt_theme_retro: "Retro Vinyl",
+                opt_anim_slide_fade: "Slide & Fade",
+                opt_anim_zoom: "Zoom In / Scale",
+                opt_anim_fade_out: "Fade Out",
+                opt_anim_scale_out: "Scale Out",
+                back_to_overlays: "Back"
+            },
+            es: {
+                title_subtitle: "Panel de control de widgets y overlays para OBS.",
+                twitch_connect: "Conectar Twitch",
+                twitch_connected: "Conectado: #",
+                chat_card_title: "Superposición de Chat",
+                chat_card_desc: "Superposición de chat de Twitch en pantalla.",
+                carousel_card_title: "Carrusel de Patrocinadores",
+                carousel_card_desc: "Muestra imágenes, GIFs y videos en rotación.",
+                nowplaying_card_title: "Widget de Reproducción",
+                nowplaying_card_desc: "Muestra la canción actual y letras sincronizadas.",
+                alerts_card_title: "Caja de Alertas Personalizadas",
+                alerts_card_desc: "Alertas animadas de follow, sub y raids.",
+                live_preview: "Vista Previa en Vivo",
+                chat_panel_title: "Ajustes de Chat",
+                carousel_panel_title: "Ajustes de Carrusel",
+                nowplaying_panel_title: "Ajustes de Reproductor",
+                alerts_panel_title: "Ajustes de Caja de Alertas",
+                twitch_panel_title: "Conexión de Twitch",
+                twitch_channel_lbl: "Nombre de Canal de Twitch",
+                twitch_sub: "Se conecta al chat por IRC instantáneamente sin inicios de sesión OAuth.",
+                twitch_connect_btn: "Conectar Chat",
+                
+                // Form Labels
+                lbl_font_family: "Familia de Fuente",
+                lbl_font_size: "Tamaño de Fuente",
+                lbl_max_messages: "Mensajes Máximos",
+                lbl_user_color: "Color Nombre Usuario",
+                lbl_text_color: "Color Texto Mensaje",
+                lbl_bg_opacity: "Opacidad del Fondo",
+                lbl_bg_color: "Color del Fondo",
+                lbl_border_color: "Color del Borde",
+                lbl_border_width: "Ancho del Borde (px)",
+                lbl_border_radius: "Radio del Borde",
+                lbl_padding: "Márgenes (px)",
+                lbl_spacing: "Separación Mensajes (px)",
+                lbl_badge_size: "Tamaño Insignias (px)",
+                lbl_duration: "Tiempo en Pantalla (s)",
+                lbl_animation: "Animación de Entrada",
+                lbl_shadow: "Sombra de Texto CSS",
+                lbl_align: "Alineación del Chat",
+                
+                lbl_transition: "Transición",
+                lbl_interval: "Intervalo (ms)",
+                lbl_width: "Ancho",
+                lbl_height: "Alto",
+                lbl_media_items: "Elementos de Medios",
+                btn_add_item: "Añadir URL de Imagen/Video/GIF",
+                btn_enable_overlay: "Habilitar Superposición",
+                btn_disable_overlay: "Deshabilitar Superposición",
+                cat_behavior: "General y Comportamiento",
+                cat_typography: "Tipografía y Colores",
+                cat_styling: "Estilo y Borde",
+                cat_detection: "Detección de Apps",
+                cat_follow: "Ajustes de Alerta de Follow",
+                cat_sub: "Ajustes de Alerta de Sub",
+                cat_raid: "Ajustes de Alerta de Raid",
+                cat_typography_style: "Tipografía y Estilos",
+                cat_triggers: "Probar Alertas",
+                btn_export: "Exportar",
+                btn_import: "Importar",
+                
+                lbl_title_color: "Color del Título",
+                lbl_artist_color: "Color del Artista",
+                lbl_scroll_text: "Desplazar Texto Largo",
+                lbl_apps_detect: "Aplicaciones a Detectar",
+                lbl_system_media: "Otras Sesiones de Medios de Windows",
+                
+                lbl_follow_template: "Plantilla de Follow",
+                lbl_follow_image: "Imagen/GIF de Follow",
+                lbl_follow_sound: "Sonido de Follow",
+                lbl_sub_template: "Plantilla de Sub",
+                lbl_sub_image: "Imagen/GIF de Sub",
+                lbl_sub_sound: "Sonido de Sub",
+                lbl_raid_template: "Plantilla de Raid",
+                lbl_raid_image: "Imagen/GIF de Raid",
+                lbl_raid_sound: "Sonido de Raid",
+                lbl_font_color: "Color de Texto",
+                lbl_animation_in: "Animación de Entrada",
+                lbl_animation_out: "Animación de Salida",
+                lbl_duration_follow: "Duración Follow (ms)",
+                lbl_duration_sub: "Duración Sub (ms)",
+                lbl_triggers: "Disparadores de Prueba",
+                
+                btn_test_follow: "Probar Follow",
+                btn_test_sub: "Probar Suscriptor",
+                btn_test_raid: "Probar Raid",
+                lbl_image_size: "Tamaño de Imagen/GIF (ej. 100px o 150px)",
+                lbl_layout_mode: "Modo de Diseño de Alerta",
+                opt_layout_top: "Imagen encima del texto",
+                opt_layout_over: "Texto superpuesto en imagen",
+                opt_layout_left: "Imagen a la izquierda",
+                opt_layout_right: "Imagen a la derecha",
+                lbl_save: "Guardar y Aplicar Cambios",
+                comparison_before: "Antes",
+                comparison_after: "Después",
+                comparison_adjusting: "Ajustando Parámetro",
+                opt_align_left: "Alinear a la izquierda",
+                opt_align_center: "Alinear al centro",
+                opt_align_right: "Alinear a la derecha",
+                opt_transition_fade: "Desvanecer",
+                opt_transition_slide: "Deslizar",
+                opt_transition_zoom: "Zoom",
+                opt_theme_glass: "Tema Translúcido",
+                opt_theme_flat: "Tema Plano",
+                opt_theme_retro: "Vinilo Retro",
+                opt_anim_slide_fade: "Deslizar y Desvanecer",
+                opt_anim_zoom: "Escalar / Zoom",
+                opt_anim_fade_out: "Desvanecer Salida",
+                opt_anim_scale_out: "Escalar Salida",
+                back_to_overlays: "Volver"
+            }
+        };
+
+        let currentConfig = {};
+        let activePanel = null;
+        let autoSaveInitialized = false;
+
+        let originalConfigBackup = null;
+
+        
+        function testAlertTrigger(type) {
+            fetch('/api/trigger-alert', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    alert_type: type,
+                    user: "KorahX",
+                    count: 15
+                })
+            });
+            showToast(`Test ${type} triggered!`);
+        }
+
+        function openPanel(tool) {
+            if (activePanel) backToDashboard();
+            activePanel = tool;
+            
+            // Save a deep backup copy of settings
+            if (currentConfig.tools[tool] && currentConfig.tools[tool].settings) {
+                originalConfigBackup = JSON.parse(JSON.stringify(currentConfig.tools[tool].settings));
+            } else {
+                originalConfigBackup = null;
+            }
+            
+            // Set header title
+            const strings = langStrings[currentConfig.lang] || langStrings.en;
+            const titleEl = document.getElementById('editor-title');
+            if (titleEl) {
+                titleEl.innerText = strings[`${tool}_panel_title`] || `${tool.toUpperCase()} Settings`;
+            }
+            
+            // Set active overlay URL and iframe src
+            const origin = window.location.origin;
+            const overlayUrl = `${origin}/overlays/${tool}`;
+            const urlEl = document.getElementById('editor-overlay-url');
+            if (urlEl) urlEl.innerText = overlayUrl;
+            
+            const iframe = document.getElementById('overlay-iframe');
+            if (iframe) {
+                iframe.src = overlayUrl;
+            }
+            
+            // Apply initial scale
+            const sliderVal = document.getElementById('iframe-scale-slider')?.value || '100';
+            applyIframeScale(sliderVal);
+            
+            // Move form to editor sidebar
+            const form = document.getElementById(`form-${tool}`);
+            const sidebar = document.getElementById('editorSidebarContent');
+            if (sidebar) {
+                sidebar.innerHTML = '';
+                if (form) {
+                    sidebar.appendChild(form);
+                }
+            }
+            
+            // Toggle view
+            const dash = document.getElementById('dashboardContainer');
+            if (dash) dash.style.display = 'none';
+            const editor = document.getElementById('editorLayout');
+            if (editor) editor.style.display = 'flex';
+            
+            // Re-render sliders value displays
+            updateSlidersUI(tool);
+            // Hide comparison popup initially
+            hideComparisonPopup();
+        }
+
+        function applyIframeScale(val) {
+            const scale = parseInt(val) / 100;
+            const iframe = document.getElementById('overlay-iframe');
+            const valSpan = document.getElementById('iframe-scale-val');
+            if (iframe) iframe.style.transform = `scale(${scale})`;
+            if (valSpan) valSpan.innerText = val + '%';
+        }
+
+        function backToDashboard() {
+            if (!activePanel) return;
+            const tool = activePanel;
+            
+            // Move form back to panel
+            const form = document.getElementById(`form-${tool}`);
+            const panel = document.getElementById(`panel-${tool}`);
+            if (form && panel) {
+                panel.appendChild(form);
+            }
+            
+            // Clear iframe to stop network activity
+            const iframe = document.getElementById('overlay-iframe');
+            if (iframe) iframe.src = '';
+            
+            // Toggle view
+            const editor = document.getElementById('editorLayout');
+            if (editor) editor.style.display = 'none';
+            const dash = document.getElementById('dashboardContainer');
+            if (dash) dash.style.display = 'block';
+            
+            activePanel = null;
+            originalConfigBackup = null;
+            hideComparisonPopup();
+        }
+
+        function closePanel(tool) {
+            backToDashboard();
+        }
+
+
+        function saveConfigToServer() {
+            fetch('/api/config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(currentConfig)
+            });
+        }
+
+        function changeLanguage(lang) {
+            currentConfig.lang = lang;
+            saveConfigToServer();
+            applyLanguage(lang);
+        }
+
+        function logoutTwitch() {
+            const msg = currentConfig.lang === 'es' ? "¿Desconectar el chat de Twitch?" : "Disconnect Twitch Chat?";
+            if (confirm(msg)) {
+                fetch('/api/twitch/logout', { method: 'POST' }).then(() => {
+                    const toastMsg = currentConfig.lang === 'es' ? "Twitch Desconectado" : "Disconnected Twitch";
+                    showToast(toastMsg);
+                });
+            }
+        }
+
+        function updateCarouselItemUrl(index, value) {
+            currentConfig.tools.carousel.settings.items[index].url = value;
+            saveConfigToServer();
+        }
+
+        function updateCarouselItemType(index, value) {
+            currentConfig.tools.carousel.settings.items[index].type = value;
+            saveConfigToServer();
+        }
+
+        function removeCarouselItem(index) {
+            currentConfig.tools.carousel.settings.items.splice(index, 1);
+            applyConfigToDashboard();
+            saveConfigToServer();
+        }
+
+        function addCarouselItem() {
+            if (!currentConfig.tools.carousel.settings.items) {
+                currentConfig.tools.carousel.settings.items = [];
+            }
+            currentConfig.tools.carousel.settings.items.push({
+                id: String(Date.now()),
+                type: "image",
+                url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800",
+                duration_ms: 5000
+            });
+            applyConfigToDashboard();
+            saveConfigToServer();
+        }
+
+
+        const sse = new EventSource('/api/stream');
+        
+        sse.addEventListener('initial_config', (e) => {
+            currentConfig = JSON.parse(e.data);
+            applyConfigToDashboard();
+            applyLanguage(currentConfig.lang);
+            if (!autoSaveInitialized) {
+                initAutoSave();
+                autoSaveInitialized = true;
+            }
+        });
+
+        sse.addEventListener('config_update', (e) => {
+            currentConfig = JSON.parse(e.data);
+            applyConfigToDashboard();
+            applyLanguage(currentConfig.lang);
+        });
+
+        function toggleToolEnabled(tool) {
+            currentConfig.tools[tool].enabled = !currentConfig.tools[tool].enabled;
+            saveConfigToServer();
+            updateToolEnabledUI(tool);
+        }
+
+        function updateToolEnabledUI(tool) {
+            const isEnabled = currentConfig.tools[tool].enabled;
+            
+            // 1. Update Homepage Card class
+            const card = document.getElementById(`card-${tool}`);
+            if (card) {
+                if (isEnabled) {
+                    card.classList.remove('is-disabled');
+                } else {
+                    card.classList.add('is-disabled');
+                }
+            }
+            
+            // 2. Update Sidebar Toggle Button
+            const toggleBtn = document.getElementById(`toggle-btn-${tool}`);
+            if (toggleBtn) {
+                const strings = langStrings[currentConfig.lang] || langStrings.en;
+                if (isEnabled) {
+                    toggleBtn.className = "btn-toggle-tool enabled";
+                    toggleBtn.innerText = strings.btn_disable_overlay || "Disable Overlay";
+                } else {
+                    toggleBtn.className = "btn-toggle-tool disabled";
+                    toggleBtn.innerText = strings.btn_enable_overlay || "Enable Overlay";
+                }
+            }
+        }
+
+                        function applyLanguage(lang) {
+            const strings = langStrings[lang] || langStrings.en;
+            document.getElementById('lang-selector').value = lang;
+            
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (strings[key]) {
+                    if (el.tagName === 'INPUT' && el.type === 'submit') {
+                        el.value = strings[key];
+                    } else if (el.tagName === 'BUTTON') {
+                        const icon = el.querySelector('i');
+                        if (icon) {
+                            el.innerHTML = '';
+                            el.appendChild(icon);
+                            el.appendChild(document.createTextNode(' ' + strings[key]));
+                        } else {
+                            el.innerText = strings[key];
+                        }
+                    } else if (el.tagName === 'OPTION') {
+                        el.text = strings[key];
+                    } else {
+                        el.innerText = strings[key];
+                    }
+                }
+            });
+        }
+
+        function applyConfigToDashboard() {
+            const origin = window.location.origin;
+            const chatUrlEl = document.getElementById('chat-url');
+            if (chatUrlEl) chatUrlEl.innerText = `${origin}/overlays/chat`;
+            const carouselUrlEl = document.getElementById('carousel-url');
+            if (carouselUrlEl) carouselUrlEl.innerText = `${origin}/overlays/carousel`;
+            const npUrlEl = document.getElementById('nowplaying-url');
+            if (npUrlEl) npUrlEl.innerText = `${origin}/overlays/nowplaying`;
+            const alertsUrlEl = document.getElementById('alerts-url');
+            if (alertsUrlEl) alertsUrlEl.innerText = `${origin}/overlays/alerts`;
+
+            updateToolEnabledUI('chat');
+            updateToolEnabledUI('carousel');
+            updateToolEnabledUI('nowplaying');
+            updateToolEnabledUI('alerts');
+
+            const btn = document.getElementById('twitchLoginBtn');
+            const strings = langStrings[currentConfig.lang] || langStrings.en;
+            
+            if (currentConfig.twitch_connected) {
+                btn.className = "twitch-btn connected";
+                btn.innerHTML = `<i class="fa-brands fa-twitch"></i> ${strings.twitch_connected}${currentConfig.twitch_channel}`;
+                btn.onclick = logoutTwitch;
+            } else {
+                btn.className = "twitch-btn";
+                btn.innerHTML = `<i class="fa-brands fa-twitch"></i> ${strings.twitch_connect}`;
+                btn.onclick = () => { window.location.href = '/twitch/login'; };
+            }
+
+            // Update chat Settings
+            if (activePanel !== 'chat') {
+                const chat = currentConfig.tools.chat.settings;
+                document.getElementById('chat-font_family').value = chat.font_family;
+                document.getElementById('chat-font_size').value = chat.font_size;
+                document.getElementById('chat-max_messages').value = chat.max_messages;
+                document.getElementById('chat-color_user').value = chat.color_user;
+                document.getElementById('chat-color_text').value = chat.color_text;
+                document.getElementById('chat-bg_opacity').value = chat.bg_opacity;
+                document.getElementById('chat-bg_color').value = chat.bg_color;
+                document.getElementById('chat-border_color').value = chat.border_color;
+                document.getElementById('chat-border_width').value = chat.border_width;
+                document.getElementById('chat-border_radius').value = chat.border_radius;
+                document.getElementById('chat-fade_duration_s').value = chat.fade_duration_s;
+                document.getElementById('chat-animation_in').value = chat.animation_in;
+                document.getElementById('chat-message_spacing_px').value = chat.message_spacing_px;
+                document.getElementById('chat-badge_size_px').value = chat.badge_size_px;
+                document.getElementById('chat-text_shadow').value = chat.text_shadow;
+                document.getElementById('chat-padding_px').value = chat.padding_px;
+                document.getElementById('chat-alignment').value = chat.alignment;
+            }
+
+            const chat = currentConfig.tools.chat.settings;
+            const chatPreview = document.getElementById('chatPreviewContainer');
+            if (chatPreview) {
+                chatPreview.style.fontFamily = chat.font_family;
+                chatPreview.style.fontSize = chat.font_size + "px";
+                chatPreview.style.gap = chat.message_spacing_px + "px";
+                chatPreview.style.alignItems = chat.alignment === 'center' ? 'center' : (chat.alignment === 'right' ? 'flex-end' : 'flex-start');
+                
+                const rgba = hexToRgba(chat.bg_color, chat.bg_opacity);
+                chatPreview.querySelectorAll('.preview-msg').forEach((msg) => {
+                    msg.style.backgroundColor = rgba;
+                    msg.style.borderColor = chat.border_color;
+                    msg.style.borderWidth = chat.border_width + "px";
+                    msg.style.borderStyle = "solid";
+                    msg.style.borderRadius = chat.border_radius + "px";
+                    msg.style.color = chat.color_text;
+                    msg.style.textShadow = chat.text_shadow;
+                    msg.style.padding = `${chat.padding_px}px ${chat.padding_px * 1.4}px`;
+                    
+                    const userSpan = msg.querySelector('strong');
+                    if (userSpan) userSpan.style.color = chat.color_user;
+                    
+                    const badges = msg.querySelectorAll('.badge-preview');
+                    badges.forEach(b => {
+                        b.style.fontSize = (chat.badge_size_px - 4) + "px";
+                        b.style.width = chat.badge_size_px + "px";
+                        b.style.height = chat.badge_size_px + "px";
+                    });
+                });
+            }
+
+            // Update Carousel Settings
+            if (activePanel !== 'carousel') {
+                const carousel = currentConfig.tools.carousel.settings;
+                document.getElementById('carousel-transition').value = carousel.transition;
+                document.getElementById('carousel-interval_ms').value = carousel.interval_ms;
+                document.getElementById('carousel-width_px').value = carousel.width_px;
+                document.getElementById('carousel-height_px').value = carousel.height_px;
+                document.getElementById('carousel-border_radius').value = carousel.border_radius;
+                document.getElementById('carousel-border_color').value = carousel.border_color;
+                document.getElementById('carousel-border_width').value = carousel.border_width;
+                document.getElementById('carousel-bg_color').value = carousel.bg_color;
+                document.getElementById('carousel-bg_opacity').value = carousel.bg_opacity;
+            }
+
+            const carousel = currentConfig.tools.carousel.settings;
+            const previewBox = document.getElementById('carouselPreviewBox');
+            if (previewBox) {
+                previewBox.style.borderRadius = carousel.border_radius + "px";
+                previewBox.style.border = `${carousel.border_width}px solid ${carousel.border_color}`;
+                previewBox.style.backgroundColor = hexToRgba(carousel.bg_color, carousel.bg_opacity);
+            }
+
+            const container = document.getElementById('carousel-items-list');
+            if (container) {
+                container.innerHTML = "";
+                carousel.items.forEach((item, index) => {
+                    const row = document.createElement('div');
+                    row.className = "carousel-item-row";
+                    row.innerHTML = `
+                        <img src="${item.url}" onerror="this.src='https://placehold.co/40x40?text=Media'"/>
+                        <input type="text" class="form-control" style="padding:4px;" value="${item.url}" onchange="updateCarouselItemUrl(${index}, this.value)">
+                        <select class="form-control" style="width:80px; padding:4px;" onchange="updateCarouselItemType(${index}, this.value)">
+                            <option value="image" ${item.type === 'image' || item.item_type === 'image' ? 'selected' : ''}>Img</option>
+                            <option value="video" ${item.type === 'video' || item.item_type === 'video' ? 'selected' : ''}>Vid</option>
+                            <option value="iframe" ${item.type === 'iframe' || item.item_type === 'iframe' ? 'selected' : ''}>URL</option>
+                        </select>
+                        <button type="button" class="remove-item-btn" onclick="removeCarouselItem(${index})"><i class="fa-solid fa-trash"></i></button>
+                    `;
+                    container.appendChild(row);
+                });
+            }
+
+            if (carousel.items.length > 0 && document.getElementById('carouselPreviewImg')) {
+                document.getElementById('carouselPreviewImg').src = carousel.items[0].url;
+            }
+
+            // Update Now Playing Settings
+            if (activePanel !== 'nowplaying') {
+                const nowplaying = currentConfig.tools.nowplaying.settings;
+                document.getElementById('nowplaying-font_family').value = nowplaying.font_family;
+                document.getElementById('nowplaying-font_size').value = nowplaying.font_size;
+                document.getElementById('nowplaying-color_title').value = nowplaying.color_title;
+                document.getElementById('nowplaying-color_artist').value = nowplaying.color_artist;
+                document.getElementById('nowplaying-color_bg').value = nowplaying.color_bg;
+                document.getElementById('nowplaying-bg_opacity').value = nowplaying.bg_opacity;
+                document.getElementById('nowplaying-border_color').value = nowplaying.border_color;
+                document.getElementById('nowplaying-border_width').value = nowplaying.border_width;
+                document.getElementById('nowplaying-border_radius').value = nowplaying.border_radius;
+                document.getElementById('nowplaying-scroll_text').checked = nowplaying.scroll_text;
+                document.getElementById('nowplaying-detect_spotify').checked = nowplaying.detect_spotify;
+                document.getElementById('nowplaying-detect_chrome').checked = nowplaying.detect_chrome;
+                document.getElementById('nowplaying-detect_firefox').checked = nowplaying.detect_firefox;
+                document.getElementById('nowplaying-detect_system').checked = nowplaying.detect_system;
+                document.getElementById('nowplaying-padding_px').value = nowplaying.padding_px;
+                document.getElementById('nowplaying-theme').value = nowplaying.theme || "glassmorphic";
+                document.getElementById('nowplaying-accent_color').value = nowplaying.accent_color || "auto";
+                document.getElementById('nowplaying-vinyl_enabled').checked = nowplaying.vinyl_enabled !== false;
+                document.getElementById('nowplaying-lyrics_enabled').checked = nowplaying.lyrics_enabled !== false;
+                document.getElementById('nowplaying-visualizer_enabled').checked = nowplaying.visualizer_enabled !== false;
+                document.getElementById('nowplaying-hide_on_alert').checked = nowplaying.hide_on_alert === true;
+            }
+
+            const nowplaying = currentConfig.tools.nowplaying.settings;
+            const npPreview = document.getElementById('nowplayingPreviewWidget');
+            if (npPreview) {
+                npPreview.style.fontFamily = nowplaying.font_family;
+                npPreview.style.fontSize = nowplaying.font_size + "px";
+                npPreview.style.backgroundColor = hexToRgba(nowplaying.color_bg, nowplaying.bg_opacity);
+                npPreview.style.borderColor = nowplaying.border_color;
+                npPreview.style.borderWidth = nowplaying.border_width + "px";
+                npPreview.style.borderRadius = nowplaying.border_radius + "px";
+                
+                const dashboardPad = Math.min(40, parseInt(nowplaying.padding_px) || 12);
+                npPreview.style.padding = `${dashboardPad}px ${dashboardPad * 1.5}px`;
+            }
+            
+            if (document.getElementById('nowplayingPreviewTitle')) {
+                document.getElementById('nowplayingPreviewTitle').style.color = nowplaying.color_title;
+            }
+            if (document.getElementById('nowplayingPreviewArtist')) {
+                document.getElementById('nowplayingPreviewArtist').style.color = nowplaying.color_artist;
+            }
+
+            // Update Alerts Settings
+            if (activePanel !== 'alerts') {
+                const alerts = currentConfig.tools.alerts.settings;
+                document.getElementById('alerts-follow_template').value = alerts.follow_template;
+                document.getElementById('alerts-follow_image').value = alerts.follow_image;
+                document.getElementById('alerts-follow_sound').value = alerts.follow_sound;
+                document.getElementById('alerts-sub_template').value = alerts.sub_template;
+                document.getElementById('alerts-sub_image').value = alerts.sub_image;
+                document.getElementById('alerts-sub_sound').value = alerts.sub_sound;
+                document.getElementById('alerts-raid_template').value = alerts.raid_template;
+                document.getElementById('alerts-raid_image').value = alerts.raid_image;
+                document.getElementById('alerts-raid_sound').value = alerts.raid_sound;
+                document.getElementById('alerts-font_family').value = alerts.font_family;
+                document.getElementById('alerts-font_size').value = alerts.font_size;
+                document.getElementById('alerts-font_color').value = alerts.font_color;
+                document.getElementById('alerts-bg_color').value = alerts.bg_color;
+                document.getElementById('alerts-bg_opacity').value = alerts.bg_opacity;
+                document.getElementById('alerts-border_color').value = alerts.border_color;
+                document.getElementById('alerts-border_width').value = alerts.border_width;
+                document.getElementById('alerts-border_radius').value = alerts.border_radius;
+                document.getElementById('alerts-animation_in').value = alerts.animation_in;
+                document.getElementById('alerts-animation_out').value = alerts.animation_out;
+                document.getElementById('alerts-follow_duration_ms').value = alerts.follow_duration_ms;
+                document.getElementById('alerts-sub_duration_ms').value = alerts.sub_duration_ms;
+                document.getElementById('alerts-raid_duration_ms').value = alerts.raid_duration_ms;
+                document.getElementById('alerts-image_size').value = alerts.image_size || "";
+                document.getElementById('alerts-layout').value = alerts.layout || "top";
+            }
+
+            const alerts = currentConfig.tools.alerts.settings;
+            const alertPreview = document.getElementById('alertsPreviewWidget');
+            if (alertPreview) {
+                alertPreview.style.fontFamily = alerts.font_family;
+                alertPreview.style.backgroundColor = hexToRgba(alerts.bg_color, alerts.bg_opacity);
+                alertPreview.style.borderColor = alerts.border_color;
+                alertPreview.style.borderWidth = alerts.border_width + "px";
+                alertPreview.style.borderRadius = alerts.border_radius + "px";
+            }
+            
+            const alertText = document.getElementById('alertsPreviewText');
+            if (alertText) {
+                alertText.style.fontSize = alerts.font_size + "px";
+                alertText.style.color = alerts.font_color;
+            }
+        }
+
+function initAutoSave() {
+            ['chat', 'carousel', 'nowplaying', 'alerts'].forEach(tool => {
+                const form = document.getElementById(`form-${tool}`);
+                if (!form) return;
+                
+                const handleUpdate = () => {
+                    const formData = new FormData(form);
+                    const settings = currentConfig.tools[tool].settings;
+                    
+                    if (tool === 'chat') {
+                        settings.font_family = formData.get('font_family');
+                        settings.font_size = formData.get('font_size');
+                        settings.max_messages = parseInt(formData.get('max_messages')) || 10;
+                        settings.color_user = formData.get('color_user');
+                        settings.color_text = formData.get('color_text');
+                        settings.bg_opacity = parseFloat(formData.get('bg_opacity')) || 0.4;
+                        settings.bg_color = formData.get('bg_color');
+                        settings.border_color = formData.get('border_color');
+                        settings.border_width = formData.get('border_width');
+                        settings.border_radius = formData.get('border_radius');
+                        settings.fade_duration_s = parseInt(formData.get('fade_duration_s')) || 8;
+                        settings.animation_in = formData.get('animation_in');
+                        settings.message_spacing_px = parseInt(formData.get('message_spacing_px')) || 10;
+                        settings.badge_size_px = parseInt(formData.get('badge_size_px')) || 16;
+                        settings.text_shadow = formData.get('text_shadow');
+                        settings.padding_px = parseInt(formData.get('padding_px')) || 10;
+                        settings.alignment = formData.get('alignment');
+                    } else if (tool === 'carousel') {
+                        settings.transition = formData.get('transition');
+                        settings.interval_ms = parseInt(formData.get('interval_ms')) || 5000;
+                        settings.width_px = formData.get('width_px');
+                        settings.height_px = formData.get('height_px');
+                        settings.border_radius = formData.get('border_radius');
+                        settings.border_color = formData.get('border_color');
+                        settings.border_width = formData.get('border_width');
+                        settings.bg_color = formData.get('bg_color');
+                        settings.bg_opacity = parseFloat(formData.get('bg_opacity')) || 0.0;
+                    } else if (tool === 'nowplaying') {
+                        settings.font_family = formData.get('font_family');
+                        settings.font_size = formData.get('font_size');
+                        settings.color_title = formData.get('color_title');
+                        settings.color_artist = formData.get('color_artist');
+                        settings.color_bg = formData.get('color_bg');
+                        settings.bg_opacity = parseFloat(formData.get('bg_opacity')) || 0.5;
+                        settings.border_color = formData.get('border_color');
+                        settings.border_width = formData.get('border_width');
+                        settings.border_radius = formData.get('border_radius');
+                        settings.scroll_text = formData.get('scroll_text') === 'on' || formData.get('scroll_text') === 'true';
+                        settings.detect_spotify = formData.get('detect_spotify') === 'on' || formData.get('detect_spotify') === 'true';
+                        settings.detect_chrome = formData.get('detect_chrome') === 'on' || formData.get('detect_chrome') === 'true';
+                        settings.detect_firefox = formData.get('detect_firefox') === 'on' || formData.get('detect_firefox') === 'true';
+                        settings.detect_system = formData.get('detect_system') === 'on' || formData.get('detect_system') === 'true';
+                        settings.padding_px = parseInt(formData.get('padding_px')) || 12;
+                        settings.theme = formData.get('theme');
+                        settings.accent_color = formData.get('accent_color');
+                        settings.vinyl_enabled = formData.get('vinyl_enabled') === 'on' || formData.get('vinyl_enabled') === 'true';
+                        settings.lyrics_enabled = formData.get('lyrics_enabled') === 'on' || formData.get('lyrics_enabled') === 'true';
+                        settings.visualizer_enabled = formData.get('visualizer_enabled') === 'on' || formData.get('visualizer_enabled') === 'true';
+                        settings.hide_on_alert = formData.get('hide_on_alert') === 'on' || formData.get('hide_on_alert') === 'true';
+                    } else if (tool === 'alerts') {
+                        settings.follow_template = formData.get('follow_template');
+                        settings.follow_image = formData.get('follow_image');
+                        settings.follow_sound = formData.get('follow_sound');
+                        settings.sub_template = formData.get('sub_template');
+                        settings.sub_image = formData.get('sub_image');
+                        settings.sub_sound = formData.get('sub_sound');
+                        settings.raid_template = formData.get('raid_template');
+                        settings.raid_image = formData.get('raid_image');
+                        settings.raid_sound = formData.get('raid_sound');
+                        settings.font_family = formData.get('font_family');
+                        settings.font_size = formData.get('font_size');
+                        settings.font_color = formData.get('font_color');
+                        settings.bg_color = formData.get('bg_color');
+                        settings.bg_opacity = parseFloat(formData.get('bg_opacity')) || 0.6;
+                        settings.border_color = formData.get('border_color');
+                        settings.border_width = formData.get('border_width');
+                        settings.border_radius = formData.get('border_radius');
+                        settings.animation_in = formData.get('animation_in');
+                        settings.animation_out = formData.get('animation_out');
+                        settings.follow_duration_ms = parseInt(formData.get('follow_duration_ms')) || 4000;
+                        settings.sub_duration_ms = parseInt(formData.get('sub_duration_ms')) || 5000;
+                        settings.raid_duration_ms = parseInt(formData.get('raid_duration_ms')) || 6000;
+                        settings.image_size = formData.get('image_size') || "80px";
+                        settings.layout = formData.get('layout') || "top";
+                    }
+                    
+                    saveConfigToServer();
+                    updateSlidersUI(tool);
+                    
+                    // Trigger live preview refresh adjustments
+                    if (tool === 'chat') {
+                        const chatPreview = document.getElementById('chatPreviewContainer');
+                        if (chatPreview) {
+                            chatPreview.style.fontFamily = settings.font_family;
+                            chatPreview.style.fontSize = settings.font_size;
+                            chatPreview.style.gap = settings.message_spacing_px + "px";
+                            chatPreview.style.alignItems = settings.alignment === 'center' ? 'center' : (settings.alignment === 'right' ? 'flex-end' : 'flex-start');
+                            const rgba = hexToRgba(settings.bg_color, settings.bg_opacity);
+                            chatPreview.querySelectorAll('.preview-msg').forEach((msg) => {
+                                msg.style.backgroundColor = rgba;
+                                msg.style.borderColor = settings.border_color;
+                                msg.style.borderWidth = settings.border_width;
+                                msg.style.borderRadius = settings.border_radius;
+                                msg.style.color = settings.color_text;
+                                msg.style.textShadow = settings.text_shadow;
+                                msg.style.padding = `${settings.padding_px}px ${settings.padding_px * 1.4}px`;
+                                const userSpan = msg.querySelector('strong');
+                                if (userSpan) userSpan.style.color = settings.color_user;
+                                const badges = msg.querySelectorAll('.badge-preview');
+                                badges.forEach(b => {
+                                    b.style.fontSize = (settings.badge_size_px - 4) + "px";
+                                    b.style.width = settings.badge_size_px + "px";
+                                    b.style.height = settings.badge_size_px + "px";
+                                });
+                            });
+                        }
+                    } else if (tool === 'nowplaying') {
+                        const npPreview = document.getElementById('nowplayingPreviewWidget');
+                        if (npPreview) {
+                            npPreview.style.fontFamily = settings.font_family;
+                            npPreview.style.fontSize = settings.font_size;
+                            npPreview.style.backgroundColor = hexToRgba(settings.color_bg, settings.bg_opacity);
+                            npPreview.style.borderColor = settings.border_color;
+                            npPreview.style.borderWidth = settings.border_width;
+                            npPreview.style.borderRadius = settings.border_radius;
+                            npPreview.style.padding = `${settings.padding_px}px ${settings.padding_px * 1.5}px`;
+                            const title = document.getElementById('nowplayingPreviewTitle');
+                            if (title) title.style.color = settings.color_title;
+                            const artist = document.getElementById('nowplayingPreviewArtist');
+                            if (artist) artist.style.color = settings.color_artist;
+                        }
+                    } else if (tool === 'alerts') {
+                        const alertPreview = document.getElementById('alertsPreviewWidget');
+                        if (alertPreview) {
+                            alertPreview.style.fontFamily = settings.font_family;
+                            alertPreview.style.backgroundColor = hexToRgba(settings.bg_color, settings.bg_opacity);
+                            alertPreview.style.borderColor = settings.border_color;
+                            alertPreview.style.borderWidth = settings.border_width;
+                            alertPreview.style.borderRadius = settings.border_radius;
+                            const alertText = document.getElementById('alertsPreviewText');
+                            if (alertText) {
+                                alertText.style.fontSize = settings.font_size;
+                                alertText.style.color = settings.font_color;
+                            }
+                        }
+                    }
+                };
+
+                form.querySelectorAll('input, select, textarea').forEach(el => {
+                    el.addEventListener('input', handleUpdate);
+                    el.addEventListener('change', handleUpdate);
+                });
+            });
+        }
+
+        async function handleCarouselDrop(e) {
+            e.preventDefault();
+            const dropzone = document.getElementById('carousel-dropzone');
+            dropzone.style.background = 'rgba(6, 182, 212, 0.03)';
+            dropzone.style.borderColor = 'var(--accent)';
+            
+            const files = e.dataTransfer.files;
+            if (files.length === 0) return;
+            
+            for (let file of files) {
+                if (!file.type.startsWith('image/')) {
+                    alert('Only image or GIF files are supported!');
+                    continue;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = async function(event) {
+                    const base64Content = event.target.result.split(',')[1];
+                    const filename = file.name;
+                    
+                    try {
+                        const resp = await fetch('/api/upload', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ filename, content: base64Content })
+                        });
+                        
+                        if (resp.ok) {
+                            const data = await resp.json();
+                            if (data.url) {
+                                // Append item to carousel settings
+                                const carousel = currentConfig.tools.carousel.settings;
+                                carousel.items.push({
+                                    id: (Date.now() + Math.random()).toString(),
+                                    type: 'image',
+                                    url: data.url,
+                                    duration_ms: 5000
+                                });
+                                
+                                // Re-render items
+                                applyConfigToDashboard();
+                                saveConfigToServer();
+                                showToast(currentConfig.lang === 'es' ? "¡Imagen subida y agregada!" : "Image uploaded and added!");
+                            }
+                        } else {
+                            alert('Upload failed!');
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        alert('Upload error!');
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function triggerCarouselFileInput() {
+            let input = document.getElementById('carousel-file-input');
+            if (!input) {
+                input = document.createElement('input');
+                input.type = 'file';
+                input.id = 'carousel-file-input';
+                input.style.display = 'none';
+                input.accept = 'image/*,image/gif';
+                input.onchange = (e) => {
+                    if (e.target.files && e.target.files[0]) {
+                        uploadCarouselFile(e.target.files[0]);
+                    }
+                };
+                document.body.appendChild(input);
+            }
+            input.click();
+        }
+
+        async function uploadCarouselFile(file) {
+            const reader = new FileReader();
+            reader.onload = async function(event) {
+                const base64Content = event.target.result.split(',')[1];
+                const filename = file.name;
+                try {
+                    const resp = await fetch('/api/upload', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ filename, content: base64Content })
+                    });
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        if (data.url) {
+                            const carousel = currentConfig.tools.carousel.settings;
+                            carousel.items.push({
+                                id: (Date.now() + Math.random()).toString(),
+                                type: 'image',
+                                url: data.url,
+                                duration_ms: 5000
+                            });
+                            applyConfigToDashboard();
+                            saveConfigToServer();
+                            showToast(currentConfig.lang === 'es' ? "¡Imagen subida y agregada!" : "Image uploaded and added!");
+                        }
+                    } else {
+                        alert('Upload failed!');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert('Upload error!');
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function triggerFileInput(targetId) {
+            let input = document.getElementById(targetId + '-file-input');
+            if (!input) {
+                input = document.createElement('input');
+                input.type = 'file';
+                input.id = targetId + '-file-input';
+                input.style.display = 'none';
+                if (targetId.includes('image')) {
+                    input.accept = 'image/*,image/gif';
+                } else if (targetId.includes('sound')) {
+                    input.accept = 'audio/*';
+                }
+                input.onchange = (e) => handleAlertFileSelect(e, targetId);
+                document.body.appendChild(input);
+            }
+            input.click();
+        }
+
+        async function uploadFileAndSetInput(file, targetId) {
+            const reader = new FileReader();
+            reader.onload = async function(event) {
+                const base64Content = event.target.result.split(',')[1];
+                const filename = file.name;
+                try {
+                    const resp = await fetch('/api/upload', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ filename, content: base64Content })
+                    });
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        if (data.url) {
+                            document.getElementById(targetId).value = data.url;
+                            document.getElementById(targetId).dispatchEvent(new Event('input'));
+                            showToast(currentConfig.lang === 'es' ? "¡Archivo subido!" : "File uploaded!");
+                        }
+                    } else {
+                        alert('Upload failed!');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert('Upload error!');
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleAlertFileDrop(e, targetId) {
+            e.preventDefault();
+            const zone = e.currentTarget;
+            zone.style.borderColor = 'var(--border-hover)';
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                uploadFileAndSetInput(e.dataTransfer.files[0], targetId);
+            }
+        }
+
+        function handleAlertFileSelect(e, targetId) {
+            if (e.target.files && e.target.files[0]) {
+                uploadFileAndSetInput(e.target.files[0], targetId);
+            }
+        }
+
+        function copyUrl(elementId) {
+            const url = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(url).then(() => {
+                const msg = currentConfig.lang === 'es' ? "¡URL copiado al portapapeles!" : "URL Copied to Clipboard!";
+                showToast(msg);
+            });
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        // Helper functions for custom range sliders and before/after center comparison popups
+
+        function toPx(val) {
+            if (val === undefined || val === null || val === '') return '';
+            const valStr = String(val).trim();
+            if (valStr.endsWith('%') || valStr.endsWith('rem') || valStr.endsWith('em') || valStr.endsWith('vh') || valStr.endsWith('vw')) {
+                return valStr;
+            }
+            const parsed = parseInt(valStr);
+            if (!isNaN(parsed)) {
+                return parsed + 'px';
+            }
+            return valStr;
+        }
+
+        function updateSliderValue(id, value, suffix = "") {
+            const valSpan = document.getElementById(`${id}-val`);
+            if (valSpan) {
+                valSpan.innerText = value + suffix;
+            }
+        }
+
+        function setupSlider(id, val, suffix = "") {
+            const el = document.getElementById(id);
+            if (el) {
+                let parsed = parseInt(val);
+                if (id.includes('bg_opacity')) {
+                    parsed = parseFloat(val);
+                }
+                el.value = isNaN(parsed) ? val : parsed;
+                updateSliderValue(id, el.value, suffix);
+            }
+        }
+
+        function getSliderSuffix(id) {
+            if (id.includes('font_size') || id.includes('border_width') || id.includes('border_radius') || id.includes('width_px') || id.includes('height_px') || id.includes('image_size') || id.includes('padding_px') || id.includes('spacing_px') || id.includes('badge_size_px')) {
+                return 'px';
+            }
+            if (id.includes('duration_ms') || id.includes('interval_ms')) {
+                return 'ms';
+            }
+            if (id.includes('duration_s')) {
+                return 's';
+            }
+            return '';
+        }
+
+        function updateSlidersUI(tool) {
+            if (!currentConfig || !currentConfig.tools || !currentConfig.tools[tool]) return;
+            const settings = currentConfig.tools[tool].settings;
+            if (tool === 'chat') {
+                setupSlider('chat-font_size', settings.font_size, 'px');
+                setupSlider('chat-max_messages', settings.max_messages);
+                setupSlider('chat-bg_opacity', settings.bg_opacity);
+                setupSlider('chat-border_width', settings.border_width, 'px');
+                setupSlider('chat-border_radius', settings.border_radius, 'px');
+                setupSlider('chat-padding_px', settings.padding_px);
+                setupSlider('chat-message_spacing_px', settings.message_spacing_px);
+                setupSlider('chat-badge_size_px', settings.badge_size_px);
+                setupSlider('chat-fade_duration_s', settings.fade_duration_s, 's');
+            } else if (tool === 'carousel') {
+                setupSlider('carousel-interval_ms', settings.interval_ms, 'ms');
+                setupSlider('carousel-width_px', settings.width_px, 'px');
+                setupSlider('carousel-height_px', settings.height_px, 'px');
+                setupSlider('carousel-border_radius', settings.border_radius, 'px');
+                setupSlider('carousel-border_width', settings.border_width, 'px');
+                setupSlider('carousel-bg_opacity', settings.bg_opacity);
+            } else if (tool === 'nowplaying') {
+                setupSlider('nowplaying-font_size', settings.font_size, 'px');
+                setupSlider('nowplaying-padding_px', settings.padding_px);
+                setupSlider('nowplaying-bg_opacity', settings.bg_opacity);
+                setupSlider('nowplaying-border_width', settings.border_width, 'px');
+                setupSlider('nowplaying-border_radius', settings.border_radius, 'px');
+            } else if (tool === 'alerts') {
+                setupSlider('alerts-font_size', settings.font_size, 'px');
+                setupSlider('alerts-bg_opacity', settings.bg_opacity);
+                setupSlider('alerts-border_width', settings.border_width, 'px');
+                setupSlider('alerts-border_radius', settings.border_radius, 'px');
+                setupSlider('alerts-image_size', settings.image_size, 'px');
+                setupSlider('alerts-follow_duration_ms', settings.follow_duration_ms, 'ms');
+                setupSlider('alerts-sub_duration_ms', settings.sub_duration_ms, 'ms');
+                setupSlider('alerts-raid_duration_ms', settings.raid_duration_ms, 'ms');
+            }
+        }
+
+        function styleChatPreview(container, chat) {
+            container.style.fontFamily = chat.font_family;
+            container.style.fontSize = toPx(chat.font_size);
+            container.style.gap = chat.message_spacing_px + "px";
+            container.style.alignItems = chat.alignment === 'center' ? 'center' : (settings.alignment === 'right' ? 'flex-end' : 'flex-start');
+            
+            const rgba = hexToRgba(chat.bg_color, chat.bg_opacity);
+            container.querySelectorAll('.preview-msg').forEach((msg) => {
+                msg.style.backgroundColor = rgba;
+                msg.style.borderColor = chat.border_color;
+                msg.style.borderWidth = toPx(chat.border_width);
+                msg.style.borderStyle = "solid";
+                msg.style.borderRadius = toPx(chat.border_radius);
+                msg.style.color = chat.color_text;
+                msg.style.textShadow = chat.text_shadow;
+                msg.style.padding = `${chat.padding_px}px ${chat.padding_px * 1.4}px`;
+                
+                const userSpan = msg.querySelector('strong');
+                if (userSpan) userSpan.style.color = chat.color_user;
+                
+                const badges = msg.querySelectorAll('.badge-preview');
+                badges.forEach(b => {
+                    b.style.fontSize = (chat.badge_size_px - 4) + "px";
+                    b.style.width = chat.badge_size_px + "px";
+                    b.style.height = chat.badge_size_px + "px";
+                });
+            });
+        }
+
+        function styleCarouselPreview(container, settings) {
+            container.style.borderRadius = toPx(settings.border_radius);
+            container.style.border = `${toPx(settings.border_width)} solid ${settings.border_color}`;
+            container.style.backgroundColor = hexToRgba(settings.bg_color, settings.bg_opacity);
+            
+            const img = container.querySelector('.carousel-preview-image') || container.querySelector('img');
+            if (img) {
+                img.style.borderRadius = `calc(${toPx(settings.border_radius)} - ${toPx(settings.border_width)})`;
+            }
+        }
+
+        function styleNowPlayingPreview(container, settings) {
+            container.style.fontFamily = settings.font_family;
+            container.style.fontSize = toPx(settings.font_size);
+            container.style.backgroundColor = hexToRgba(settings.color_bg || settings.bg_color, settings.bg_opacity);
+            container.style.borderColor = settings.border_color;
+            container.style.borderWidth = toPx(settings.border_width);
+            container.style.borderStyle = "solid";
+            container.style.borderRadius = toPx(settings.border_radius);
+            container.style.padding = `${settings.padding_px}px ${settings.padding_px * 1.5}px`;
+            
+            const title = container.querySelector('#nowplayingPreviewTitle') || container.querySelector('.np-title') || container.querySelector('div > div:first-child');
+            const artist = container.querySelector('#nowplayingPreviewArtist') || container.querySelector('.np-artist') || container.querySelector('div > div:last-child');
+            if (title) title.style.color = settings.color_title;
+            if (artist) artist.style.color = settings.color_artist;
+        }
+
+        function styleAlertsPreview(container, settings) {
+            container.style.fontFamily = settings.font_family;
+            container.style.backgroundColor = hexToRgba(settings.bg_color, settings.bg_opacity);
+            container.style.borderColor = settings.border_color;
+            container.style.borderWidth = toPx(settings.border_width);
+            container.style.borderStyle = "solid";
+            container.style.borderRadius = toPx(settings.border_radius);
+            
+            const img = container.querySelector('#alertsPreviewImg') || container.querySelector('img');
+            if (img) {
+                img.style.width = toPx(settings.image_size);
+                img.style.height = toPx(settings.image_size);
+            }
+            
+            const text = container.querySelector('#alertsPreviewText') || container.querySelector('div:last-child');
+            if (text) {
+                text.style.fontSize = toPx(settings.font_size);
+                text.style.color = settings.font_color;
+            }
+        }
+
+        function updateMainPreviewLive(tool, settings) {
+            if (tool === 'chat') {
+                const chatPreview = document.getElementById('chatPreviewContainer');
+                styleChatPreview(chatPreview, settings);
+            } else if (tool === 'carousel') {
+                const previewBox = document.getElementById('carouselPreviewBox');
+                styleCarouselPreview(previewBox, settings);
+            } else if (tool === 'nowplaying') {
+                const npPreview = document.getElementById('nowplayingPreviewWidget');
+                styleNowPlayingPreview(npPreview, settings);
+            } else if (tool === 'alerts') {
+                const alertPreview = document.getElementById('alertsPreviewWidget');
+                styleAlertsPreview(alertPreview, settings);
+            }
+        }
+
+        function getLiveSettingsFromForm(tool) {
+            const form = document.getElementById(`form-${tool}`);
+            if (!form) return {};
+            const formData = new FormData(form);
+            const settings = {};
+            
+            if (tool === 'chat') {
+                settings.font_family = formData.get('font_family') || 'Outfit';
+                settings.font_size = toPx(formData.get('font_size') || '18px');
+                settings.max_messages = parseInt(formData.get('max_messages') || '10');
+                settings.color_user = formData.get('color_user') || '#00f0ff';
+                settings.color_text = formData.get('color_text') || '#ffffff';
+                settings.bg_opacity = parseFloat(formData.get('bg_opacity') || '0.4');
+                settings.bg_color = formData.get('bg_color') || '#0a0a0f';
+                settings.border_color = formData.get('border_color') || '#3b82f6';
+                settings.border_width = toPx(formData.get('border_width') || '1px');
+                settings.border_radius = toPx(formData.get('border_radius') || '12px');
+                settings.fade_duration_s = parseInt(formData.get('fade_duration_s') || '8');
+                settings.animation_in = formData.get('animation_in') || 'slide-fade';
+                settings.message_spacing_px = parseInt(formData.get('message_spacing_px') || '10');
+                settings.badge_size_px = parseInt(formData.get('badge_size_px') || '16');
+                settings.text_shadow = formData.get('text_shadow') || '';
+                settings.padding_px = parseInt(formData.get('padding_px') || '10');
+                settings.alignment = formData.get('alignment') || 'left';
+            } else if (tool === 'carousel') {
+                settings.transition = formData.get('transition') || 'fade';
+                settings.interval_ms = parseInt(formData.get('interval_ms') || '5000');
+                settings.width_px = toPx(formData.get('width_px') || '350px');
+                settings.height_px = toPx(formData.get('height_px') || '150px');
+                settings.border_radius = toPx(formData.get('border_radius') || '12px');
+                settings.border_color = formData.get('border_color') || '#3b82f6';
+                settings.border_width = toPx(formData.get('border_width') || '1px');
+                settings.bg_color = formData.get('bg_color') || '#000000';
+                settings.bg_opacity = parseFloat(formData.get('bg_opacity') || '0');
+            } else if (tool === 'nowplaying') {
+                settings.font_family = formData.get('font_family') || 'Outfit';
+                settings.font_size = toPx(formData.get('font_size') || '16px');
+                settings.color_title = formData.get('color_title') || '#ffffff';
+                settings.color_artist = formData.get('color_artist') || '#a78bfa';
+                settings.color_bg = formData.get('color_bg') || '#0a0a0f';
+                settings.bg_color = formData.get('color_bg') || '#0a0a0f';
+                settings.bg_opacity = parseFloat(formData.get('bg_opacity') || '0.4');
+                settings.border_color = formData.get('border_color') || '#3b82f6';
+                settings.border_width = toPx(formData.get('border_width') || '1px');
+                settings.border_radius = toPx(formData.get('border_radius') || '12px');
+                settings.scroll_text = formData.get('scroll_text') === 'on';
+                settings.detect_spotify = formData.get('detect_spotify') === 'on';
+                settings.detect_chrome = formData.get('detect_chrome') === 'on';
+                settings.detect_firefox = formData.get('detect_firefox') === 'on';
+                settings.detect_system = formData.get('detect_system') === 'on';
+                settings.padding_px = parseInt(formData.get('padding_px') || '10');
+                settings.theme = formData.get('theme') || 'glassmorphic';
+                settings.accent_color = formData.get('accent_color') || 'auto';
+                settings.vinyl_enabled = formData.get('vinyl_enabled') === 'on';
+                settings.lyrics_enabled = formData.get('lyrics_enabled') === 'on';
+                settings.visualizer_enabled = formData.get('visualizer_enabled') === 'on';
+            } else if (tool === 'alerts') {
+                settings.follow_template = formData.get('follow_template') || '';
+                settings.follow_image = formData.get('follow_image') || '';
+                settings.follow_sound = formData.get('follow_sound') || '';
+                settings.sub_template = formData.get('sub_template') || '';
+                settings.sub_image = formData.get('sub_image') || '';
+                settings.sub_sound = formData.get('sub_sound') || '';
+                settings.raid_template = formData.get('raid_template') || '';
+                settings.raid_image = formData.get('raid_image') || '';
+                settings.raid_sound = formData.get('raid_sound') || '';
+                settings.font_family = formData.get('font_family') || 'Outfit';
+                settings.font_size = toPx(formData.get('font_size') || '18px');
+                settings.font_color = formData.get('font_color') || '#ffffff';
+                settings.bg_color = formData.get('bg_color') || '#0a0a0f';
+                settings.bg_opacity = parseFloat(formData.get('bg_opacity') || '0.4');
+                settings.border_color = formData.get('border_color') || '#8b5cf6';
+                settings.border_width = toPx(formData.get('border_width') || '1px');
+                settings.border_radius = toPx(formData.get('border_radius') || '12px');
+                settings.animation_in = formData.get('animation_in') || 'slide-fade';
+                settings.animation_out = formData.get('animation_out') || 'fade';
+                settings.follow_duration_ms = parseInt(formData.get('follow_duration_ms') || '4000');
+                settings.sub_duration_ms = parseInt(formData.get('sub_duration_ms') || '4000');
+                settings.raid_duration_ms = parseInt(formData.get('raid_duration_ms') || '6000');
+                settings.image_size = toPx(formData.get('image_size') || '70px');
+                settings.layout = formData.get('layout') || 'top';
+            }
+            return settings;
+        }
+
+        function showComparisonPopup(tool, inputId, labelText) {
+            if (!originalConfigBackup) return;
+            
+            const popup = document.getElementById('comparison-popup');
+            const titleEl = document.getElementById('comparison-title');
+            const infoEl = document.getElementById('comparison-field-info');
+            const beforeContent = document.getElementById('comparison-before-content');
+            const afterContent = document.getElementById('comparison-after-content');
+            
+            const strings = langStrings[currentConfig.lang] || langStrings.en;
+            titleEl.innerText = `${strings.comparison_adjusting || 'Adjusting'}: ${labelText}`;
+            
+            const liveSettings = getLiveSettingsFromForm(tool);
+            
+            const propName = inputId.replace(`${tool}-`, '');
+            const oldVal = originalConfigBackup[propName] !== undefined ? originalConfigBackup[propName] : '';
+            let newVal = liveSettings[propName] !== undefined ? liveSettings[propName] : '';
+            
+            infoEl.innerText = `${strings.comparison_before || 'Before'}: ${oldVal} | ${strings.comparison_after || 'After'}: ${newVal}`;
+            
+            beforeContent.innerHTML = '';
+            afterContent.innerHTML = '';
+            
+            let previewCloneBefore, previewCloneAfter;
+            if (tool === 'chat') {
+                previewCloneBefore = document.getElementById('chatPreviewContainer').cloneNode(true);
+                previewCloneBefore.removeAttribute('id');
+                styleChatPreview(previewCloneBefore, originalConfigBackup);
+                
+                previewCloneAfter = document.getElementById('chatPreviewContainer').cloneNode(true);
+                previewCloneAfter.removeAttribute('id');
+                styleChatPreview(previewCloneAfter, liveSettings);
+            } else if (tool === 'carousel') {
+                previewCloneBefore = document.getElementById('carouselPreviewBox').cloneNode(true);
+                previewCloneBefore.removeAttribute('id');
+                styleCarouselPreview(previewCloneBefore, originalConfigBackup);
+                
+                previewCloneAfter = document.getElementById('carouselPreviewBox').cloneNode(true);
+                previewCloneAfter.removeAttribute('id');
+                styleCarouselPreview(previewCloneAfter, liveSettings);
+            } else if (tool === 'nowplaying') {
+                previewCloneBefore = document.getElementById('nowplayingPreviewWidget').cloneNode(true);
+                previewCloneBefore.removeAttribute('id');
+                styleNowPlayingPreview(previewCloneBefore, originalConfigBackup);
+                
+                previewCloneAfter = document.getElementById('nowplayingPreviewWidget').cloneNode(true);
+                previewCloneAfter.removeAttribute('id');
+                styleNowPlayingPreview(previewCloneAfter, liveSettings);
+            } else if (tool === 'alerts') {
+                previewCloneBefore = document.getElementById('alertsPreviewWidget').cloneNode(true);
+                previewCloneBefore.removeAttribute('id');
+                styleAlertsPreview(previewCloneBefore, originalConfigBackup);
+                
+                previewCloneAfter = document.getElementById('alertsPreviewWidget').cloneNode(true);
+                previewCloneAfter.removeAttribute('id');
+                styleAlertsPreview(previewCloneAfter, liveSettings);
+            }
+            
+            if (previewCloneBefore && previewCloneAfter) {
+                beforeContent.appendChild(previewCloneBefore);
+                afterContent.appendChild(previewCloneAfter);
+            }
+            
+            updateMainPreviewLive(tool, liveSettings);
+            popup.classList.add('visible');
+        }
+        
+        function hideComparisonPopup() {
+            const popup = document.getElementById('comparison-popup');
+            if (popup) popup.classList.remove('visible');
+        }
+
+        // Send Test Message function
+        function sendTestChatMessage() {
+            const input = document.getElementById('chat-test-message');
+            if (!input) return;
+            const text = input.value.trim();
+            if (!text) return;
+            
+            const container = document.getElementById('chatPreviewContainer');
+            if (!container) return;
+            
+            // Send to backend so overlays also display the test message
+            fetch('/api/trigger-chat-message', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user: 'TestUser',
+                    message: text,
+                    badges: ['broadcaster'],
+                    color: '#00f0ff'
+                })
+            }).catch(err => console.error("Error triggering test chat message:", err));
+
+            // Create msg element
+            const msg = document.createElement('div');
+            msg.className = 'preview-msg';
+            msg.style.marginBottom = '8px';
+            
+            // Add a badge and user name
+            msg.innerHTML = `
+                <span class="badge-preview" style="background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3);">💬</span>
+                <strong style="margin-right: 4px;">TestUser:</strong> <span>${text}</span>
+            `;
+            
+            container.appendChild(msg);
+            input.value = '';
+            
+            // Restrict to max messages settings
+            const settings = getLiveSettingsFromForm('chat');
+            const maxMsgs = settings.max_messages || 10;
+            const msgs = container.querySelectorAll('.preview-msg');
+            if (msgs.length > maxMsgs) {
+                msgs[0].remove();
+            }
+            
+            // Apply current styling to the new message too!
+            styleChatPreview(container, settings);
+        }
+
+        // Export/Import Configuration Functions
+        function exportConfig(event) {
+            event.preventDefault();
+            const form = event.target.closest('form');
+            if (!form) return;
+            const tool = form.id.replace('form-', '');
+            
+            const settings = getLiveSettingsFromForm(tool);
+            try {
+                const code = btoa(unescape(encodeURIComponent(JSON.stringify(settings))));
+                navigator.clipboard.writeText(code).then(() => {
+                    showToast(currentConfig.lang === 'es' ? "¡Código copiado al portapapeles!" : "Settings code copied to clipboard!");
+                }).catch(() => {
+                    showToast(currentConfig.lang === 'es' ? "Código generado" : "Code generated");
+                });
+                prompt(currentConfig.lang === 'es' ? "Copia este código de exportación:" : "Copy this export settings code:", code);
+            } catch (e) {
+                alert(currentConfig.lang === 'es' ? "Error al exportar" : "Export error");
+            }
+        }
+
+        function importConfig(event) {
+            event.preventDefault();
+            const form = event.target.closest('form');
+            if (!form) return;
+            const tool = form.id.replace('form-', '');
+            
+            const code = prompt(currentConfig.lang === 'es' ? "Pega el código de ajustes aquí:" : "Paste the settings code here:");
+            if (!code) return;
+            
+            try {
+                const decoded = JSON.parse(decodeURIComponent(escape(atob(code.trim()))));
+                for (const [key, val] of Object.entries(decoded)) {
+                    const input = form.querySelector(`[name="${key}"]`);
+                    if (input) {
+                        if (input.type === 'checkbox') {
+                            input.checked = val === true || val === 'on' || val === 'true';
+                        } else {
+                            let cleanVal = val;
+                            if (typeof val === 'string') {
+                                cleanVal = val.replace('px', '').replace('ms', '').replace('s', '');
+                            }
+                            input.value = cleanVal;
+                        }
+                        // Dispatch events to trigger UI update
+                        input.dispatchEvent(new Event('input', { bubbles: true }));
+                        input.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                }
+                showToast(currentConfig.lang === 'es' ? "¡Ajustes importados! No olvides guardar." : "Settings imported! Don't forget to save.");
+            } catch (e) {
+                alert(currentConfig.lang === 'es' ? "Código inválido" : "Invalid settings code");
+            }
+        }
+
+        // Initialize event listeners on panel inputs/selects
+        function initComparisonListeners() {
+            document.querySelectorAll('.settings-panel input, .settings-panel select').forEach(input => {
+                const triggerUpdate = () => {
+                    const form = input.closest('form');
+                    const panel = input.closest('.settings-panel');
+                    if (!form && !panel) return;
+                    const tool = form ? form.id.replace('form-', '') : panel.id.replace('panel-', '');
+                    
+                    const suffix = getSliderSuffix(input.id);
+                    updateSliderValue(input.id, input.value, suffix);
+                    
+                    // Immediately update live preview style
+                    const liveSettings = getLiveSettingsFromForm(tool);
+                    updateMainPreviewLive(tool, liveSettings);
+                    
+                    let labelText = "";
+                    const formGroup = input.closest('.form-group');
+                    if (formGroup) {
+                        const labelSpan = formGroup.querySelector('label span[data-i18n]');
+                        if (labelSpan) {
+                            labelText = labelSpan.innerText;
+                        } else {
+                            const label = formGroup.querySelector('label');
+                            if (label) labelText = label.innerText;
+                        }
+                    }
+                    
+                    showComparisonPopup(tool, input.id, labelText);
+                };
+                input.addEventListener('input', triggerUpdate);
+                input.addEventListener('change', triggerUpdate);
+                input.addEventListener('focus', triggerUpdate);
+                input.addEventListener('mouseenter', triggerUpdate);
+                input.addEventListener('mouseleave', hideComparisonPopup);
+            });
+        }
+
+        // Call listener initialization once DOM is ready
+        setTimeout(initComparisonListeners, 200);
+
+        document.getElementById('overlayBg').addEventListener('click', () => {
+            if (activePanel) closePanel(activePanel);
+        });
+
+        // Connect now playing websocket to fetch real-time music metadata
+        let nowplayingSocket = null;
+        function connectNowPlayingWS() {
+            if (nowplayingSocket) {
+                try { nowplayingSocket.close(); } catch(e){}
+            }
+            const host = window.location.host;
+            const wsUrl = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + host + '/obs/nowplaying/ws';
+            
+            nowplayingSocket = new WebSocket(wsUrl);
+            
+            nowplayingSocket.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.state) {
+                        const track = data.state;
+                        const titleEl = document.getElementById('nowplayingPreviewTitle');
+                        const artistEl = document.getElementById('nowplayingPreviewArtist');
+                        if (titleEl) {
+                            titleEl.innerText = track.title || "No Title";
+                        }
+                        if (artistEl) {
+                            artistEl.innerText = track.artist || "No Artist";
+                        }
+                    }
+                } catch (e) {
+                    console.error("Error parsing nowplaying WS message:", e);
+                }
+            };
+            
+            nowplayingSocket.onclose = () => {
+                setTimeout(connectNowPlayingWS, 3000);
+            };
+        }
+        setTimeout(connectNowPlayingWS, 500);
+    </script>
+</body>
+</html>
