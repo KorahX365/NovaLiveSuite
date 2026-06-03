@@ -339,15 +339,7 @@
 
         /* ── ARCHITECTURE SECTION ── */
         .arch-section { padding: 80px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: rgba(10,10,18,0.5); }
-        .arch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
-        .arch-diagram {
-            background: rgba(5,5,9,0.8); border: 1px solid var(--border); border-radius: var(--radius-xl);
-            padding: 32px; font-family: var(--font-mono);
-        }
-        .arch-diagram pre { font-size: 0.8rem; color: var(--txt-2); line-height: 1.8; white-space: pre-wrap; }
-        .arch-diagram .highlight { color: var(--purple); }
-        .arch-diagram .highlight-cyan { color: var(--cyan); }
-        .arch-diagram .highlight-green { color: var(--green); }
+        .arch-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 60px; align-items: start; }
         .arch-detail { display: flex; flex-direction: column; gap: 20px; }
         .arch-item {
             display: flex; align-items: flex-start; gap: 16px;
@@ -367,7 +359,7 @@
             background: rgba(34,211,238,0.06); padding: 2px 6px; border-radius: 4px; margin-top: 4px; display: inline-block;
         }
 
-        /* ── OVERLAY DETAILS & FLOW DIAGRAM ── */
+        /* ── DETALLES DE OVERLAYS ── */
         .tab-btn {
             background: rgba(255,255,255,0.03); border: 1px solid var(--border);
             color: var(--txt-2); padding: 10px 22px; border-radius: 30px;
@@ -399,22 +391,8 @@
             transform: scale(1.03);
             border-color: var(--txt-1) !important;
         }
-        
-        /* ── SIMULATOR ── */
-        .sim-tab-btn {
-            background: transparent; border: none; color: var(--txt-3);
-            padding: 8px 16px; font-family: var(--font-head); font-weight: 700;
-            font-size: 0.9rem; cursor: pointer; transition: all 0.25s; border-radius: 6px;
-        }
-        .sim-tab-btn:hover { color: var(--txt-2); background: rgba(255,255,255,0.02); }
-        .sim-tab-btn.active { color: var(--txt-1); background: rgba(255,255,255,0.06); }
-        
-        .sim-tab-content { display: none; }
-        .sim-tab-content.active { display: block; }
-        
-        .preview-wrapper { display: none; width: 100%; }
-        .preview-wrapper.active { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; }
 
+        /* ── SIMULATOR ── */
         .simulator { padding: 100px 0; }
         .sim-grid { display: grid; grid-template-columns: 380px 1fr; gap: 40px; align-items: start; margin-top: 60px; }
         .sim-panel {
@@ -436,7 +414,6 @@
             width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border);
             padding: 11px 14px; border-radius: var(--radius-md); color: var(--txt-1);
             font-family: var(--font-body); font-size: 0.92rem; outline: none; transition: border-color 0.25s, box-shadow 0.25s;
-            appearance: none;
         }
         .form-control:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(168,85,247,0.15); }
         .toggle-row {
@@ -464,6 +441,23 @@
         }
         .btn-trigger:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(236,72,153,0.45); }
         .btn-trigger:active { transform: scale(0.97); }
+
+        .sim-tabs {
+            display: flex; gap: 4px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+        }
+        .sim-tab-btn {
+            background: transparent; border: none; color: var(--txt-3);
+            padding: 8px 16px; font-family: var(--font-head); font-weight: 700;
+            font-size: 0.9rem; cursor: pointer; transition: all 0.25s; border-radius: 6px;
+        }
+        .sim-tab-btn:hover { color: var(--txt-2); background: rgba(255,255,255,0.02); }
+        .sim-tab-btn.active { color: var(--txt-1); background: rgba(255,255,255,0.06); }
+        
+        .sim-tab-content { display: none; }
+        .sim-tab-content.active { display: block; }
+        
+        .preview-wrapper { display: none; width: 100%; }
+        .preview-wrapper.active { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; }
 
         .sim-screen {
             background: rgba(3,3,6,0.95); border: 1px solid var(--border); border-radius: var(--radius-xl);
@@ -537,25 +531,6 @@
         .step-body h3 { font-family: var(--font-head); font-size: 1.1rem; font-weight: 700; color: var(--txt-1); margin-bottom: 10px; }
         .step-body p { font-size: 0.88rem; color: var(--txt-2); }
         .step-body code { font-family: var(--font-mono); font-size: 0.8rem; color: var(--cyan); background: rgba(34,211,238,0.08); padding: 2px 6px; border-radius: 4px; }
-
-        /* OBS URLs list */
-        .url-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 48px; }
-        .url-card {
-            background: var(--bg-2); border: 1px solid var(--border); border-radius: var(--radius-lg);
-            padding: 20px; display: flex; align-items: center; gap: 14px;
-            transition: border-color 0.25s, box-shadow 0.25s;
-        }
-        .url-card:hover { border-color: var(--border-h); box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
-        .url-card-icon { font-size: 1.3rem; width: 36px; text-align: center; }
-        .url-card-info { flex: 1; overflow: hidden; }
-        .url-card-name { font-family: var(--font-head); font-weight: 700; color: var(--txt-1); font-size: 0.95rem; }
-        .url-card-url { font-family: var(--font-mono); font-size: 0.72rem; color: var(--txt-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .url-card-copy {
-            background: none; border: 1px solid var(--border); color: var(--txt-3);
-            padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.75rem;
-            transition: all 0.2s; white-space: nowrap;
-        }
-        .url-card-copy:hover { border-color: var(--purple); color: var(--purple); }
 
         /* ── DOWNLOAD CARD ── */
         .download-card {
@@ -718,7 +693,7 @@
                 Overlays que<br><span class="grad-text">Impresionan</span> en Directo
             </h1>
             <p class="hero-sub reveal reveal-delay-2">
-                Panel de control local construido en <strong style="color:var(--txt-1)">Rust</strong> con latencia cero. Chat de Twitch glassmórfico, alertas con partículas, widget Now Playing con vinilo animado y carrusel de patrocinadores. Todo configurado al instante.
+                Panel de control local construido en <strong style="color:var(--txt-1)">Rust</strong> con latencia cero. Chat de Twitch, alertas con partículas, widget Now Playing con vinilo animado y carrusel de patrocinadores. Todo configurado al instante.
             </p>
             <div class="hero-ctas reveal reveal-delay-3">
                 <a href="#setup" class="btn-primary">
@@ -736,7 +711,7 @@
                     <div class="stat-label">Latencia SSE</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-num">4</div>
+                    <div class="stat-num">5</div>
                     <div class="stat-label">Overlays</div>
                 </div>
                 <div class="stat-item">
@@ -1009,7 +984,7 @@
         <div class="container">
             <div class="section-label reveal">Arquitectura</div>
             <h2 class="reveal">Cómo Funciona por Dentro</h2>
-            <div class="arch-grid" style="margin-top:56px; grid-template-columns: 1.2fr 0.8fr;">
+            <div class="arch-grid" style="margin-top:56px">
                 <div>
                     <div class="arch-flow-diagram reveal" style="display: flex; flex-direction: column; gap: 24px; align-items: center; width: 100%;">
                         <!-- Row 1: Data Sources -->
@@ -1118,7 +1093,7 @@
             <div class="sim-grid">
                 <!-- Control panel -->
                 <div class="sim-panel reveal" style="display: flex; flex-direction: column;">
-                    <div class="sim-tabs" style="display: flex; gap: 4px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 8px; border-bottom: 1px solid var(--border);">
+                    <div class="sim-tabs">
                         <button type="button" class="sim-tab-btn active" id="btn-sim-chat" onclick="switchSimTab('chat')">Chat</button>
                         <button type="button" class="sim-tab-btn" id="btn-sim-nowplaying" onclick="switchSimTab('nowplaying')">Now Playing</button>
                         <button type="button" class="sim-tab-btn" id="btn-sim-alerts" onclick="switchSimTab('alerts')">Alertas</button>
@@ -1283,31 +1258,29 @@
 
                         <!-- Now Playing Preview Wrapper -->
                         <div id="preview-nowplaying" class="preview-wrapper">
-                            <div id="npWidget" class="np-widget playing" style="margin:0;">
-                                <div class="np-disc-container" id="npVinylContainer">
-                                    <img class="np-vinyl" src="https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=300" id="npArt" alt="Vinyl">
-                                    <div class="np-vinyl-sticker">
-                                        <img src="https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=300" id="npSticker" alt="Sticker">
+                            <div class="np-widget playing" style="margin:0;">
+                                <div class="np-art-wrap" id="npVinylContainer">
+                                    <img class="np-art" src="https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=300" alt="Album Art">
+                                    <div class="np-vinyl">
+                                        <div class="np-vinyl-grooves"></div>
+                                        <img class="np-vinyl-sticker" src="https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=300" alt="">
+                                        <div class="np-vinyl-hole"></div>
                                     </div>
-                                    <div class="np-vinyl-hole"></div>
                                 </div>
                                 <div class="np-info">
-                                    <div class="np-meta-line">
-                                        <span class="np-source" id="npSource">Spotify</span>
-                                        <div class="np-track-container">
-                                            <div class="np-track" id="npTitle">Starlight Echoes</div>
-                                        </div>
+                                    <div>
+                                        <div class="np-title" id="npTitle">Starlight Echoes</div>
                                         <div class="np-artist" id="npArtist">Luna Eclipse</div>
+                                        <div class="np-viz" id="npViz">
+                                            <span></span><span></span><span></span><span></span>
+                                            <span></span><span></span><span></span>
+                                        </div>
                                     </div>
-                                    <div class="np-viz" id="npViz">
-                                        <span></span><span></span><span></span><span></span>
-                                        <span></span><span></span><span></span>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="np-lyrics" id="npLyrics">"Escuchando el brillo estelar..."</div>
-                                    <div class="np-bar-wrap" style="margin-top:8px">
-                                        <div class="np-bar-fill" id="npFill" style="width: 32%;"></div>
+                                    <div>
+                                        <div class="np-lyrics">"Escuchando el brillo estelar..."</div>
+                                        <div class="np-bar-wrap" style="margin-top:8px">
+                                            <div class="np-bar-fill" style="width: 32%;"></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1571,7 +1544,6 @@
 
         const iconBox = `<div class="alert-icon-box" style="background:${color}18; color:${color}"><i class="fa-solid ${info.icon}"></i></div>`;
 
-        // Reset card
         card.style.cssText = '';
         card.className = 'alert-card';
         card.style.borderColor = color + '30';
@@ -1751,7 +1723,6 @@
         const showVinyl = document.getElementById('simNpVinyl').checked;
         const showViz = document.getElementById('simNpVisualizer').checked;
 
-        const widget = document.querySelector('#preview-nowplaying .np-widget');
         const titleEl = document.querySelector('#preview-nowplaying #npTitle');
         const artistEl = document.querySelector('#preview-nowplaying #npArtist');
         const vinylContainer = document.querySelector('#preview-nowplaying #npVinylContainer');
@@ -1760,14 +1731,8 @@
         if (titleEl) titleEl.innerText = title;
         if (artistEl) artistEl.innerText = artist;
 
-        if (widget) {
-            if (showVinyl) {
-                widget.classList.add('playing');
-                if (vinylContainer) vinylContainer.style.display = 'block';
-            } else {
-                widget.classList.remove('playing');
-                if (vinylContainer) vinylContainer.style.display = 'none';
-            }
+        if (vinylContainer) {
+            vinylContainer.style.display = showVinyl ? 'block' : 'none';
         }
         if (viz) {
             viz.style.display = showViz ? 'flex' : 'none';
@@ -1959,17 +1924,6 @@
         if (pollIntervalObj) clearInterval(pollIntervalObj);
         document.getElementById('pollPlaceholder').style.display = 'block';
         document.getElementById('pollWidget').style.display = 'none';
-    }
-
-    // Copy URL function
-    function copyUrl(btn, url) {
-        navigator.clipboard.writeText(url).then(() => {
-            const orig = btn.textContent;
-            btn.textContent = '✓ Copiado';
-            btn.style.color = 'var(--green)';
-            btn.style.borderColor = 'var(--green)';
-            setTimeout(() => { btn.textContent = orig; btn.style.color = ''; btn.style.borderColor = ''; }, 2000);
-        });
     }
 
     // Init
