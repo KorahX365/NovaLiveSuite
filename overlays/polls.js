@@ -47,13 +47,16 @@ function applyConfig(config) {
     
     if (pollContainer) {
         pollContainer.style.fontFamily = settings.font_family + ", sans-serif";
-        pollContainer.style.fontSize = formatPx(settings.font_size);
         pollContainer.style.backgroundColor = hexToRgba(settings.bg_color, settings.bg_opacity);
         pollContainer.style.borderColor = settings.border_color;
         pollContainer.style.borderWidth = formatPx(settings.border_width);
         pollContainer.style.borderRadius = formatPx(settings.border_radius);
         pollContainer.style.padding = formatPx(settings.padding_px);
     }
+    
+    // Set root font size to scale rem values, and body font family
+    document.documentElement.style.fontSize = formatPx(settings.font_size);
+    document.body.style.fontFamily = settings.font_family + ", sans-serif";
 }
 
 async function loadConfig() {
@@ -89,7 +92,7 @@ function connect() {
             const data = JSON.parse(event.data);
             
             if (data.event === "config_update") {
-                applyConfig(data.config);
+                loadConfig();
             }
             // Handlers para Encuestas de Twitch
             else if (data.event === "poll_begin") {
