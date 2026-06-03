@@ -142,6 +142,21 @@ function endPoll(pollData) {
     // Mostrar el ganador definitivo
     updatePoll(pollData);
     
+    // Ocultar perdedores y destacar ganador con transición
+    setTimeout(() => {
+        const calculated = calculatePercentages(pollData.options, pollData.total_votes);
+        calculated.forEach(opt => {
+            const row = document.getElementById(`opt-${opt.id}`);
+            if (row) {
+                if (opt.isWinner && opt.votes > 0) {
+                    row.classList.add("winner-reveal");
+                } else {
+                    row.classList.add("fade-out-option");
+                }
+            }
+        });
+    }, 600);
+    
     // Esperar 8 segundos antes de ocultar el widget
     setTimeout(() => {
         pollContainer.classList.add("hidden");
