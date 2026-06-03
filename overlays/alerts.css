@@ -1,0 +1,167 @@
+:root {
+  --glow-follow: rgba(16, 185, 129, 0.45);
+  --glow-sub: rgba(168, 85, 247, 0.45);
+  --glow-donation: rgba(245, 158, 11, 0.45);
+  
+  --border-follow: rgba(16, 185, 129, 0.25);
+  --border-sub: rgba(168, 85, 247, 0.25);
+  --border-donation: rgba(245, 158, 11, 0.25);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  font-family: 'Outfit', sans-serif;
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+}
+
+#alerts-overlay {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#particle-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+#alert-card-container {
+  position: relative;
+  z-index: 2;
+}
+
+/* Glassmorphic Alert Card */
+.alert-card {
+  position: relative;
+  width: 420px;
+  padding: 1.6em 2.2em;
+  background: rgba(15, 15, 20, 0.72);
+  backdrop-filter: blur(1.5em) saturate(180%);
+  -webkit-backdrop-filter: blur(1.5em) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.2em;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.5em;
+  
+  /* Entry animation */
+  animation: alert-enter 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.alert-card.exit {
+  animation: alert-exit 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Ambient Aurora Glow */
+.alert-card::before {
+  content: "";
+  position: absolute;
+  top: -5%;
+  left: -5%;
+  width: 110%;
+  height: 110%;
+  border-radius: 1.5em;
+  z-index: -1;
+  filter: blur(2.5em);
+  opacity: 0.75;
+  transition: background 0.3s ease;
+}
+
+/* Alert Type Specifics */
+.alert-card.follow {
+  border-color: var(--border-follow);
+  box-shadow: 0 0 25px rgba(16, 185, 129, 0.15), 0 10px 30px rgba(0,0,0,0.5);
+}
+.alert-card.follow::before {
+  background: radial-gradient(circle, var(--glow-follow) 0%, rgba(16, 185, 129, 0) 70%);
+}
+
+.alert-card.sub {
+  border-color: var(--border-sub);
+  box-shadow: 0 0 25px rgba(168, 85, 247, 0.15), 0 10px 30px rgba(0,0,0,0.5);
+}
+.alert-card.sub::before {
+  background: radial-gradient(circle, var(--glow-sub) 0%, rgba(168, 85, 247, 0) 70%);
+}
+
+.alert-card.donation {
+  border-color: var(--border-donation);
+  box-shadow: 0 0 25px rgba(245, 158, 11, 0.15), 0 10px 30px rgba(0,0,0,0.5);
+}
+.alert-card.donation::before {
+  background: radial-gradient(circle, var(--glow-donation) 0%, rgba(245, 158, 11, 0) 70%);
+}
+
+/* Typography styling */
+.alert-title {
+  font-size: 1.05em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.alert-card.follow .alert-title {
+  color: #10b981;
+}
+.alert-card.sub .alert-title {
+  color: #a855f7;
+}
+.alert-card.donation .alert-title {
+  color: #f59e0b;
+}
+
+.alert-name {
+  font-size: 2.2em;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  margin: 0.1em 0;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+.alert-message {
+  font-size: 1.1em;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.7);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  line-height: 1.4;
+}
+
+/* Animations */
+@keyframes alert-enter {
+  0% {
+    transform: translateY(60px) scale(0.9);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes alert-exit {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-40px) scale(0.95);
+    opacity: 0;
+  }
+}
