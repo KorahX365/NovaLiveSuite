@@ -1,0 +1,7 @@
+# GitHub Pages Jekyll config
+# Serves the folder as a static site without Jekyll processing
+theme: null
+exclude:
+  - "*.md"
+  - Gemfile
+  - Gemfile.lock
