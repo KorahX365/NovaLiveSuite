@@ -1762,6 +1762,7 @@
                         <button type="button" class="btn-toggle-tool disabled" style="margin-top: 0; background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3);" onclick="triggerTestPredictionStart()"><i class="fa-solid fa-play"></i> Iniciar Predicción de Prueba</button>
                         <button type="button" class="btn-toggle-tool disabled" style="margin-top: 0; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);" onclick="triggerTestPredictionVote()"><i class="fa-solid fa-coins"></i> Simular Puntos Apostados</button>
                         <button type="button" class="btn-toggle-tool enabled" style="margin-top: 0;" onclick="triggerTestPredictionEnd()"><i class="fa-solid fa-stop"></i> Finalizar Predicción</button>
+                        <button type="button" class="btn-toggle-tool enabled" style="margin-top: 4px; background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3);" onclick="triggerTestPollReset()"><i class="fa-solid fa-trash-can"></i> Limpiar Overlay / Reset</button>
                     </div>
                 </div>
             </details>
@@ -2230,6 +2231,20 @@
             });
             showToast("Predicción finalizada!");
             activeTestPrediction = null;
+        }
+
+        function triggerTestPollReset() {
+            activeTestPoll = null;
+            activeTestPrediction = null;
+            fetch('/api/trigger-poll', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    event: "poll_reset",
+                    data: {}
+                })
+            });
+            showToast("Overlay limpiado y restablecido!");
         }
 
         function openPanel(tool) {
