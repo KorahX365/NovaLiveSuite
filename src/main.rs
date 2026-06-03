@@ -1388,6 +1388,27 @@ async fn get_alerts_js() -> impl IntoResponse {
         .into_response()
 }
 
+async fn get_polls_overlay() -> impl IntoResponse {
+    axum::response::Html(include_str!("../overlays/polls.html"))
+}
+
+async fn get_polls_css() -> impl IntoResponse {
+    (
+        [(axum::http::header::CONTENT_TYPE, "text/css")],
+        include_str!("../overlays/polls.css"),
+    )
+        .into_response()
+}
+
+async fn get_polls_js() -> impl IntoResponse {
+    (
+        [(axum::http::header::CONTENT_TYPE, "application/javascript")],
+        include_str!("../overlays/polls.js"),
+    )
+        .into_response()
+}
+
+
 #[derive(Deserialize)]
 struct UploadPayload {
     filename: String,
@@ -1806,6 +1827,47 @@ async fn handle_socket(socket: WebSocket, state: Arc<AppState>) {
     };
 }
 
+async fn get_obs_polls_ws(
+    ws: WebSocketUpgrade,
+    State(state): State<Arc<AppState>>,
+) -> impl IntoResponse {
+    ws.on_upgrade(|socket| handle_polls_socket(socket, state))
+}
+
+async fn handle_polls_socket(socket: WebSocket, state: Arc<AppState>) {
+    let (mut sender, receiver) = socket.split();
+    let mut rx = state.ws_tx.subscribe();
+    
+    let mut send_task = tokio::spawn(async move {
+        while let Ok(msg) = rx.recv().await {
+            if sender.send(Message::Text(msg)).await.is_err() {
+                break;
+            }
+        }
+    });
+    
+    let mut receiver_clone = receiver;
+    let mut recv_task = tokio::spawn(async move {
+        while let Some(Ok(_)) = receiver_clone.next().await {}
+    });
+    
+    tokio::select! {
+        _ = (&mut send_task) => recv_task.abort(),
+        _ = (&mut recv_task) => send_task.abort(),
+    };
+}
+
+async fn post_trigger_poll(
+    State(state): State<Arc<AppState>>,
+    Json(body): Json<Value>,
+) -> impl IntoResponse {
+    if body.get("event").is_some() {
+        let _ = state.ws_tx.send(body.to_string());
+    }
+    Json(serde_json::json!({"status": "success"}))
+}
+
+
 #[tokio::main]
 async fn main() {
     let config = load_config();
@@ -1845,10 +1907,15 @@ async fn main() {
         .route("/overlays/alerts", get(get_alerts_overlay))
         .route("/overlays/alerts.css", get(get_alerts_css))
         .route("/overlays/alerts.js", get(get_alerts_js))
+        .route("/overlays/polls", get(get_polls_overlay))
+        .route("/overlays/polls.css", get(get_polls_css))
+        .route("/overlays/polls.js", get(get_polls_js))
         .route("/obs/nowplaying/ws", get(get_obs_nowplaying_ws))
+        .route("/obs/polls/ws", get(get_obs_polls_ws))
         .route("/api/config", get(get_api_config).post(post_api_config))
         .route("/api/twitch/login", post(post_twitch_login))
         .route("/api/twitch/logout", post(post_twitch_logout))
+        .route("/api/trigger-poll", post(post_trigger_poll))
         .route("/twitch/auth", get(get_twitch_auth))
         .route("/twitch/callback", get(get_twitch_callback))
         .route("/api/upload", post(post_upload))
