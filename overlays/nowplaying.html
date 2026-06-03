@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Now Playing Overlay</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/overlays/nowplaying.css">
+</head>
+<body>
+  <!-- Container is updated by JS with config and state flags -->
+  <div id="overlay-container" class="stopped">
+    <!-- Dynamic Blur Background -->
+    <div id="blur-bg"></div>
+    
+    <!-- Canvas for Procedural Audio Visualizer -->
+    <canvas id="visualizer-canvas"></canvas>
+    
+    <div id="card">
+      <!-- Artwork & Vinyl Disc Wrapper -->
+      <div id="artwork-wrapper">
+        <!-- Vinyl Record Disc -->
+        <div id="vinyl-disc">
+          <img id="vinyl-artwork" src="" alt="Vinyl Center">
+          <div id="vinyl-grooves"></div>
+          <div id="vinyl-hole"></div>
+        </div>
+        
+        <!-- Album Cover Sleeve -->
+        <div id="artwork-container">
+          <img id="artwork" src="" alt="Album Art">
+          <div id="pulse-ring"></div>
+        </div>
+      </div>
+      
+      <!-- Metadata & Progress Section -->
+      <div id="info-container">
+        <div id="meta">
+          <div id="title-wrapper">
+            <h1 id="title">Not Playing</h1>
+          </div>
+          <h2 id="artist">No media active</h2>
+          
+          <!-- Shared row for Album or Lyric Line depending on status -->
+          <div id="details-row">
+            <span id="album"></span>
+            <div id="lyrics-box" class="hidden">
+              <span id="lyric-text"></span>
+            </div>
+          </div>
+        </div>
+        
+        <div id="progress-container">
+          <div id="progress-bar">
+            <div id="progress-fill"></div>
+          </div>
+          <div id="time-container">
+            <span id="time-current">0:00</span>
+            <span id="time-total">0:00</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Source / Platform Badge -->
+      <div id="source-badge">
+        <span id="source-text">Windows Media</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="/overlays/nowplaying.js"></script>
+</body>
+</html>
