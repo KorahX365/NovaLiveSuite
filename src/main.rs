@@ -1206,6 +1206,48 @@ async fn subscribe_eventsub_topics(tokens: &TwitchTokens, session_id: &str) -> b
             "version": "1",
             "condition": {"to_broadcaster_user_id": user_id},
             "transport": {"method": "websocket", "session_id": session_id}
+        }),
+        serde_json::json!({
+            "type": "channel.poll.begin",
+            "version": "1",
+            "condition": {"broadcaster_user_id": user_id},
+            "transport": {"method": "websocket", "session_id": session_id}
+        }),
+        serde_json::json!({
+            "type": "channel.poll.progress",
+            "version": "1",
+            "condition": {"broadcaster_user_id": user_id},
+            "transport": {"method": "websocket", "session_id": session_id}
+        }),
+        serde_json::json!({
+            "type": "channel.poll.end",
+            "version": "1",
+            "condition": {"broadcaster_user_id": user_id},
+            "transport": {"method": "websocket", "session_id": session_id}
+        }),
+        serde_json::json!({
+            "type": "channel.prediction.begin",
+            "version": "1",
+            "condition": {"broadcaster_user_id": user_id},
+            "transport": {"method": "websocket", "session_id": session_id}
+        }),
+        serde_json::json!({
+            "type": "channel.prediction.progress",
+            "version": "1",
+            "condition": {"broadcaster_user_id": user_id},
+            "transport": {"method": "websocket", "session_id": session_id}
+        }),
+        serde_json::json!({
+            "type": "channel.prediction.lock",
+            "version": "1",
+            "condition": {"broadcaster_user_id": user_id},
+            "transport": {"method": "websocket", "session_id": session_id}
+        }),
+        serde_json::json!({
+            "type": "channel.prediction.end",
+            "version": "1",
+            "condition": {"broadcaster_user_id": user_id},
+            "transport": {"method": "websocket", "session_id": session_id}
         })
     ];
     
@@ -1277,7 +1319,27 @@ async fn run_twitch_eventsub_loop(state: Arc<AppState>) {
                             } else if msg_type == "notification" {
                                 let event_type = val.get("payload").and_then(|p| p.get("subscription")).and_then(|s| s.get("type")).and_then(|t| t.as_str()).unwrap_or("");
                                 if let Some(event_data) = val.get("payload").and_then(|p| p.get("event")) {
-                                    if let Some(alert) = map_eventsub_notification_to_alert(event_type, event_data) {
+                                    // Comprobar si el evento es de encuestas o predicciones reales de Twitch
+                                    if event_type.starts_with("channel.poll.") || event_type.starts_with("channel.prediction.") {
+                                        let ws_event = match event_type {
+                                            "channel.poll.begin" => "poll_begin",
+                                            "channel.poll.progress" => "poll_progress",
+                                            "channel.poll.end" => "poll_end",
+                                            "channel.prediction.begin" => "prediction_begin",
+                                            "channel.prediction.progress" => "prediction_progress",
+                                            "channel.prediction.lock" => "prediction_lock",
+                                            "channel.prediction.end" => "prediction_end",
+                                            _ => "",
+                                        };
+                                        
+                                        if !ws_event.is_empty() {
+                                            let ws_payload = serde_json::json!({
+                                                "event": ws_event,
+                                                "data": event_data
+                                            });
+                                            let _ = state.ws_tx.send(ws_payload.to_string());
+                                        }
+                                    } else if let Some(alert) = map_eventsub_notification_to_alert(event_type, event_data) {
                                         // Broadcast the alert to ws_tx
                                         let ws_payload = serde_json::json!({
                                             "event": "alert",
