@@ -418,11 +418,19 @@ function updateTimerUI() {
     timerFill.style.width = `${fillPercent}%`;
 }
 
+let demoIntervalId = null;
+let demoTimeoutId = null;
+let demoEndTimeoutId = null;
+
 // --- Simulación Demo para pruebas sin Twitch ---
 function startDemoSimulation() {
     console.log("Iniciando simulación demo...");
     
-    // Alternar entre encuesta y predicción en la demo cada ciclo
+    // Limpiar temporizadores previos
+    if (demoIntervalId) clearInterval(demoIntervalId);
+    if (demoTimeoutId) clearTimeout(demoTimeoutId);
+    if (demoEndTimeoutId) clearTimeout(demoEndTimeoutId);
+    
     const runAsPrediction = Math.random() > 0.5;
     
     if (runAsPrediction) {
@@ -438,15 +446,16 @@ function startDemoSimulation() {
         
         startPrediction(demoPred);
         
-        let simInterval = setInterval(() => {
+        demoIntervalId = setInterval(() => {
             if (!activePoll || durationLeft <= 0) {
-                clearInterval(simInterval);
+                clearInterval(demoIntervalId);
+                demoIntervalId = null;
                 
                 // Bloquear predicción
                 lockPrediction(activePoll);
                 
                 // Esperar 2s y finalizar con ganador
-                setTimeout(() => {
+                demoEndTimeoutId = setTimeout(() => {
                     if (activePoll) {
                         activePoll.winning_outcome_id = Math.random() > 0.5 ? "outcome_1" : "outcome_2";
                         endPrediction(activePoll);
@@ -454,7 +463,7 @@ function startDemoSimulation() {
                 }, 2000);
                 
                 // Reiniciar loop demo
-                setTimeout(() => {
+                demoTimeoutId = setTimeout(() => {
                     if (!socket || socket.readyState !== WebSocket.OPEN) {
                         startDemoSimulation();
                     }
@@ -462,7 +471,6 @@ function startDemoSimulation() {
                 return;
             }
             
-            // Añadir puntos de canal aleatorios a los bandos
             const randIdx = Math.floor(Math.random() * activePoll.outcomes.length);
             activePoll.outcomes[randIdx].channel_points += Math.floor(Math.random() * 800) + 150;
             updatePrediction(activePoll);
@@ -483,12 +491,13 @@ function startDemoSimulation() {
         
         startPoll(demoPoll);
         
-        let simInterval = setInterval(() => {
+        demoIntervalId = setInterval(() => {
             if (!activePoll || durationLeft <= 0) {
-                clearInterval(simInterval);
+                clearInterval(demoIntervalId);
+                demoIntervalId = null;
                 endPoll(activePoll);
                 
-                setTimeout(() => {
+                demoTimeoutId = setTimeout(() => {
                     if (!socket || socket.readyState !== WebSocket.OPEN) {
                         startDemoSimulation();
                     }
@@ -505,10 +514,27 @@ function startDemoSimulation() {
 }
 
 function resetPollUI() {
+    // 1. Limpiar todos los temporizadores reales de la encuesta/predicción
     if (pollTimerInterval) {
         clearInterval(pollTimerInterval);
         pollTimerInterval = null;
     }
+    
+    // 2. Limpiar todos los intervalos y timeouts del simulador demo
+    if (demoIntervalId) {
+        clearInterval(demoIntervalId);
+        demoIntervalId = null;
+    }
+    if (demoTimeoutId) {
+        clearTimeout(demoTimeoutId);
+        demoTimeoutId = null;
+    }
+    if (demoEndTimeoutId) {
+        clearTimeout(demoEndTimeoutId);
+        demoEndTimeoutId = null;
+    }
+    
+    // 3. Ocultar la UI por completo y limpiar variables
     pollContainer.classList.add("hidden");
     activePoll = null;
     optionsContainer.innerHTML = "";
