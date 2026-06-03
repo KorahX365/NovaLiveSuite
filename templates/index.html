@@ -1070,6 +1070,20 @@
                     <i class="fa-solid fa-cog"></i>
                 </button>
             </div>
+
+            <!-- Live Polls Card -->
+            <div class="card" id="card-polls" onclick="openPanel('polls')">
+                <div class="card-icon-container">
+                    <i class="fa-solid fa-square-poll-horizontal card-icon poll-icon" style="color: #6366f1;"></i>
+                </div>
+                <div class="card-info">
+                    <h2 data-i18n="polls_card_title">Live Polls Box</h2>
+                    <p data-i18n="polls_card_desc">Real-time voting overlay with glassmorphism styles</p>
+                </div>
+                <button class="card-cog-btn" onclick="event.stopPropagation(); openPanel('polls')" title="Settings">
+                    <i class="fa-solid fa-cog"></i>
+                </button>
+            </div>
         </main>
     </div>
 
@@ -1715,7 +1729,45 @@
             
             <button type="button" class="btn-toggle-tool" id="toggle-btn-alerts" onclick="toggleToolEnabled('alerts')">Habilitar / Deshabilitar</button>
         </form>
+    <!-- Live Polls Settings Panel -->
+    <div class="settings-panel" id="panel-polls">
+        <div class="panel-header">
+            <h3 data-i18n="polls_panel_title">Live Polls Settings</h3>
+            <button class="close-panel-btn" onclick="closePanel('polls')"><i class="fa-solid fa-times"></i></button>
+        </div>
+        <form id="form-polls" onsubmit="event.preventDefault();">
+            <details class="settings-category" open>
+                <summary><span>Simulación y Pruebas</span></summary>
+                <div class="category-content">
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.4;">
+                        Utiliza estos controles para probar el overlay glassmorphic de encuestas directamente en tu escena de OBS:
+                    </p>
+                    <div class="form-group">
+                        <label>Pregunta de Prueba</label>
+                        <input type="text" class="form-control" id="poll-test-title" value="¿Qué lenguaje de programación prefieres?">
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
+                        <button type="button" class="btn-toggle-tool disabled" style="margin-top: 0; background: rgba(99, 102, 241, 0.15); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.3);" onclick="triggerTestPollStart()"><i class="fa-solid fa-play"></i> Iniciar Encuesta de Prueba</button>
+                        <button type="button" class="btn-toggle-tool disabled" style="margin-top: 0; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);" onclick="triggerTestPollVote()"><i class="fa-solid fa-plus"></i> Simular Votos Aleatorios</button>
+                        <button type="button" class="btn-toggle-tool enabled" style="margin-top: 0;" onclick="triggerTestPollEnd()"><i class="fa-solid fa-stop"></i> Finalizar Encuesta</button>
+                    </div>
+                </div>
+            </details>
+
+            <details class="settings-category">
+                <summary><span>Ajustes Generales</span></summary>
+                <div class="category-content">
+                    <div class="form-group">
+                        <label>Duración por defecto (segundos)</label>
+                        <input type="number" class="form-control" id="poll-default-duration" value="60">
+                    </div>
+                </div>
+            </details>
+            
+            <button type="button" class="btn-toggle-tool" id="toggle-btn-polls" onclick="toggleToolEnabled('polls')">Habilitar / Deshabilitar</button>
+        </form>
     </div>
+
 
     <!-- Twitch Login Modal (Removed - Twitch Login now occurs on a separate page) -->
 
@@ -1796,11 +1848,14 @@
                 nowplaying_card_desc: "Show active song info and synced lyrics.",
                 alerts_card_title: "Custom Alerts Box",
                 alerts_card_desc: "Animated follow, sub, and raid alerts.",
+                polls_card_title: "Live Polls Box",
+                polls_card_desc: "Real-time voting overlay with glassmorphic styles.",
                 live_preview: "Live Settings Preview",
                 chat_panel_title: "Chat Settings",
                 carousel_panel_title: "Sponsor Carousel Settings",
                 nowplaying_panel_title: "Now Playing Settings",
                 alerts_panel_title: "Alert Box Settings",
+                polls_panel_title: "Live Polls Settings",
                 twitch_panel_title: "Twitch Connection",
                 twitch_channel_lbl: "Twitch Channel Name",
                 twitch_sub: "Connects to chat IRC instantly without oauth logins.",
@@ -1907,11 +1962,14 @@
                 nowplaying_card_desc: "Muestra la canción actual y letras sincronizadas.",
                 alerts_card_title: "Caja de Alertas Personalizadas",
                 alerts_card_desc: "Alertas animadas de follow, sub y raids.",
+                polls_card_title: "Votaciones en Vivo",
+                polls_card_desc: "Overlay de encuestas en tiempo real con diseño traslúcido.",
                 live_preview: "Vista Previa en Vivo",
                 chat_panel_title: "Ajustes de Chat",
                 carousel_panel_title: "Ajustes de Carrusel",
                 nowplaying_panel_title: "Ajustes de Reproductor",
                 alerts_panel_title: "Ajustes de Caja de Alertas",
+                polls_panel_title: "Ajustes de Encuestas",
                 twitch_panel_title: "Conexión de Twitch",
                 twitch_channel_lbl: "Nombre de Canal de Twitch",
                 twitch_sub: "Se conecta al chat por IRC instantáneamente sin inicios de sesión OAuth.",
@@ -2026,6 +2084,73 @@
                 })
             });
             showToast(`Test ${type} triggered!`);
+        }
+
+        let activeTestPoll = null;
+
+        function triggerTestPollStart() {
+            const titleInput = document.getElementById("poll-test-title");
+            const title = titleInput ? titleInput.value.trim() : "¿Qué lenguaje de programación prefieres?";
+            const duration = parseInt(document.getElementById("poll-default-duration").value) || 60;
+            
+            activeTestPoll = {
+                title: title,
+                duration_seconds: duration,
+                total_votes: 0,
+                options: [
+                    { id: "opt_1", title: "Rust 🦀", votes: 0 },
+                    { id: "opt_2", title: "Go 🐹", votes: 0 },
+                    { id: "opt_3", title: "TypeScript 📘", votes: 0 }
+                ]
+            };
+
+            fetch('/api/trigger-poll', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    event: "poll_begin",
+                    data: activeTestPoll
+                })
+            });
+            showToast("Encuesta de prueba iniciada!");
+        }
+
+        function triggerTestPollVote() {
+            if (!activeTestPoll) {
+                showToast("¡Primero inicia una encuesta!");
+                return;
+            }
+            const randIndex = Math.floor(Math.random() * activeTestPoll.options.length);
+            activeTestPoll.options[randIndex].votes += Math.floor(Math.random() * 3) + 1;
+            activeTestPoll.total_votes = activeTestPoll.options.reduce((sum, o) => sum + o.votes, 0);
+
+            fetch('/api/trigger-poll', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    event: "poll_progress",
+                    data: activeTestPoll
+                })
+            });
+            showToast("Votos simulados añadidos!");
+        }
+
+        function triggerTestPollEnd() {
+            if (!activeTestPoll) {
+                showToast("No hay ninguna encuesta activa.");
+                return;
+            }
+
+            fetch('/api/trigger-poll', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    event: "poll_end",
+                    data: activeTestPoll
+                })
+            });
+            showToast("Encuesta de prueba finalizada!");
+            activeTestPoll = null;
         }
 
         function openPanel(tool) {
@@ -2196,12 +2321,18 @@
         });
 
         function toggleToolEnabled(tool) {
+            if (!currentConfig.tools[tool]) {
+                currentConfig.tools[tool] = { enabled: true, settings: {} };
+            }
             currentConfig.tools[tool].enabled = !currentConfig.tools[tool].enabled;
             saveConfigToServer();
             updateToolEnabledUI(tool);
         }
 
         function updateToolEnabledUI(tool) {
+            if (!currentConfig.tools[tool]) {
+                currentConfig.tools[tool] = { enabled: true, settings: {} };
+            }
             const isEnabled = currentConfig.tools[tool].enabled;
             
             // 1. Update Homepage Card class
@@ -2265,11 +2396,14 @@
             if (npUrlEl) npUrlEl.innerText = `${origin}/overlays/nowplaying`;
             const alertsUrlEl = document.getElementById('alerts-url');
             if (alertsUrlEl) alertsUrlEl.innerText = `${origin}/overlays/alerts`;
+            const pollsUrlEl = document.getElementById('polls-url');
+            if (pollsUrlEl) pollsUrlEl.innerText = `${origin}/overlays/polls`;
 
             updateToolEnabledUI('chat');
             updateToolEnabledUI('carousel');
             updateToolEnabledUI('nowplaying');
             updateToolEnabledUI('alerts');
+            updateToolEnabledUI('polls');
 
             const btn = document.getElementById('twitchLoginBtn');
             const strings = langStrings[currentConfig.lang] || langStrings.en;
