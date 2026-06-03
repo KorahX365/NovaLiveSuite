@@ -367,9 +367,56 @@
             background: rgba(34,211,238,0.06); padding: 2px 6px; border-radius: 4px; margin-top: 4px; display: inline-block;
         }
 
+        /* ── OVERLAY DETAILS & FLOW DIAGRAM ── */
+        .tab-btn {
+            background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+            color: var(--txt-2); padding: 10px 22px; border-radius: 30px;
+            font-family: var(--font-head); font-weight: 600; font-size: 0.9rem;
+            cursor: pointer; transition: all 0.25s; white-space: nowrap;
+            display: inline-flex; align-items: center; gap: 8px;
+            outline: none;
+        }
+        .tab-btn:hover { background: rgba(255,255,255,0.08); color: var(--txt-1); }
+        .tab-btn.active { background: var(--purple); border-color: var(--purple); color: white; box-shadow: var(--glow-purple); }
+        
+        .details-tab-content { display: none; }
+        .details-tab-content.active-content { display: block; animation: fadeIn 0.4s ease; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes bounceArrow {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(6px); }
+        }
+
+        .flow-node {
+            transition: all 0.3s ease;
+        }
+        .flow-node:hover {
+            transform: scale(1.03);
+            border-color: var(--txt-1) !important;
+        }
+        
         /* ── SIMULATOR ── */
+        .sim-tab-btn {
+            background: transparent; border: none; color: var(--txt-3);
+            padding: 8px 16px; font-family: var(--font-head); font-weight: 700;
+            font-size: 0.9rem; cursor: pointer; transition: all 0.25s; border-radius: 6px;
+        }
+        .sim-tab-btn:hover { color: var(--txt-2); background: rgba(255,255,255,0.02); }
+        .sim-tab-btn.active { color: var(--txt-1); background: rgba(255,255,255,0.06); }
+        
+        .sim-tab-content { display: none; }
+        .sim-tab-content.active { display: block; }
+        
+        .preview-wrapper { display: none; width: 100%; }
+        .preview-wrapper.active { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; }
+
         .simulator { padding: 100px 0; }
-        .sim-grid { display: grid; grid-template-columns: 360px 1fr; gap: 40px; align-items: start; margin-top: 60px; }
+        .sim-grid { display: grid; grid-template-columns: 380px 1fr; gap: 40px; align-items: start; margin-top: 60px; }
         .sim-panel {
             background: rgba(8,8,14,0.9); border: 1px solid var(--border); border-radius: var(--radius-xl);
             padding: 28px; box-shadow: 0 20px 50px rgba(0,0,0,0.4);
@@ -752,45 +799,206 @@
     <!-- ══════════ FEATURES ══════════ -->
     <section class="features" id="features">
         <div class="container">
-            <div class="section-label reveal">Componentes</div>
-            <h2 class="reveal">Cuatro Overlays,<br>Un Solo Panel</h2>
-            <p class="section-sub reveal">Cada overlay es una fuente de navegador independiente en OBS. Configura todo en el panel web y los cambios se aplican en vivo sin recargar.</p>
+            <div class="features-header-wrap" style="display: flex; justify-content: space-between; align-items: center; gap: 40px; margin-bottom: 48px; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 280px;">
+                    <div class="section-label reveal">Componentes</div>
+                    <h2 class="reveal" style="margin-bottom: 16px;">Cinco Overlays,<br>Un Solo Panel</h2>
+                    <p class="section-sub" style="margin: 0; max-width: 680px;">Cada overlay es una fuente de navegador independiente en OBS. Configura todo en el panel web y los cambios se aplican en vivo sin recargar.</p>
+                </div>
+                <div class="features-big-logo reveal" style="font-size: 6rem; width: 140px; height: 140px; border-radius: 32px; background: var(--grad-main); display: flex; align-items: center; justify-content: center; color: white; box-shadow: var(--glow-purple); flex-shrink: 0;">
+                    <i class="fa-solid fa-wind" style="animation: bounceArrow 4s ease-in-out infinite;"></i>
+                </div>
+            </div>
+            
             <div class="feat-grid">
-                <div class="feat-card reveal">
-                    <div class="feat-icon-wrap ic-chat"><i class="fa-solid fa-comments"></i></div>
-                    <h3>Chat Glassmórfico</h3>
-                    <p>Mensajes de Twitch con diseño glassmorfismo. Badges de broadcaster, moderador y suscriptor. Animaciones de entrada/salida configurables.</p>
-                    <div class="feat-tag">chat.html · IRC WebSocket</div>
-                </div>
-                <div class="feat-card reveal reveal-delay-1">
-                    <div class="feat-icon-wrap ic-np"><i class="fa-solid fa-compact-disc"></i></div>
-                    <h3>Now Playing + Vinilo</h3>
-                    <p>Detecta Spotify, Chrome, Firefox y reproductores locales vía Windows Media Controls. Vinilo animado, visualizador de audio y letras sincronizadas.</p>
+                <a href="#overlay-details" onclick="switchDetailsTab('chat')" class="feat-card reveal" style="text-decoration: none; color: inherit;">
+                    <div class="feat-icon-wrap ic-chat" style="background: rgba(16,185,129,0.12); color: var(--green);"><i class="fa-solid fa-comments"></i></div>
+                    <h3>Chat de Twitch</h3>
+                    <p>Muestra los mensajes de tu chat de Twitch en pantalla. Soporta badges nativos (Subs, Mods), colores de usuario y animaciones fluidas.</p>
+                    <div class="feat-tag">chat.html · IRC WS</div>
+                </a>
+                <a href="#overlay-details" onclick="switchDetailsTab('nowplaying')" class="feat-card reveal reveal-delay-1" style="text-decoration: none; color: inherit;">
+                    <div class="feat-icon-wrap ic-np" style="background: rgba(168,85,247,0.12); color: var(--purple);"><i class="fa-solid fa-compact-disc"></i></div>
+                    <h3>Now Playing</h3>
+                    <p>Muestra la canción que suena en tu PC en tiempo real. Soporta Spotify, navegadores y reproductores de Windows locales con vinilo animado.</p>
                     <div class="feat-tag">nowplaying.html · SMTC API</div>
-                </div>
-                <div class="feat-card reveal reveal-delay-2">
-                    <div class="feat-icon-wrap ic-alerts"><i class="fa-solid fa-bolt"></i></div>
-                    <h3>Alertas con Partículas</h3>
-                    <p>Follows, subs y raids con confeti y chispas procedimentales. Cuatro layouts: imagen arriba, laterales o texto superpuesto con fondo tintado.</p>
+                </a>
+                <a href="#overlay-details" onclick="switchDetailsTab('alerts')" class="feat-card reveal reveal-delay-2" style="text-decoration: none; color: inherit;">
+                    <div class="feat-icon-wrap ic-alerts" style="background: rgba(245,158,11,0.12); color: var(--amber);"><i class="fa-solid fa-bolt"></i></div>
+                    <h3>Alertas en vivo</h3>
+                    <p>Notifica follows, suscripciones y raids de Twitch al instante. Diseños editables y efectos procedimentales de confeti y chispas.</p>
                     <div class="feat-tag">alerts.html · EventSub WS</div>
-                </div>
-                <div class="feat-card reveal reveal-delay-3">
-                    <div class="feat-icon-wrap ic-carousel"><i class="fa-solid fa-images"></i></div>
-                    <h3>Sponsor Carousel</h3>
-                    <p>Rota imágenes, vídeos e iFrames con transiciones en 3D: fade, slide y zoom. Perfecto para logos de patrocinadores y contenido promocional.</p>
+                </a>
+                <a href="#overlay-details" onclick="switchDetailsTab('carousel')" class="feat-card reveal reveal-delay-3" style="text-decoration: none; color: inherit;">
+                    <div class="feat-icon-wrap ic-carousel" style="background: rgba(34,211,238,0.12); color: var(--cyan);"><i class="fa-solid fa-images"></i></div>
+                    <h3>Carrusel de Sponsors</h3>
+                    <p>Rota logotipos de tus patrocinadores y anuncios en la pantalla. Admite imágenes, vídeos y páginas web completas con transiciones 3D.</p>
                     <div class="feat-tag">carousel.html · SSE Stream</div>
-                </div>
-                <div class="feat-card reveal">
-                    <div class="feat-icon-wrap ic-tray"><i class="fa-solid fa-server"></i></div>
-                    <h3>System Tray & Autostart</h3>
-                    <p>Icono nativo en la bandeja del sistema de Windows. Configura el autoarranque al inicio de sesión mediante el registro de Windows.</p>
-                    <div class="feat-tag">Tray Icon · Registry Autostart</div>
-                </div>
+                </a>
+                <a href="#overlay-details" onclick="switchDetailsTab('polls')" class="feat-card reveal" style="text-decoration: none; color: inherit;">
+                    <div class="feat-icon-wrap ic-tray" style="background: rgba(236,72,153,0.12); color: var(--pink);"><i class="fa-solid fa-square-poll-horizontal"></i></div>
+                    <h3>Encuestas y Predicciones</h3>
+                    <p>Muestra las encuestas y predicciones activas de tu canal de Twitch con progreso de votos, ratios de puntos y ganadores destacados.</p>
+                    <div class="feat-tag">polls.html · EventSub WS</div>
+                </a>
                 <div class="feat-card reveal reveal-delay-1">
-                    <div class="feat-icon-wrap ic-config"><i class="fa-solid fa-sliders"></i></div>
+                    <div class="feat-icon-wrap ic-config" style="background: rgba(239,68,68,0.12); color: var(--red);"><i class="fa-solid fa-sliders"></i></div>
                     <h3>Dashboard de Config</h3>
-                    <p>Panel web completo con previsualización en vivo, importación/exportación de settings y recarga automática de todos los overlays conectados.</p>
+                    <p>Panel web local completo para configurar cada aspecto visual y de comportamiento de tus overlays con previsualizaciones y guardado en vivo.</p>
                     <div class="feat-tag">:777/ · REST API</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════ DETALLES DE OVERLAYS ══════════ -->
+    <section class="overlay-details" id="overlay-details" style="padding: 100px 0; background: rgba(5, 5, 9, 0.4); border-top: 1px solid var(--border);">
+        <div class="container">
+            <div class="section-label reveal">Guía Detallada</div>
+            <h2 class="reveal">Configuración y Funciones</h2>
+            <p class="section-sub reveal" style="margin-bottom: 48px;">Explora el potencial completo de cada overlay, sus opciones de personalización y cómo integrarlos en tu stream.</p>
+            
+            <div class="details-tabs" style="display: flex; gap: 12px; margin-bottom: 32px; overflow-x: auto; padding-bottom: 8px;">
+                <button class="tab-btn active" id="btn-tab-chat" onclick="switchDetailsTab('chat')"><i class="fa-solid fa-comments"></i> Chat de Twitch</button>
+                <button class="tab-btn" id="btn-tab-nowplaying" onclick="switchDetailsTab('nowplaying')"><i class="fa-solid fa-compact-disc"></i> Now Playing</button>
+                <button class="tab-btn" id="btn-tab-alerts" onclick="switchDetailsTab('alerts')"><i class="fa-solid fa-bolt"></i> Alertas en vivo</button>
+                <button class="tab-btn" id="btn-tab-carousel" onclick="switchDetailsTab('carousel')"><i class="fa-solid fa-images"></i> Carrusel</button>
+                <button class="tab-btn" id="btn-tab-polls" onclick="switchDetailsTab('polls')"><i class="fa-solid fa-square-poll-horizontal"></i> Encuestas y Predicciones</button>
+            </div>
+            
+            <div class="details-content-box" style="background: var(--bg-1); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.3);">
+                <!-- Chat Details -->
+                <div id="details-chat" class="details-tab-content active-content">
+                    <h3 style="font-family:var(--font-head); font-size:1.8rem; color:var(--txt-1); margin-bottom:16px;">Chat de Twitch</h3>
+                    <p style="margin-bottom:24px; color:var(--txt-2);">Lleva el chat de Twitch a tu stream con un diseño limpio, profesional y altamente legible. Los espectadores podrán ver sus aportaciones en tiempo real con badges actualizados y animaciones fluidas.</p>
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:24px; margin-bottom:32px;">
+                        <div>
+                            <h4 style="color:var(--purple); margin-bottom:12px;"><i class="fa-solid fa-wand-magic-sparkles"></i> Lo que puedes hacer</h4>
+                            <ul style="list-style:inside; color:var(--txt-2); display:grid; gap:8px;">
+                                <li>Mostrar badges nativos de Twitch (Moderador, VIP, Subs, etc.)</li>
+                                <li>Alinear mensajes a la izquierda, centro o derecha</li>
+                                <li>Controlar la duración de permanencia de los mensajes</li>
+                                <li>Limitar el número máximo de mensajes visibles simultáneos</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 style="color:var(--pink); margin-bottom:12px;"><i class="fa-solid fa-sliders"></i> Opciones de Configuración</h4>
+                            <ul style="list-style:inside; color:var(--txt-2); display:grid; gap:8px;">
+                                <li>Estilo de tipografía (Outfit, Jakarta, Monospace, etc.) y tamaño</li>
+                                <li>Fondo y bordes: color de fondo, opacidad, grosor y radio de bordes</li>
+                                <li>Espaciado y padding interno de los mensajes</li>
+                                <li>Color personalizado para el nombre de usuario y el texto del chat</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <a href="#simulator" class="btn-trigger" onclick="openSimTab('chat')" style="width:fit-content; text-decoration:none; padding:12px 30px;"><i class="fa-solid fa-play"></i> Probar en el Simulador</a>
+                </div>
+                
+                <!-- Now Playing Details -->
+                <div id="details-nowplaying" class="details-tab-content">
+                    <h3 style="font-family:var(--font-head); font-size:1.8rem; color:var(--txt-1); margin-bottom:16px;">Reproductor Now Playing</h3>
+                    <p style="margin-bottom:24px; color:var(--txt-2);">Muestra automáticamente la música que suena en tu PC en tiempo real. Obtiene la información directamente del sistema operativo, por lo que es compatible con cualquier reproductor multimedia moderno.</p>
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:24px; margin-bottom:32px;">
+                        <div>
+                            <h4 style="color:var(--purple); margin-bottom:12px;"><i class="fa-solid fa-wand-magic-sparkles"></i> Lo que puedes hacer</h4>
+                            <ul style="list-style:inside; color:var(--txt-2); display:grid; gap:8px;">
+                                <li>Capturar metadatos multimedia de Spotify, navegadores (YouTube, Soundcloud) y reproductores locales</li>
+                                <li>Mostrar vinilo animado en 3D que gira cuando hay música reproduciéndose</li>
+                                <li>Visualizador de frecuencias de audio dinámico y reactivo</li>
+                                <li>Ocultación automática cuando suena una alerta de Twitch</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 style="color:var(--pink); margin-bottom:12px;"><i class="fa-solid fa-sliders"></i> Opciones de Configuración</h4>
+                            <ul style="list-style:inside; color:var(--txt-2); display:grid; gap:8px;">
+                                <li>Diseños / Temas visuales integrados (Glassmorphic, Minimalist, Vinyl, Compact)</li>
+                                <li>Velocidad de rotación y visibilidad del disco de vinilo</li>
+                                <li>Personalización de colores (título, artista, fondo, acentos)</li>
+                                <li>Velocidad y comportamiento del scroll del texto largo</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <a href="#simulator" class="btn-trigger" onclick="openSimTab('nowplaying')" style="width:fit-content; text-decoration:none; padding:12px 30px;"><i class="fa-solid fa-play"></i> Probar en el Simulador</a>
+                </div>
+                
+                <!-- Alerts Details -->
+                <div id="details-alerts" class="details-tab-content">
+                    <h3 style="font-family:var(--font-head); font-size:1.8rem; color:var(--txt-1); margin-bottom:16px;">Alertas en vivo</h3>
+                    <p style="margin-bottom:24px; color:var(--txt-2);">Celebra cada interacción de tu canal con alertas premium. Añade dinamismo, sonidos cargados al instante y espectaculares efectos visuales.</p>
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:24px; margin-bottom:32px;">
+                        <div>
+                            <h4 style="color:var(--purple); margin-bottom:12px;"><i class="fa-solid fa-wand-magic-sparkles"></i> Lo que puedes hacer</h4>
+                            <ul style="list-style:inside; color:var(--txt-2); display:grid; gap:8px;">
+                                <li>Alertas en tiempo real de nuevos Seguidores, Suscriptores, Donaciones y Raids</li>
+                                <li>Efectos procedimentales de confeti y chispas reactivas en pantalla</li>
+                                <li>Soporte para layouts personalizables: texto superpuesto, imagen lateral o superior</li>
+                                <li>Carga tus propios sonidos (MP3/WAV) e imágenes/GIFs directamente desde el dashboard</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 style="color:var(--pink); margin-bottom:12px;"><i class="fa-solid fa-sliders"></i> Opciones de Configuración</h4>
+                            <ul style="list-style:inside; color:var(--txt-2); display:grid; gap:8px;">
+                                <li>Configuración de plantillas de texto de alertas personalizadas</li>
+                                <li>Duración en milisegundos de visualización de cada tipo de alerta</li>
+                                <li>Ajuste del tamaño de imagen/GIF, transiciones y animaciones (slide, fade, zoom)</li>
+                                <li>Personalización total del fondo, borde, radio y colores de acento</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <a href="#simulator" class="btn-trigger" onclick="openSimTab('alerts')" style="width:fit-content; text-decoration:none; padding:12px 30px;"><i class="fa-solid fa-play"></i> Probar en el Simulador</a>
+                </div>
+                
+                <!-- Carousel Details -->
+                <div id="details-carousel" class="details-tab-content">
+                    <h3 style="font-family:var(--font-head); font-size:1.8rem; color:var(--txt-1); margin-bottom:16px;">Carrusel de Sponsors</h3>
+                    <p style="margin-bottom:24px; color:var(--txt-2);">Muestra y rota los patrocinadores o información de tu canal con un carrusel dinámico en 3D. Mantén a tus sponsors visibles sin saturar la pantalla.</p>
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:24px; margin-bottom:32px;">
+                        <div>
+                            <h4 style="color:var(--purple); margin-bottom:12px;"><i class="fa-solid fa-wand-magic-sparkles"></i> Lo que puedes hacer</h4>
+                            <ul style="list-style:inside; color:var(--txt-2); display:grid; gap:8px;">
+                                <li>Añadir imágenes, vídeos e incluso URLs / iFrames interactivos</li>
+                                <li>Rotación programada en segundo plano con intervalos ajustables</li>
+                                <li>Gestión de la lista de reproducción (añadir, mover, borrar elementos) directamente desde el dashboard</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 style="color:var(--pink); margin-bottom:12px;"><i class="fa-solid fa-sliders"></i> Opciones de Configuración</h4>
+                            <ul style="list-style:inside; color:var(--txt-2); display:grid; gap:8px;">
+                                <li>Transiciones 3D fluidas (Fade, Slide, Zoom o Rotación)</li>
+                                <li>Intervalo de tiempo en milisegundos para el cambio de diapositivas</li>
+                                <li>Ajuste de dimensiones exactas del widget (ancho y alto en píxeles)</li>
+                                <li>Bordes redondeados, colores de borde y estilos de tarjeta</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <a href="#simulator" class="btn-trigger" onclick="openSimTab('carousel')" style="width:fit-content; text-decoration:none; padding:12px 30px;"><i class="fa-solid fa-play"></i> Probar en el Simulador</a>
+                </div>
+                
+                <!-- Polls Details -->
+                <div id="details-polls" class="details-tab-content">
+                    <h3 style="font-family:var(--font-head); font-size:1.8rem; color:var(--txt-1); margin-bottom:16px;">Encuestas y Predicciones</h3>
+                    <p style="margin-bottom:24px; color:var(--txt-2);">Muestra encuestas y predicciones activas de tu canal de Twitch de forma estética. Fomenta la participación de tu comunidad mostrándoles el progreso en vivo.</p>
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:24px; margin-bottom:32px;">
+                        <div>
+                            <h4 style="color:var(--purple); margin-bottom:12px;"><i class="fa-solid fa-wand-magic-sparkles"></i> Lo que puedes hacer</h4>
+                            <ul style="list-style:inside; color:var(--txt-2); display:grid; gap:8px;">
+                                <li>Actualizaciones en tiempo real del progreso de votos y puntos de canal apostados</li>
+                                <li>Visualización de barras de porcentaje y contadores dinámicos</li>
+                                <li>Destaca al ganador con animaciones y transiciones premium al finalizar</li>
+                                <li>Ocultación automática tras finalizar o reiniciar</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 style="color:var(--pink); margin-bottom:12px;"><i class="fa-solid fa-sliders"></i> Opciones de Configuración</h4>
+                            <ul style="list-style:inside; color:var(--txt-2); display:grid; gap:8px;">
+                                <li>Personalización de fuente tipográfica y tamaño de texto</li>
+                                <li>Diseño glassmorphic de tarjeta: color de fondo, opacidad, borde, grosor y radio</li>
+                                <li>Padding y espaciado de opciones</li>
+                                <li>Duración por defecto para temporizadores</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <a href="#simulator" class="btn-trigger" onclick="openSimTab('polls')" style="width:fit-content; text-decoration:none; padding:12px 30px;"><i class="fa-solid fa-play"></i> Probar en el Simulador</a>
                 </div>
             </div>
         </div>
@@ -800,35 +1008,66 @@
     <section class="arch-section" id="arch">
         <div class="container">
             <div class="section-label reveal">Arquitectura</div>
-            <h2 class="reveal">Cómo Funciona<br>por Dentro</h2>
-            <div class="arch-grid" style="margin-top:56px">
+            <h2 class="reveal">Cómo Funciona por Dentro</h2>
+            <div class="arch-grid" style="margin-top:56px; grid-template-columns: 1.2fr 0.8fr;">
                 <div>
-                    <div class="arch-diagram reveal">
-                        <pre><span class="highlight">┌─ Fuentes de Datos ────────────────┐</span>
-│                                   │
-│  🎮 Twitch IRC ──────► Chat Msgs  │
-│  📡 EventSub WS ────► Alerts      │
-│  🎵 Windows SMTC ───► Now Playing │
-│                                   │
-<span class="highlight">└─────────────┬─────────────────────┘</span>
-              │
-              ▼
-<span class="highlight-cyan">┌─ Axum HTTP Server (port 777) ─────┐</span>
-│                                   │
-│  /api/stream ──► SSE broadcasts   │
-│  /overlays/* ──► Static overlays  │
-│  /api/config ──► Read/Write JSON  │
-│  /obs/*/ws   ──► WebSocket feeds  │
-│                                   │
-<span class="highlight-cyan">└─────────────┬─────────────────────┘</span>
-              │
-              ▼
-<span class="highlight-green">┌─ OBS Browser Sources ─────────────┐</span>
-│                                   │
-│  🗨️ chat.html  🎵 nowplaying.html  │
-│  ⚡ alerts.html 🖼️ carousel.html   │
-│                                   │
-<span class="highlight-green">└───────────────────────────────────┘</span></pre>
+                    <div class="arch-flow-diagram reveal" style="display: flex; flex-direction: column; gap: 24px; align-items: center; width: 100%;">
+                        <!-- Row 1: Data Sources -->
+                        <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; width: 100%;">
+                            <div class="flow-node" style="border: 1px solid var(--purple); background: rgba(168,85,247,0.05); padding: 16px 20px; border-radius: var(--radius-lg); text-align: center; min-width: 140px; box-shadow: var(--glow-purple);">
+                                <i class="fa-brands fa-twitch" style="color:var(--purple); font-size: 1.5rem; margin-bottom: 8px;"></i>
+                                <div style="font-weight: 700; font-size: 0.9rem; color: var(--txt-1);">Twitch API / IRC</div>
+                                <div style="font-size: 0.75rem; color: var(--txt-3);">Chat & Alertas</div>
+                            </div>
+                            <div class="flow-node" style="border: 1px solid var(--pink); background: rgba(236,72,153,0.05); padding: 16px 20px; border-radius: var(--radius-lg); text-align: center; min-width: 140px; box-shadow: var(--glow-pink);">
+                                <i class="fa-solid fa-music" style="color:var(--pink); font-size: 1.5rem; margin-bottom: 8px;"></i>
+                                <div style="font-weight: 700; font-size: 0.9rem; color: var(--txt-1);">Windows SMTC</div>
+                                <div style="font-size: 0.75rem; color: var(--txt-3);">Música local/Spotify</div>
+                            </div>
+                            <div class="flow-node" style="border: 1px solid var(--cyan); background: rgba(34,211,238,0.05); padding: 16px 20px; border-radius: var(--radius-lg); text-align: center; min-width: 140px; box-shadow: 0 0 40px rgba(34,211,238,0.15);">
+                                <i class="fa-solid fa-globe" style="color:var(--cyan); font-size: 1.5rem; margin-bottom: 8px;"></i>
+                                <div style="font-weight: 700; font-size: 0.9rem; color: var(--txt-1);">Web URLs</div>
+                                <div style="font-size: 0.75rem; color: var(--txt-3);">Sponsors / Media</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Arrow Down -->
+                        <div style="font-size: 1.5rem; color: var(--purple); animation: bounceArrow 2s infinite;"><i class="fa-solid fa-arrow-down"></i></div>
+                        
+                        <!-- Row 2: Core Server -->
+                        <div class="flow-node core-server" style="border: 2px solid var(--cyan); background: rgba(34,211,238,0.08); padding: 24px 40px; border-radius: var(--radius-xl); text-align: center; position: relative; max-width: 480px; box-shadow: 0 0 50px rgba(34,211,238,0.2);">
+                            <div class="logo-icon" style="margin: 0 auto 12px; width: 48px; height: 48px; font-size: 1.3rem; background: var(--grad-main); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white;"><i class="fa-solid fa-wind"></i></div>
+                            <div style="font-family: var(--font-head); font-weight: 800; font-size: 1.25rem; color: var(--txt-1);">Axum HTTP Server (Puerto 777)</div>
+                            <div style="font-size: 0.85rem; color: var(--txt-2); margin-top: 4px;">Construido en Rust - Cero latencia - Consumo ínfimo</div>
+                            
+                            <div style="display: flex; gap: 8px; justify-content: center; margin-top: 16px; flex-wrap: wrap;">
+                                <span style="font-family: var(--font-mono); font-size: 0.75rem; background: rgba(255,255,255,0.05); padding: 3px 8px; border-radius: 4px; color: var(--cyan);">SSE Stream</span>
+                                <span style="font-family: var(--font-mono); font-size: 0.75rem; background: rgba(255,255,255,0.05); padding: 3px 8px; border-radius: 4px; color: var(--purple);">WebSockets</span>
+                                <span style="font-family: var(--font-mono); font-size: 0.75rem; background: rgba(255,255,255,0.05); padding: 3px 8px; border-radius: 4px; color: var(--pink);">REST API</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Arrow Down -->
+                        <div style="font-size: 1.5rem; color: var(--cyan); animation: bounceArrow 2s infinite; animation-delay: 1s;"><i class="fa-solid fa-arrow-down"></i></div>
+                        
+                        <!-- Row 3: Output Overlays -->
+                        <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; width: 100%;">
+                            <div class="flow-node overlay-output" style="border: 1px solid var(--border); background: var(--bg-1); padding: 12px 18px; border-radius: var(--radius-md); text-align: center; min-width: 110px;">
+                                <div style="font-weight: 600; font-size: 0.85rem; color: var(--txt-1);">chat.html</div>
+                            </div>
+                            <div class="flow-node overlay-output" style="border: 1px solid var(--border); background: var(--bg-1); padding: 12px 18px; border-radius: var(--radius-md); text-align: center; min-width: 110px;">
+                                <div style="font-weight: 600; font-size: 0.85rem; color: var(--txt-1);">nowplaying.html</div>
+                            </div>
+                            <div class="flow-node overlay-output" style="border: 1px solid var(--border); background: var(--bg-1); padding: 12px 18px; border-radius: var(--radius-md); text-align: center; min-width: 110px;">
+                                <div style="font-weight: 600; font-size: 0.85rem; color: var(--txt-1);">alerts.html</div>
+                            </div>
+                            <div class="flow-node overlay-output" style="border: 1px solid var(--border); background: var(--bg-1); padding: 12px 18px; border-radius: var(--radius-md); text-align: center; min-width: 110px;">
+                                <div style="font-weight: 600; font-size: 0.85rem; color: var(--txt-1);">carousel.html</div>
+                            </div>
+                            <div class="flow-node overlay-output" style="border: 1px solid var(--border); background: var(--bg-1); padding: 12px 18px; border-radius: var(--radius-md); text-align: center; min-width: 110px;">
+                                <div style="font-weight: 600; font-size: 0.85rem; color: var(--txt-1);">polls.html</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="arch-detail">
@@ -852,7 +1091,7 @@
                         <div class="arch-item-icon"><i class="fa-brands fa-twitch"></i></div>
                         <div class="arch-item-text">
                             <h4>Twitch EventSub & IRC</h4>
-                            <p>Conexión directa vía WebSocket a la API EventSub de Twitch para follows, subs y raids. Chat a través de IRC con parsing de tags y badges.</p>
+                            <p>Conexión directa vía WebSocket a la API EventSub de Twitch para encuestas, predicciones, follows, subs y raids. Chat a través de IRC con parsing de tags y badges.</p>
                             <span class="arch-code">wss://eventsub.wss.twitch.tv</span>
                         </div>
                     </div>
@@ -874,78 +1113,243 @@
         <div class="container">
             <div class="section-label reveal">Simulador Interactivo</div>
             <h2 class="reveal">Prueba los Overlays<br>Ahora Mismo</h2>
-            <p class="section-sub reveal">Ajusta los parámetros y visualiza cómo quedan las alertas antes de instalar nada. Esto es solo una fracción de las opciones disponibles en el panel real.</p>
+            <p class="section-sub reveal">Selecciona un componente, personaliza sus opciones y visualiza su renderizado con el diseño por defecto antes de instalar la suite en tu equipo.</p>
 
             <div class="sim-grid">
                 <!-- Control panel -->
-                <div class="sim-panel reveal">
-                    <div class="sim-panel-title">
-                        <i class="fa-solid fa-sliders"></i> Panel de Control
+                <div class="sim-panel reveal" style="display: flex; flex-direction: column;">
+                    <div class="sim-tabs" style="display: flex; gap: 4px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 8px; border-bottom: 1px solid var(--border);">
+                        <button type="button" class="sim-tab-btn active" id="btn-sim-chat" onclick="switchSimTab('chat')">Chat</button>
+                        <button type="button" class="sim-tab-btn" id="btn-sim-nowplaying" onclick="switchSimTab('nowplaying')">Now Playing</button>
+                        <button type="button" class="sim-tab-btn" id="btn-sim-alerts" onclick="switchSimTab('alerts')">Alertas</button>
+                        <button type="button" class="sim-tab-btn" id="btn-sim-carousel" onclick="switchSimTab('carousel')">Carrusel</button>
+                        <button type="button" class="sim-tab-btn" id="btn-sim-polls" onclick="switchSimTab('polls')">Encuestas</button>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label">Tipo de Alerta</label>
-                        <select class="form-control" id="simType" onchange="renderAlert()">
-                            <option value="follow">👤 Seguidor (Follow)</option>
-                            <option value="sub">💎 Suscriptor (Sub)</option>
-                            <option value="raid">🔥 Incursión (Raid)</option>
-                            <option value="gift">🎁 Gift Subs</option>
-                        </select>
+                    <!-- Chat Sim Controls -->
+                    <div id="sim-controls-chat" class="sim-tab-content active">
+                        <div class="form-group">
+                            <label class="form-label">Mensaje de Chat</label>
+                            <input class="form-control" type="text" id="simChatMsg" value="¡Este overlay es increíble! 🚀" placeholder="Escribe un mensaje de prueba...">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Tamaño de Fuente</label>
+                            <input type="range" id="simChatFontSize" class="form-control" min="12" max="36" value="18" oninput="updateChatSimPreview()" style="height:10px; padding:0;">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Opacidad de Fondo</label>
+                            <input type="range" id="simChatBgOpacity" class="form-control" min="0" max="100" value="40" oninput="updateChatSimPreview()" style="height:10px; padding:0;">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Radio del Borde (px)</label>
+                            <input type="range" id="simChatBorderRadius" class="form-control" min="0" max="24" value="12" oninput="updateChatSimPreview()" style="height:10px; padding:0;">
+                        </div>
+                        <button class="btn-trigger" onclick="triggerSimChatMessage()"><i class="fa-solid fa-paper-plane"></i> Enviar Mensaje</button>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label">Layout</label>
-                        <select class="form-control" id="simLayout" onchange="renderAlert()">
-                            <option value="top">⬆ Imagen arriba, texto abajo</option>
-                            <option value="left">⬅ Imagen a la izquierda</option>
-                            <option value="right">➡ Imagen a la derecha</option>
-                            <option value="over">🖼 Texto sobre imagen (GIF)</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Color de Acento</label>
-                        <select class="form-control" id="simColor" onchange="renderAlert()">
-                            <option value="purple">🟣 Púrpura Neón</option>
-                            <option value="cyan">🔵 Cian Eléctrico</option>
-                            <option value="green">🟢 Verde Esmeralda</option>
-                            <option value="red">🔴 Carmesí</option>
-                            <option value="amber">🟡 Ámbar Dorado</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Nombre de Usuario</label>
-                        <input class="form-control" type="text" id="simUser" value="KorahX" oninput="renderAlert()" placeholder="TwitchUser123">
-                    </div>
-
-                    <div class="form-group">
-                        <div class="toggle-row">
-                            <span class="toggle-label"><i class="fa-solid fa-party-horn" style="color:var(--amber); margin-right:6px"></i> Mostrar Confeti</span>
-                            <input type="checkbox" class="toggle" id="simConfetti" checked>
+                    <!-- Now Playing Sim Controls -->
+                    <div id="sim-controls-nowplaying" class="sim-tab-content">
+                        <div class="form-group">
+                            <label class="form-label">Título del Tema</label>
+                            <input class="form-control" type="text" id="simNpTitle" value="Starlight Echoes" oninput="updateNpSimPreview()">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Artista / Grupo</label>
+                            <input class="form-control" type="text" id="simNpArtist" value="Luna Eclipse" oninput="updateNpSimPreview()">
+                        </div>
+                        <div class="form-group">
+                            <div class="toggle-row" style="margin-bottom: 8px;">
+                                <span class="toggle-label"><i class="fa-solid fa-compact-disc"></i> Mostrar Vinilo</span>
+                                <input type="checkbox" class="toggle" id="simNpVinyl" checked onchange="updateNpSimPreview()">
+                            </div>
+                            <div class="toggle-row">
+                                <span class="toggle-label"><i class="fa-solid fa-chart-simple"></i> Mostrar Visualizador</span>
+                                <input type="checkbox" class="toggle" id="simNpVisualizer" checked onchange="updateNpSimPreview()">
+                            </div>
+                        </div>
+                        <div class="demo-controls" style="display: flex; gap: 8px; margin-top: 16px; justify-content: center; width: 100%;">
+                            <button class="btn-trigger" onclick="prevTrack()" style="flex: 1;"><i class="fa-solid fa-backward"></i></button>
+                            <button class="btn-trigger" id="simPlayBtn" onclick="togglePlay()" style="flex: 2;"><i class="fa-solid fa-play"></i> Reproducir</button>
+                            <button class="btn-trigger" onclick="nextTrack()" style="flex: 1;"><i class="fa-solid fa-forward"></i></button>
                         </div>
                     </div>
 
-                    <button class="btn-trigger" onclick="triggerAlert()">
-                        <i class="fa-solid fa-circle-play"></i> Lanzar Alerta
-                    </button>
+                    <!-- Alerts Sim Controls -->
+                    <div id="sim-controls-alerts" class="sim-tab-content">
+                        <div class="form-group">
+                            <label class="form-label">Tipo de Alerta</label>
+                            <select class="form-control" id="simType" onchange="renderAlert()">
+                                <option value="follow">👤 Seguidor (Follow)</option>
+                                <option value="sub">💎 Suscriptor (Sub)</option>
+                                <option value="raid">🔥 Incursión (Raid)</option>
+                                <option value="gift">🎁 Gift Subs</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Layout</label>
+                            <select class="form-control" id="simLayout" onchange="renderAlert()">
+                                <option value="top">⬆ Imagen arriba, texto abajo</option>
+                                <option value="left">⬅ Imagen a la izquierda</option>
+                                <option value="right">➡ Imagen a la derecha</option>
+                                <option value="over">🖼 Texto sobre imagen (GIF)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Color de Acento</label>
+                            <select class="form-control" id="simColor" onchange="renderAlert()">
+                                <option value="purple">🟣 Púrpura Neón</option>
+                                <option value="cyan">🔵 Cian Eléctrico</option>
+                                <option value="green">🟢 Verde Esmeralda</option>
+                                <option value="red">🔴 Carmesí</option>
+                                <option value="amber">🟡 Ámbar Dorado</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Nombre de Usuario</label>
+                            <input class="form-control" type="text" id="simUser" value="KorahX" oninput="renderAlert()">
+                        </div>
+                        <div class="form-group">
+                            <div class="toggle-row">
+                                <span class="toggle-label"><i class="fa-solid fa-party-horn" style="color:var(--amber); margin-right:6px"></i> Mostrar Confeti</span>
+                                <input type="checkbox" class="toggle" id="simConfetti" checked>
+                            </div>
+                        </div>
+                        <button class="btn-trigger" onclick="triggerAlert()"><i class="fa-solid fa-circle-play"></i> Lanzar Alerta</button>
+                    </div>
+
+                    <!-- Carousel Sim Controls -->
+                    <div id="sim-controls-carousel" class="sim-tab-content">
+                        <div class="form-group">
+                            <label class="form-label">Efecto de Transición</label>
+                            <select class="form-control" id="simCarouselTrans" onchange="updateCarouselSimPreview()">
+                                <option value="fade">Atenuación (Fade)</option>
+                                <option value="slide">Desplazamiento (Slide)</option>
+                                <option value="zoom">Zoom</option>
+                                <option value="rotate">Giro 3D</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Velocidad del Intervalo (ms)</label>
+                            <input type="range" id="simCarouselInterval" class="form-control" min="1000" max="8000" step="500" value="4000" oninput="updateCarouselSimPreview()" style="height:10px; padding:0;">
+                        </div>
+                        <button class="btn-trigger" onclick="nextCarouselSlide()"><i class="fa-solid fa-angles-right"></i> Siguiente Logotipo</button>
+                    </div>
+
+                    <!-- Polls Sim Controls -->
+                    <div id="sim-controls-polls" class="sim-tab-content">
+                        <div class="form-group">
+                            <label class="form-label">Pregunta de Encuesta</label>
+                            <input class="form-control" type="text" id="simPollTitle" value="¿Qué lenguaje de programación prefieres?">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Duración (segundos)</label>
+                            <input type="range" id="simPollDuration" class="form-control" min="10" max="180" value="60" oninput="updatePollDurationLabel()" style="height:10px; padding:0;">
+                            <span id="simPollDurationVal" style="font-size:0.75rem; color:var(--txt-3); font-weight:bold; margin-top:4px; display:block;">60 segundos</span>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
+                            <button class="btn-trigger" onclick="startSimPoll()"><i class="fa-solid fa-play"></i> Iniciar Encuesta</button>
+                            <button class="btn-trigger" style="background:var(--bg-2); border:1px solid var(--border); box-shadow:none; color:var(--txt-1);" onclick="simulateSimPollVote()"><i class="fa-solid fa-plus"></i> Simular Votos</button>
+                            <button class="btn-trigger" style="background:var(--bg-2); border:1px solid var(--border); box-shadow:none; color:var(--txt-1);" onclick="endSimPoll()"><i class="fa-solid fa-stop"></i> Finalizar Encuesta</button>
+                            <button class="btn-trigger" style="background:rgba(239,68,68,0.15); color:var(--red); border:1px solid rgba(239,68,68,0.3); box-shadow:none;" onclick="resetSimPoll()"><i class="fa-solid fa-trash"></i> Reset / Limpiar</button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- OBS Preview Screen -->
-                <div class="sim-screen reveal reveal-delay-1">
+                <div class="sim-screen reveal reveal-delay-1" style="height: 100%; min-height: 480px; display: flex; flex-direction: column;">
                     <div class="sim-screen-bar">
                         <div class="window-dots">
                             <div class="wd wd-r"></div>
                             <div class="wd wd-y"></div>
                             <div class="wd wd-g"></div>
                         </div>
-                        <div class="sim-url">OBS Studio — Browser Source Preview</div>
+                        <div class="sim-url" id="simUrlText">http://127.0.0.1:777/overlays/chat</div>
                     </div>
-                    <div class="sim-screen-canvas" id="simCanvas">
+                    <div class="sim-screen-canvas" id="simCanvas" style="flex: 1; min-height: 400px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: radial-gradient(circle at center, rgba(15,15,30,0.4) 0%, rgba(3,3,6,1) 100%);">
                         <div class="obs-corner">1920×1080</div>
                         <div class="confetti-container" id="confettiContainer"></div>
-                        <div class="alert-card" id="alertCard">
-                            <!-- Filled by JS -->
+                        
+                        <!-- Chat Preview Wrapper -->
+                        <div id="preview-chat" class="preview-wrapper active">
+                            <div id="chatPreviewContainer" style="display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 400px; align-items: flex-start;">
+                                <div class="preview-chat-message" style="background: rgba(11, 11, 18, 0.4); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 10px 14px; font-size: 18px; line-height: 1.4; max-width: 90%; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                                    <strong style="color: var(--cyan); font-weight:700;">AlexStreamer:</strong> ¡Hola a todos! Qué buen inicio de directo.
+                                </div>
+                                <div class="preview-chat-message" style="background: rgba(11, 11, 18, 0.4); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 10px 14px; font-size: 18px; line-height: 1.4; max-width: 90%; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                                    <strong style="color: var(--purple); font-weight:700;">ModeradorVip:</strong> Recuerden respetar las normas de convivencia del chat.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Now Playing Preview Wrapper -->
+                        <div id="preview-nowplaying" class="preview-wrapper">
+                            <div id="npWidget" class="np-widget playing" style="margin:0;">
+                                <div class="np-disc-container" id="npVinylContainer">
+                                    <img class="np-vinyl" src="https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=300" id="npArt" alt="Vinyl">
+                                    <div class="np-vinyl-sticker">
+                                        <img src="https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=300" id="npSticker" alt="Sticker">
+                                    </div>
+                                    <div class="np-vinyl-hole"></div>
+                                </div>
+                                <div class="np-info">
+                                    <div class="np-meta-line">
+                                        <span class="np-source" id="npSource">Spotify</span>
+                                        <div class="np-track-container">
+                                            <div class="np-track" id="npTitle">Starlight Echoes</div>
+                                        </div>
+                                        <div class="np-artist" id="npArtist">Luna Eclipse</div>
+                                    </div>
+                                    <div class="np-viz" id="npViz">
+                                        <span></span><span></span><span></span><span></span>
+                                        <span></span><span></span><span></span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="np-lyrics" id="npLyrics">"Escuchando el brillo estelar..."</div>
+                                    <div class="np-bar-wrap" style="margin-top:8px">
+                                        <div class="np-bar-fill" id="npFill" style="width: 32%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Alerts Preview Wrapper -->
+                        <div id="preview-alerts" class="preview-wrapper">
+                            <div class="alert-card" id="alertCard">
+                                <!-- Dynamically filled by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Carousel Preview Wrapper -->
+                        <div id="preview-carousel" class="preview-wrapper">
+                            <div id="carouselWidget" style="width: 300px; height: 120px; background: rgba(11, 11, 18, 0.6); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: all 0.5s;">
+                                <div id="carouselSlide1" class="carousel-slide" style="position: absolute; display: flex; align-items: center; justify-content: center; gap: 12px; font-family: var(--font-head); font-weight:800; font-size:1.4rem; color:white; transition: opacity 0.5s; opacity: 1;">
+                                    <i class="fa-solid fa-wind" style="color:var(--cyan); font-size: 2rem;"></i>
+                                    <span>NOVA SPONSOR</span>
+                                </div>
+                                <div id="carouselSlide2" class="carousel-slide" style="position: absolute; display: flex; align-items: center; justify-content: center; gap: 12px; font-family: var(--font-head); font-weight:800; font-size:1.4rem; color:var(--purple); transition: opacity 0.5s; opacity: 0;">
+                                    <i class="fa-brands fa-twitch" style="font-size: 2.2rem;"></i>
+                                    <span>Twitch Prime</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Polls Preview Wrapper -->
+                        <div id="preview-polls" class="preview-wrapper">
+                            <div id="pollWidget" style="width: 360px; background: rgba(15, 15, 22, 0.65); border: 1px solid rgba(255,255,255,0.09); border-radius: 20px; padding: 20px; display: none; flex-direction: column; font-family: var(--font-head); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4); text-align: left;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <span style="font-size: 0.65rem; background: rgba(99, 102, 241, 0.2); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.3); padding: 3px 8px; border-radius: 20px; text-transform: uppercase; font-weight: bold;">Encuesta Activa</span>
+                                    <span id="simPollTimer" style="font-size: 0.65rem; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.05); padding: 3px 8px; border-radius: 20px; color: #e2e8f0; font-family: monospace;">00:60</span>
+                                </div>
+                                <h3 id="simPollQuestion" style="font-size: 1.05rem; font-weight: 600; color: white; margin-bottom: 12px;">¿Qué juego deberíamos jugar hoy en directo?</h3>
+                                <div id="simPollOptions" style="display: flex; flex-direction: column; gap: 8px;">
+                                    <!-- Options filled dynamically -->
+                                </div>
+                            </div>
+                            <div id="pollPlaceholder" style="font-family: var(--font-head); color: var(--txt-3); text-align: center;">
+                                <i class="fa-solid fa-square-poll-horizontal" style="font-size: 3rem; margin-bottom: 8px; display: block; color: rgba(255,255,255,0.05);"></i>
+                                <p style="font-size: 0.9rem;">Haz clic en "Iniciar Encuesta" para probar el overlay.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1003,46 +1407,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- OBS URLs -->
-            <div style="margin-top: 60px;">
-                <p class="reveal" style="font-family:var(--font-head); font-weight:700; color:var(--txt-1); font-size:1.05rem; margin-bottom: 8px;">URLs para OBS Browser Source</p>
-                <p class="reveal" style="color:var(--txt-3); font-size:0.88rem; margin-bottom: 24px;">Copia y pega directamente en OBS Studio → Fuente → Browser Source → URL</p>
-                <div class="url-grid">
-                    <div class="url-card reveal">
-                        <div class="url-card-icon" style="color:var(--green)"><i class="fa-solid fa-comments"></i></div>
-                        <div class="url-card-info">
-                            <div class="url-card-name">Twitch Chat</div>
-                            <div class="url-card-url">http://127.0.0.1:777/overlays/chat</div>
-                        </div>
-                        <button class="url-card-copy" onclick="copyUrl(this, 'http://127.0.0.1:777/overlays/chat')">Copiar</button>
-                    </div>
-                    <div class="url-card reveal reveal-delay-1">
-                        <div class="url-card-icon" style="color:var(--purple)"><i class="fa-solid fa-compact-disc"></i></div>
-                        <div class="url-card-info">
-                            <div class="url-card-name">Now Playing</div>
-                            <div class="url-card-url">http://127.0.0.1:777/overlays/nowplaying</div>
-                        </div>
-                        <button class="url-card-copy" onclick="copyUrl(this, 'http://127.0.0.1:777/overlays/nowplaying')">Copiar</button>
-                    </div>
-                    <div class="url-card reveal reveal-delay-2">
-                        <div class="url-card-icon" style="color:var(--amber)"><i class="fa-solid fa-bolt"></i></div>
-                        <div class="url-card-info">
-                            <div class="url-card-name">Alerts</div>
-                            <div class="url-card-url">http://127.0.0.1:777/overlays/alerts</div>
-                        </div>
-                        <button class="url-card-copy" onclick="copyUrl(this, 'http://127.0.0.1:777/overlays/alerts')">Copiar</button>
-                    </div>
-                    <div class="url-card reveal reveal-delay-3">
-                        <div class="url-card-icon" style="color:var(--cyan)"><i class="fa-solid fa-images"></i></div>
-                        <div class="url-card-info">
-                            <div class="url-card-name">Carousel</div>
-                            <div class="url-card-url">http://127.0.0.1:777/overlays/carousel</div>
-                        </div>
-                        <button class="url-card-copy" onclick="copyUrl(this, 'http://127.0.0.1:777/overlays/carousel')">Copiar</button>
-                    </div>
-                </div>
-            </div>
         </div>
     </section>
 
@@ -1052,15 +1416,10 @@
             <div class="section-label reveal">Tecnologías</div>
             <h2 class="reveal">Construido con las<br>Mejores Herramientas</h2>
             <div class="tech-chips">
-                <div class="tech-chip reveal"><div class="tc-dot" style="background:#f74c00"></div> Rust 2024</div>
-                <div class="tech-chip reveal reveal-delay-1"><div class="tc-dot" style="background:#34d399"></div> Axum (HTTP)</div>
-                <div class="tech-chip reveal reveal-delay-2"><div class="tc-dot" style="background:#60a5fa"></div> Tokio (Async)</div>
-                <div class="tech-chip reveal reveal-delay-3"><div class="tc-dot" style="background:#f9a8d4"></div> Server-Sent Events</div>
-                <div class="tech-chip reveal"><div class="tc-dot" style="background:#a78bfa"></div> WebSockets</div>
-                <div class="tech-chip reveal reveal-delay-1"><div class="tc-dot" style="background:#fbbf24"></div> Twitch EventSub</div>
-                <div class="tech-chip reveal reveal-delay-2"><div class="tc-dot" style="background:#38bdf8"></div> Windows SMTC</div>
-                <div class="tech-chip reveal reveal-delay-3"><div class="tc-dot" style="background:#fb923c"></div> HTML5 / CSS3 / JS</div>
-                <div class="tech-chip reveal"><div class="tc-dot" style="background:#e2e8f0"></div> Vanilla CSS (Glassmorphism)</div>
+                <div class="tech-chip reveal"><div class="tc-dot" style="background:#f74c00"></div> Rust (Axum & Tokio)</div>
+                <div class="tech-chip reveal reveal-delay-1"><div class="tc-dot" style="background:#34d399"></div> WebSockets & SSE</div>
+                <div class="tech-chip reveal reveal-delay-2"><div class="tc-dot" style="background:#60a5fa"></div> Twitch API & EventSub</div>
+                <div class="tech-chip reveal reveal-delay-3"><div class="tc-dot" style="background:#fb923c"></div> HTML5 / Vanilla CSS / JS</div>
             </div>
         </div>
     </section>
@@ -1081,7 +1440,7 @@
                 </div>
             </div>
             <div class="footer-copy">
-                &copy; 2026 Nova Live Suite · Hecho con <i class="fa-solid fa-heart" style="color:var(--pink)"></i> en Rust · Solo Windows · Código abierto
+                &copy; 2026 Nova Live Suite · Copyright KorahX · Hecho con <i class="fa-solid fa-heart" style="color:var(--pink)"></i> en Rust · Solo Windows
             </div>
         </div>
     </footer>
@@ -1286,6 +1645,322 @@
         }, 150);
     }
 
+    // ═══════════ TABS & SIMULATOR CONTROL ═══════════
+    function switchDetailsTab(tabId) {
+        document.querySelectorAll('#overlay-details .tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        const activeBtn = document.getElementById(`btn-tab-${tabId}`);
+        if (activeBtn) activeBtn.classList.add('active');
+
+        document.querySelectorAll('#overlay-details .details-tab-content').forEach(content => {
+            content.classList.remove('active-content');
+        });
+        const targetContent = document.getElementById(`details-${tabId}`);
+        if (targetContent) {
+            targetContent.classList.add('active-content');
+        }
+    }
+
+    function switchSimTab(tabId) {
+        document.querySelectorAll('.sim-tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        const activeBtn = document.getElementById(`btn-sim-${tabId}`);
+        if (activeBtn) activeBtn.classList.add('active');
+
+        document.querySelectorAll('.sim-tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        const targetControl = document.getElementById(`sim-controls-${tabId}`);
+        if (targetControl) targetControl.classList.add('active');
+
+        document.querySelectorAll('#simCanvas .preview-wrapper').forEach(wrapper => {
+            wrapper.classList.remove('active');
+        });
+        const targetPreview = document.getElementById(`preview-${tabId}`);
+        if (targetPreview) targetPreview.classList.add('active');
+
+        document.getElementById('simUrlText').innerText = `http://127.0.0.1:777/overlays/${tabId}`;
+    }
+
+    function openSimTab(tabId) {
+        switchSimTab(tabId);
+        const simSec = document.getElementById('simulator');
+        if (simSec) {
+            simSec.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+
+    // ═══════════ SIMULATOR HELPERS ═══════════
+    function updateChatSimPreview() {
+        const fontSize = document.getElementById('simChatFontSize').value;
+        const opacity = document.getElementById('simChatBgOpacity').value / 100;
+        const borderRadius = document.getElementById('simChatBorderRadius').value;
+
+        const messages = document.querySelectorAll('.preview-chat-message');
+        messages.forEach(msg => {
+            msg.style.fontSize = `${fontSize}px`;
+            msg.style.backgroundColor = `rgba(11, 11, 18, ${opacity})`;
+            msg.style.borderRadius = `${borderRadius}px`;
+        });
+    }
+
+    function triggerSimChatMessage() {
+        const input = document.getElementById('simChatMsg');
+        const text = input.value.trim();
+        if (!text) return;
+
+        const container = document.getElementById('chatPreviewContainer');
+        const colors = ['var(--cyan)', 'var(--purple)', 'var(--pink)', 'var(--green)', 'var(--amber)'];
+        const users = ['KorahX', 'AlexStreamer', 'TwitchFan', 'RustDeveloper', 'NovaViewer'];
+        const user = users[Math.floor(Math.random() * users.length)];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+
+        const fontSize = document.getElementById('simChatFontSize').value;
+        const opacity = document.getElementById('simChatBgOpacity').value / 100;
+        const borderRadius = document.getElementById('simChatBorderRadius').value;
+
+        const newMsg = document.createElement('div');
+        newMsg.className = 'preview-chat-message';
+        newMsg.style.cssText = `
+            background: rgba(11, 11, 18, ${opacity});
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: ${borderRadius}px;
+            padding: 10px 14px;
+            font-size: ${fontSize}px;
+            line-height: 1.4;
+            max-width: 90%;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            margin-top: 6px;
+        `;
+        newMsg.innerHTML = `<strong style="color: ${color}; font-weight:700;">${user}:</strong> ${text}`;
+        container.appendChild(newMsg);
+        input.value = '';
+
+        const msgs = container.querySelectorAll('.preview-chat-message');
+        if (msgs.length > 5) {
+            msgs[0].remove();
+        }
+    }
+
+    function updateNpSimPreview() {
+        const title = document.getElementById('simNpTitle').value;
+        const artist = document.getElementById('simNpArtist').value;
+        const showVinyl = document.getElementById('simNpVinyl').checked;
+        const showViz = document.getElementById('simNpVisualizer').checked;
+
+        const widget = document.querySelector('#preview-nowplaying .np-widget');
+        const titleEl = document.querySelector('#preview-nowplaying #npTitle');
+        const artistEl = document.querySelector('#preview-nowplaying #npArtist');
+        const vinylContainer = document.querySelector('#preview-nowplaying #npVinylContainer');
+        const viz = document.querySelector('#preview-nowplaying #npViz');
+
+        if (titleEl) titleEl.innerText = title;
+        if (artistEl) artistEl.innerText = artist;
+
+        if (widget) {
+            if (showVinyl) {
+                widget.classList.add('playing');
+                if (vinylContainer) vinylContainer.style.display = 'block';
+            } else {
+                widget.classList.remove('playing');
+                if (vinylContainer) vinylContainer.style.display = 'none';
+            }
+        }
+        if (viz) {
+            viz.style.display = showViz ? 'flex' : 'none';
+        }
+    }
+
+    // Carousel Simulator transition cycle
+    let currentSlide = 1;
+    function nextCarouselSlide() {
+        const slide1 = document.getElementById('carouselSlide1');
+        const slide2 = document.getElementById('carouselSlide2');
+        const transition = document.getElementById('simCarouselTrans').value;
+
+        if (currentSlide === 1) {
+            applyTransition(slide1, slide2, transition);
+            currentSlide = 2;
+        } else {
+            applyTransition(slide2, slide1, transition);
+            currentSlide = 1;
+        }
+    }
+
+    function applyTransition(fromSlide, toSlide, transition) {
+        fromSlide.style.transition = 'all 0.5s ease-in-out';
+        toSlide.style.transition = 'all 0.5s ease-in-out';
+
+        if (transition === 'fade') {
+            fromSlide.style.opacity = '0';
+            fromSlide.style.transform = 'scale(1) rotateY(0deg) translateX(0)';
+            toSlide.style.opacity = '1';
+            toSlide.style.transform = 'scale(1) rotateY(0deg) translateX(0)';
+        } else if (transition === 'slide') {
+            fromSlide.style.opacity = '0';
+            fromSlide.style.transform = 'translateX(-100%)';
+            toSlide.style.opacity = '1';
+            toSlide.style.transform = 'translateX(0)';
+            setTimeout(() => {
+                if (currentSlide === 1) fromSlide.style.transform = 'translateX(100%)';
+            }, 500);
+        } else if (transition === 'zoom') {
+            fromSlide.style.opacity = '0';
+            fromSlide.style.transform = 'scale(0.5)';
+            toSlide.style.opacity = '1';
+            toSlide.style.transform = 'scale(1)';
+        } else if (transition === 'rotate') {
+            fromSlide.style.opacity = '0';
+            fromSlide.style.transform = 'rotateY(90deg)';
+            toSlide.style.opacity = '1';
+            toSlide.style.transform = 'rotateY(0deg)';
+        }
+    }
+
+    let carouselIntervalObj = null;
+    function updateCarouselSimPreview() {
+        if (carouselIntervalObj) clearInterval(carouselIntervalObj);
+        const interval = document.getElementById('simCarouselInterval').value;
+        carouselIntervalObj = setInterval(nextCarouselSlide, interval);
+    }
+
+    // Polls Simulator variables & logic
+    let pollTimerVal = 60;
+    let pollIntervalObj = null;
+    let pollActive = false;
+    let pollOptions = [
+        { name: 'Rust', votes: 0 },
+        { name: 'Go', votes: 0 },
+        { name: 'TypeScript', votes: 0 },
+        { name: 'Python', votes: 0 }
+    ];
+
+    function updatePollDurationLabel() {
+        const val = document.getElementById('simPollDuration').value;
+        document.getElementById('simPollDurationVal').innerText = `${val} segundos`;
+    }
+
+    function renderPollOptions() {
+        const container = document.getElementById('simPollOptions');
+        container.innerHTML = '';
+        const totalVotes = pollOptions.reduce((acc, opt) => acc + opt.votes, 0) || 1;
+
+        pollOptions.forEach((opt, index) => {
+            const pct = Math.round((opt.votes / totalVotes) * 100);
+            const row = document.createElement('div');
+            row.style.cssText = `
+                position: relative;
+                padding: 10px 14px;
+                border-radius: 8px;
+                background: rgba(255,255,255,0.03);
+                border: 1px solid rgba(255,255,255,0.05);
+                overflow: hidden;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                font-size: 0.88rem;
+                color: white;
+            `;
+
+            const progress = document.createElement('div');
+            progress.style.cssText = `
+                position: absolute;
+                left: 0; top: 0; bottom: 0;
+                width: ${pct}%;
+                background: linear-gradient(90deg, rgba(168,85,247,0.15) 0%, rgba(236,72,153,0.15) 100%);
+                z-index: 1;
+                transition: width 0.3s ease;
+            `;
+            row.appendChild(progress);
+
+            row.innerHTML += `
+                <span style="position:relative; z-index:2; font-weight:500;">${index + 1}. ${opt.name}</span>
+                <span style="position:relative; z-index:2; font-weight:600; color:var(--txt-1);">${opt.votes} votos (${pct}%)</span>
+            `;
+
+            container.appendChild(row);
+        });
+    }
+
+    function startSimPoll() {
+        pollActive = true;
+        document.getElementById('pollPlaceholder').style.display = 'none';
+        document.getElementById('pollWidget').style.display = 'flex';
+
+        const question = document.getElementById('simPollTitle').value || '¿Qué lenguaje prefieres?';
+        document.getElementById('simPollQuestion').innerText = question;
+
+        pollOptions = [
+            { name: 'Rust', votes: 0 },
+            { name: 'Go', votes: 0 },
+            { name: 'TypeScript', votes: 0 },
+            { name: 'Python', votes: 0 }
+        ];
+
+        pollTimerVal = parseInt(document.getElementById('simPollDuration').value);
+        document.getElementById('simPollTimer').innerText = `00:${pollTimerVal < 10 ? '0' + pollTimerVal : pollTimerVal}`;
+
+        renderPollOptions();
+
+        if (pollIntervalObj) clearInterval(pollIntervalObj);
+        pollIntervalObj = setInterval(() => {
+            pollTimerVal--;
+            if (pollTimerVal <= 0) {
+                clearInterval(pollIntervalObj);
+                endSimPoll();
+            } else {
+                document.getElementById('simPollTimer').innerText = `00:${pollTimerVal < 10 ? '0' + pollTimerVal : pollTimerVal}`;
+            }
+        }, 1000);
+    }
+
+    function simulateSimPollVote() {
+        if (!pollActive) return;
+        const randOpt = Math.floor(Math.random() * pollOptions.length);
+        pollOptions[randOpt].votes += Math.floor(Math.random() * 3) + 1;
+        renderPollOptions();
+    }
+
+    function endSimPoll() {
+        if (!pollActive) return;
+        pollActive = false;
+        if (pollIntervalObj) clearInterval(pollIntervalObj);
+
+        let winnerIndex = 0;
+        let maxVotes = -1;
+        pollOptions.forEach((opt, idx) => {
+            if (opt.votes > maxVotes) {
+                maxVotes = opt.votes;
+                winnerIndex = idx;
+            }
+        });
+
+        const totalVotes = pollOptions.reduce((acc, opt) => acc + opt.votes, 0);
+        const winner = pollOptions[winnerIndex];
+        const winnerPct = totalVotes > 0 ? Math.round((winner.votes / totalVotes) * 100) : 0;
+
+        const container = document.getElementById('simPollOptions');
+        container.innerHTML = `
+            <div style="text-align: center; padding: 20px 10px; border-radius: 12px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); margin-top: 10px; width:100%;">
+                <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--green); font-weight: 700; letter-spacing: 0.05em; margin-bottom: 8px;">Ganador de la Encuesta</div>
+                <div style="font-size: 2rem; font-weight: 800; color: white; line-height: 1.2; margin-bottom: 6px;">${winner.name}</div>
+                <div style="font-size: 1.1rem; font-weight: 700; color: var(--green);">${winnerPct}% de los votos</div>
+                <div style="font-size: 0.85rem; color: var(--txt-3); margin-top: 8px;">Total de votos: ${totalVotes}</div>
+            </div>
+        `;
+        document.getElementById('simPollTimer').innerText = 'FINALIZADO';
+    }
+
+    function resetSimPoll() {
+        pollActive = false;
+        if (pollIntervalObj) clearInterval(pollIntervalObj);
+        document.getElementById('pollPlaceholder').style.display = 'block';
+        document.getElementById('pollWidget').style.display = 'none';
+    }
+
     // Copy URL function
     function copyUrl(btn, url) {
         navigator.clipboard.writeText(url).then(() => {
@@ -1299,6 +1974,9 @@
 
     // Init
     renderAlert();
+    switchSimTab('chat');
+    switchDetailsTab('chat');
+    updateCarouselSimPreview();
     document.getElementById('npViz').classList.add('paused');
 
     // ═══════════ LATEST RELEASE FETCH ═══════════
@@ -1314,7 +1992,6 @@
             const version   = data.tag_name || 'latest';
             const published = new Date(data.published_at).toLocaleDateString('es-ES', { year:'numeric', month:'short', day:'numeric' });
 
-            // Find .exe asset
             const exeAsset = data.assets?.find(a => a.name.endsWith('.exe'));
 
             let metaHTML = `
@@ -1332,13 +2009,11 @@
                 btn.setAttribute('download', exeAsset.name);
                 btnText.textContent = `Descargar ${exeAsset.name}`;
             } else {
-                // No exe yet — link to releases page
                 btn.href = data.html_url;
                 btnText.textContent = 'Ver Release en GitHub';
             }
             meta.innerHTML = metaHTML;
         } catch (e) {
-            // Fallback silently
             document.getElementById('downloadMeta').innerHTML =
                 '<span class="meta-tag"><i class="fa-brands fa-github"></i> GitHub Releases</span>';
         }
