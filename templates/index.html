@@ -1736,33 +1736,103 @@
             <button class="close-panel-btn" onclick="closePanel('polls')"><i class="fa-solid fa-times"></i></button>
         </div>
         <form id="form-polls" onsubmit="event.preventDefault();">
-            <details class="settings-category" open>
-                <summary><span>Simulación de Encuestas</span></summary>
+            <details class="settings-category">
+                <summary><span>Disparadores de Prueba</span></summary>
                 <div class="category-content">
-                    <div class="form-group">
-                        <label>Pregunta de Encuesta</label>
-                        <input type="text" class="form-control" id="poll-test-title" value="¿Qué lenguaje de programación prefieres?">
+                    <div style="border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px; margin-bottom: 12px;">
+                        <h4 style="font-size: 0.9rem; color: #a5b4fc; margin-bottom: 8px;">Prueba de Encuesta</h4>
+                        <div class="form-group">
+                            <label>Pregunta de Encuesta</label>
+                            <input type="text" class="form-control" id="poll-test-title" value="¿Qué lenguaje de programación prefieres?">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
+                            <button type="button" class="btn-toggle-tool disabled" style="margin-top: 0; background: rgba(99, 102, 241, 0.15); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.3);" onclick="triggerTestPollStart()"><i class="fa-solid fa-play"></i> Iniciar Encuesta de Prueba</button>
+                            <button type="button" class="btn-toggle-tool disabled" style="margin-top: 0; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);" onclick="triggerTestPollVote()"><i class="fa-solid fa-plus"></i> Simular Votos Aleatorios</button>
+                            <button type="button" class="btn-toggle-tool enabled" style="margin-top: 0;" onclick="triggerTestPollEnd()"><i class="fa-solid fa-stop"></i> Finalizar Encuesta</button>
+                        </div>
                     </div>
-                    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
-                        <button type="button" class="btn-toggle-tool disabled" style="margin-top: 0; background: rgba(99, 102, 241, 0.15); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.3);" onclick="triggerTestPollStart()"><i class="fa-solid fa-play"></i> Iniciar Encuesta de Prueba</button>
-                        <button type="button" class="btn-toggle-tool disabled" style="margin-top: 0; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);" onclick="triggerTestPollVote()"><i class="fa-solid fa-plus"></i> Simular Votos Aleatorios</button>
-                        <button type="button" class="btn-toggle-tool enabled" style="margin-top: 0;" onclick="triggerTestPollEnd()"><i class="fa-solid fa-stop"></i> Finalizar Encuesta</button>
+                    <div>
+                        <h4 style="font-size: 0.9rem; color: #c084fc; margin-bottom: 8px;">Prueba de Predicción</h4>
+                        <div class="form-group">
+                            <label>Pregunta de Predicción</label>
+                            <input type="text" class="form-control" id="pred-test-title" value="¿Lograremos pasarnos el jefe en este intento?">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
+                            <button type="button" class="btn-toggle-tool disabled" style="margin-top: 0; background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3);" onclick="triggerTestPredictionStart()"><i class="fa-solid fa-play"></i> Iniciar Predicción de Prueba</button>
+                            <button type="button" class="btn-toggle-tool disabled" style="margin-top: 0; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);" onclick="triggerTestPredictionVote()"><i class="fa-solid fa-coins"></i> Simular Puntos Apostados</button>
+                            <button type="button" class="btn-toggle-tool enabled" style="margin-top: 0;" onclick="triggerTestPredictionEnd()"><i class="fa-solid fa-stop"></i> Finalizar Predicción</button>
+                            <button type="button" class="btn-toggle-tool enabled" style="margin-top: 4px; background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3);" onclick="triggerTestPollReset()"><i class="fa-solid fa-trash-can"></i> Limpiar Overlay / Reset</button>
+                        </div>
                     </div>
                 </div>
             </details>
 
             <details class="settings-category" open>
-                <summary><span>Simulación de Predicciones</span></summary>
+                <summary><span data-i18n="cat_typography_style">Typography & Styling</span></summary>
                 <div class="category-content">
                     <div class="form-group">
-                        <label>Pregunta de Predicción</label>
-                        <input type="text" class="form-control" id="pred-test-title" value="¿Lograremos pasarnos el jefe en este intento?">
+                        <label><span data-i18n="lbl_font_family">Font Family</span></label>
+                        <select class="form-control" name="font_family" id="polls-font_family">
+                            <option value="Outfit">Outfit</option>
+                            <option value="Plus Jakarta Sans">Plus Jakarta Sans</option>
+                            <option value="'Courier New', Courier, monospace">Monospace</option>
+                            <option value="'Segoe UI', sans-serif">Segoe UI</option>
+                        </select>
                     </div>
-                    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
-                        <button type="button" class="btn-toggle-tool disabled" style="margin-top: 0; background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3);" onclick="triggerTestPredictionStart()"><i class="fa-solid fa-play"></i> Iniciar Predicción de Prueba</button>
-                        <button type="button" class="btn-toggle-tool disabled" style="margin-top: 0; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);" onclick="triggerTestPredictionVote()"><i class="fa-solid fa-coins"></i> Simular Puntos Apostados</button>
-                        <button type="button" class="btn-toggle-tool enabled" style="margin-top: 0;" onclick="triggerTestPredictionEnd()"><i class="fa-solid fa-stop"></i> Finalizar Predicción</button>
-                        <button type="button" class="btn-toggle-tool enabled" style="margin-top: 4px; background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3);" onclick="triggerTestPollReset()"><i class="fa-solid fa-trash-can"></i> Limpiar Overlay / Reset</button>
+                    <div class="form-group">
+                        <label><span data-i18n="lbl_font_size">Font Size</span></label>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="range" class="form-control" name="font_size" id="polls-font_size" min="8" max="72" step="1" style="flex: 1; height: 10px;">
+                            <span id="polls-font_size-val" style="min-width: 45px; font-size: 0.85rem; font-variant-numeric: tabular-nums; text-align: right; color: var(--text-muted);">18px</span>
+                        </div>
+                    </div>
+                </div>
+            </details>
+
+            <details class="settings-category">
+                <summary><span>Fondo y Bordes</span></summary>
+                <div class="category-content">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><span data-i18n="lbl_bg_color">Background Color</span></label>
+                            <input type="color" class="form-control" name="bg_color" id="polls-bg_color" style="height:40px; padding:4px;">
+                        </div>
+                        <div class="form-group">
+                            <label><span data-i18n="lbl_border_color">Border Color</span></label>
+                            <input type="color" class="form-control" name="border_color" id="polls-border_color" style="height:40px; padding:4px;">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><span data-i18n="lbl_bg_opacity">Background Opacity</span></label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="range" class="form-control" name="bg_opacity" id="polls-bg_opacity" min="0" max="1" step="0.05" style="flex: 1; height: 10px;">
+                                <span id="polls-bg_opacity-val" style="min-width: 45px; font-size: 0.85rem; font-variant-numeric: tabular-nums; text-align: right; color: var(--text-muted);">0.65</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label><span>Padding (px)</span></label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="range" class="form-control" name="padding_px" id="polls-padding_px" min="0" max="100" step="1" style="flex: 1; height: 10px;">
+                                <span id="polls-padding_px-val" style="min-width: 45px; font-size: 0.85rem; font-variant-numeric: tabular-nums; text-align: right; color: var(--text-muted);">24px</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><span data-i18n="lbl_border_width">Border Width (px)</span></label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="range" class="form-control" name="border_width" id="polls-border_width" min="0" max="20" step="1" style="flex: 1; height: 10px;">
+                                <span id="polls-border_width-val" style="min-width: 45px; font-size: 0.85rem; font-variant-numeric: tabular-nums; text-align: right; color: var(--text-muted);">1px</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label><span data-i18n="lbl_border_radius">Border Radius</span></label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="range" class="form-control" name="border_radius" id="polls-border_radius" min="0" max="50" step="1" style="flex: 1; height: 10px;">
+                                <span id="polls-border_radius-val" style="min-width: 45px; font-size: 0.85rem; font-variant-numeric: tabular-nums; text-align: right; color: var(--text-muted);">20px</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </details>
@@ -1772,11 +1842,19 @@
                 <div class="category-content">
                     <div class="form-group">
                         <label>Duración por defecto (segundos)</label>
-                        <input type="number" class="form-control" id="poll-default-duration" value="60">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="range" class="form-control" name="default_duration_s" id="polls-default_duration_s" min="5" max="300" step="5" style="flex: 1; height: 10px;">
+                            <span id="polls-default_duration_s-val" style="min-width: 45px; font-size: 0.85rem; font-variant-numeric: tabular-nums; text-align: right; color: var(--text-muted);">60s</span>
+                        </div>
                     </div>
                 </div>
             </details>
             
+            <div style="display: flex; gap: 8px; margin-top: 16px;">
+                <button type="button" class="config-btn" onclick="exportConfig(event)" style="flex: 1; height: 42px; border-radius: 8px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1); cursor: pointer;" title="Export Settings"><i class="fa-solid fa-download"></i> <span data-i18n="btn_export">Export</span></button>
+                <button type="button" class="config-btn" onclick="importConfig(event)" style="flex: 1; height: 42px; border-radius: 8px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1); cursor: pointer;" title="Import Settings"><i class="fa-solid fa-upload"></i> <span data-i18n="btn_import">Import</span></button>
+            </div>
+
             <button type="button" class="btn-toggle-tool" id="toggle-btn-polls" onclick="toggleToolEnabled('polls')">Habilitar / Deshabilitar</button>
         </form>
     </div>
@@ -2104,7 +2182,7 @@
         function triggerTestPollStart() {
             const titleInput = document.getElementById("poll-test-title");
             const title = titleInput ? titleInput.value.trim() : "¿Qué lenguaje de programación prefieres?";
-            const duration = parseInt(document.getElementById("poll-default-duration").value) || 60;
+            const duration = parseInt(document.getElementById("polls-default_duration_s").value) || 60;
             
             activeTestPoll = {
                 title: title,
@@ -2171,7 +2249,7 @@
         function triggerTestPredictionStart() {
             const titleInput = document.getElementById("pred-test-title");
             const title = titleInput ? titleInput.value.trim() : "¿Lograremos pasarnos el jefe en este intento?";
-            const duration = parseInt(document.getElementById("poll-default-duration").value) || 60;
+            const duration = parseInt(document.getElementById("polls-default_duration_s").value) || 60;
             
             activeTestPrediction = {
                 title: title,
@@ -2658,6 +2736,20 @@
                 document.getElementById('nowplayingPreviewArtist').style.color = nowplaying.color_artist;
             }
 
+            // Update Polls Settings
+            if (activePanel !== 'polls') {
+                const polls = currentConfig.tools.polls.settings;
+                document.getElementById('polls-font_family').value = polls.font_family;
+                document.getElementById('polls-font_size').value = parseInt(polls.font_size) || 18;
+                document.getElementById('polls-bg_color').value = polls.bg_color;
+                document.getElementById('polls-bg_opacity').value = polls.bg_opacity;
+                document.getElementById('polls-border_color').value = polls.border_color;
+                document.getElementById('polls-border_width').value = parseInt(polls.border_width) || 1;
+                document.getElementById('polls-border_radius').value = parseInt(polls.border_radius) || 20;
+                document.getElementById('polls-padding_px').value = polls.padding_px;
+                document.getElementById('polls-default_duration_s').value = polls.default_duration_s;
+            }
+
             // Update Alerts Settings
             if (activePanel !== 'alerts') {
                 const alerts = currentConfig.tools.alerts.settings;
@@ -2705,7 +2797,7 @@
         }
 
 function initAutoSave() {
-            ['chat', 'carousel', 'nowplaying', 'alerts'].forEach(tool => {
+            ['chat', 'carousel', 'nowplaying', 'alerts', 'polls'].forEach(tool => {
                 const form = document.getElementById(`form-${tool}`);
                 if (!form) return;
                 
@@ -2788,6 +2880,16 @@ function initAutoSave() {
                         settings.raid_duration_ms = parseInt(formData.get('raid_duration_ms')) || 6000;
                         settings.image_size = formData.get('image_size') || "80px";
                         settings.layout = formData.get('layout') || "top";
+                    } else if (tool === 'polls') {
+                        settings.font_family = formData.get('font_family');
+                        settings.font_size = formData.get('font_size');
+                        settings.bg_color = formData.get('bg_color');
+                        settings.bg_opacity = parseFloat(formData.get('bg_opacity')) || 0.65;
+                        settings.border_color = formData.get('border_color');
+                        settings.border_width = formData.get('border_width');
+                        settings.border_radius = formData.get('border_radius');
+                        settings.padding_px = parseInt(formData.get('padding_px')) || 24;
+                        settings.default_duration_s = parseInt(formData.get('default_duration_s')) || 60;
                     }
                     
                     saveConfigToServer();
@@ -3130,6 +3232,13 @@ function initAutoSave() {
                 setupSlider('alerts-follow_duration_ms', settings.follow_duration_ms, 'ms');
                 setupSlider('alerts-sub_duration_ms', settings.sub_duration_ms, 'ms');
                 setupSlider('alerts-raid_duration_ms', settings.raid_duration_ms, 'ms');
+            } else if (tool === 'polls') {
+                setupSlider('polls-font_size', settings.font_size, 'px');
+                setupSlider('polls-bg_opacity', settings.bg_opacity);
+                setupSlider('polls-border_width', settings.border_width, 'px');
+                setupSlider('polls-border_radius', settings.border_radius, 'px');
+                setupSlider('polls-padding_px', settings.padding_px, 'px');
+                setupSlider('polls-default_duration_s', settings.default_duration_s, 's');
             }
         }
 
@@ -3307,6 +3416,16 @@ function initAutoSave() {
                 settings.raid_duration_ms = parseInt(formData.get('raid_duration_ms') || '6000');
                 settings.image_size = toPx(formData.get('image_size') || '70px');
                 settings.layout = formData.get('layout') || 'top';
+            } else if (tool === 'polls') {
+                settings.font_family = formData.get('font_family') || 'Outfit';
+                settings.font_size = toPx(formData.get('font_size') || '18px');
+                settings.bg_color = formData.get('bg_color') || '#0f0f16';
+                settings.bg_opacity = parseFloat(formData.get('bg_opacity') || '0.65');
+                settings.border_color = formData.get('border_color') || '#6366f1';
+                settings.border_width = toPx(formData.get('border_width') || '1px');
+                settings.border_radius = toPx(formData.get('border_radius') || '20px');
+                settings.padding_px = parseInt(formData.get('padding_px') || '24');
+                settings.default_duration_s = parseInt(formData.get('default_duration_s') || '60');
             }
             return settings;
         }
