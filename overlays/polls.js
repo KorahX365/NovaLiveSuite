@@ -60,6 +60,8 @@ function connect() {
             } else if (data.event === "prediction_end") {
                 isPrediction = true;
                 endPrediction(data.data);
+            } else if (data.event === "poll_reset") {
+                resetPollUI();
             }
         } catch (e) {
             console.error("Error parsing WebSocket message:", e);
@@ -500,6 +502,17 @@ function startDemoSimulation() {
             updatePoll(activePoll);
         }, 1500);
     }
+}
+
+function resetPollUI() {
+    if (pollTimerInterval) {
+        clearInterval(pollTimerInterval);
+        pollTimerInterval = null;
+    }
+    pollContainer.classList.add("hidden");
+    activePoll = null;
+    optionsContainer.innerHTML = "";
+    console.log("Poll/Prediction overlay reset successfully.");
 }
 
 // Iniciar
