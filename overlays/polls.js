@@ -17,6 +17,57 @@ let isPrediction = false;
 let durationLeft = 0;
 let totalDuration = 0;
 
+// Configuration & Styling Setup
+let settings = {};
+
+function formatPx(val) {
+    if (!val) return "";
+    val = val.toString().trim();
+    if (val.endsWith("px") || val.endsWith("%") || val.endsWith("em") || val.endsWith("rem")) {
+        return val;
+    }
+    return val + "px";
+}
+
+function hexToRgba(hex, alpha) {
+    if (!hex) return "rgba(15, 15, 22, 0.65)";
+    hex = hex.replace('#', '');
+    if (hex.length === 3) {
+        hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+    }
+    let r = parseInt(hex.substring(0, 2), 16) || 0;
+    let g = parseInt(hex.substring(2, 4), 16) || 0;
+    let b = parseInt(hex.substring(4, 6), 16) || 0;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function applyConfig(config) {
+    if (!config || !config.tools || !config.tools.polls) return;
+    settings = config.tools.polls.settings;
+    
+    if (pollContainer) {
+        pollContainer.style.fontFamily = settings.font_family + ", sans-serif";
+        pollContainer.style.fontSize = formatPx(settings.font_size);
+        pollContainer.style.backgroundColor = hexToRgba(settings.bg_color, settings.bg_opacity);
+        pollContainer.style.borderColor = settings.border_color;
+        pollContainer.style.borderWidth = formatPx(settings.border_width);
+        pollContainer.style.borderRadius = formatPx(settings.border_radius);
+        pollContainer.style.padding = formatPx(settings.padding_px);
+    }
+}
+
+async function loadConfig() {
+    try {
+        const response = await fetch('/api/config');
+        if (response.ok) {
+            const config = await response.json();
+            applyConfig(config);
+        }
+    } catch (e) {
+        console.error("Error loading config:", e);
+    }
+}
+
 // Configuración de WebSocket
 function connect() {
     const host = window.location.host || "localhost:777";
@@ -30,14 +81,18 @@ function connect() {
             clearTimeout(reconnectTimer);
             reconnectTimer = null;
         }
+        loadConfig();
     };
     
     socket.onmessage = (event) => {
         try {
             const data = JSON.parse(event.data);
             
+            if (data.event === "config_update") {
+                applyConfig(data.config);
+            }
             // Handlers para Encuestas de Twitch
-            if (data.event === "poll_begin") {
+            else if (data.event === "poll_begin") {
                 isPrediction = false;
                 startPoll(data.data);
             } else if (data.event === "poll_progress") {
