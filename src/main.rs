@@ -163,11 +163,49 @@ struct ToolAlerts {
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
+struct PollSettings {
+    font_family: String,
+    font_size: String,
+    bg_color: String,
+    bg_opacity: f32,
+    border_color: String,
+    border_width: String,
+    border_radius: String,
+    padding_px: u32,
+    default_duration_s: u32,
+}
+
+#[derive(Clone, Serialize, Deserialize, Debug)]
+struct ToolPolls {
+    enabled: bool,
+    settings: PollSettings,
+}
+
+#[derive(Clone, Serialize, Deserialize, Debug)]
 struct Tools {
     chat: ToolChat,
     carousel: ToolCarousel,
     nowplaying: ToolNowPlaying,
     alerts: ToolAlerts,
+    #[serde(default = "default_polls_tool")]
+    polls: ToolPolls,
+}
+
+fn default_polls_tool() -> ToolPolls {
+    ToolPolls {
+        enabled: true,
+        settings: PollSettings {
+            font_family: "Outfit".to_string(),
+            font_size: "18px".to_string(),
+            bg_color: "#0f0f16".to_string(),
+            bg_opacity: 0.65,
+            border_color: "#6366f1".to_string(),
+            border_width: "1px".to_string(),
+            border_radius: "20px".to_string(),
+            padding_px: 24,
+            default_duration_s: 60,
+        }
+    }
 }
 
 fn default_lang() -> String {
@@ -297,6 +335,7 @@ impl Default for Config {
                         layout: "top".to_string(),
                     },
                 },
+                polls: default_polls_tool(),
             },
         }
     }
