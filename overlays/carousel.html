@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova Sponsor Carousel Overlay</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: transparent;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #carousel-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            transition: all 0.5s ease;
+        }
+
+        .media-item {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.8s ease-in-out;
+            pointer-events: none;
+        }
+
+        .media-item.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Transition Styles */
+        .transition-fade .media-item {
+            transition: opacity 0.8s ease-in-out;
+        }
+
+        .transition-slide .media-item {
+            transform: translateX(100%);
+            transition: opacity 0.8s ease-in-out, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .transition-slide .media-item.active {
+            transform: translateX(0);
+        }
+        .transition-slide .media-item.exit {
+            transform: translateX(-100%);
+            opacity: 0;
+        }
+
+        .transition-zoom .media-item {
+            transform: scale(0.85);
+            transition: opacity 0.8s ease-in-out, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .transition-zoom .media-item.active {
+            transform: scale(1);
+        }
+        .transition-zoom .media-item.exit {
+            transform: scale(1.15);
+            opacity: 0;
+        }
+
+        .media-item img, .media-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .media-item iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div id="carousel-container" class="transition-fade"></div>
+
+    <script>
+        const container = document.getElementById('carousel-container');
+        let settings = {};
+        let items = [];
+        let currentIndex = -1;
+        let rotationTimeout = null;
+        let enabled = true;
+
+        const sse = new EventSource('/api/stream');
+
+        sse.addEventListener('initial_config', (e) => {
+            const data = JSON.parse(e.data);
+            applyConfig(data);
+        });
+
+        sse.addEventListener('config_update', (e) => {
+            window.location.reload();
+        });
+
+        function applyConfig(config) {
+            enabled = config.tools.carousel.enabled;
+            const newSettings = config.tools.carousel.settings;
+            
+            if (!enabled) {
+                container.innerHTML = "";
+                items = [];
+                currentIndex = -1;
+                clearTimeout(rotationTimeout);
+                return;
+            }
+
+            const formatPx = (val) => {
+                if (val === undefined || val === null || val === "") return "";
+                const s = val.toString().trim();
+                return /^\d+$/.test(s) ? s + "px" : s;
+            };
+
+            // Apply size & border styling
+            container.style.width = formatPx(newSettings.width_px) || "100%";
+            container.style.height = formatPx(newSettings.height_px) || "100%";
+            container.style.borderRadius = formatPx(newSettings.border_radius) || "0px";
+            container.style.borderColor = newSettings.border_color || "transparent";
+            container.style.borderWidth = formatPx(newSettings.border_width) || "0px";
+            container.style.borderStyle = newSettings.border_width ? "solid" : "none";
+            container.style.backgroundColor = hexToRgba(newSettings.bg_color || "#000000", newSettings.bg_opacity || 0);
+
+            // Set transition class
+            container.className = `transition-${newSettings.transition || 'fade'}`;
+            
+            // Check if items changed
+            const itemsChanged = JSON.stringify(newSettings.items) !== JSON.stringify(items);
+            if (itemsChanged) {
+                items = newSettings.items;
+                settings = newSettings;
+                rebuildCarousel();
+            } else {
+                settings = newSettings;
+            }
+        }
+
+        function hexToRgba(hex, opacity) {
+            let c;
+            if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
+                c= hex.substring(1).split('');
+                if(c.length== 3){
+                    c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+                }
+                c= '0x' + c.join('');
+                return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+','+opacity+')';
+            }
+            return `rgba(0, 0, 0, ${opacity})`;
+        }
+
+        function rebuildCarousel() {
+            container.innerHTML = "";
+            clearTimeout(rotationTimeout);
+            
+            if (items.length === 0) {
+                currentIndex = -1;
+                return;
+            }
+
+            items.forEach((item, index) => {
+                const el = document.createElement('div');
+                el.className = 'media-item';
+                el.id = `item-${index}`;
+
+                if (item.type === 'image' || item.item_type === 'image') {
+                    const img = document.createElement('img');
+                    img.src = item.url;
+                    el.appendChild(img);
+                } else if (item.type === 'video' || item.item_type === 'video') {
+                    const video = document.createElement('video');
+                    video.src = item.url;
+                    video.autoplay = true;
+                    video.loop = true;
+                    video.muted = true;
+                    el.appendChild(video);
+                } else if (item.type === 'iframe' || item.item_type === 'iframe') {
+                    const iframe = document.createElement('iframe');
+                    iframe.src = item.url;
+                    el.appendChild(iframe);
+                }
+
+                container.appendChild(el);
+            });
+
+            currentIndex = 0;
+            showItem(currentIndex);
+        }
+
+        // Loop execution function
+        function showItem(index) {
+            if (items.length === 0) return;
+            
+            const allElements = container.querySelectorAll('.media-item');
+            allElements.forEach(el => {
+                el.classList.remove('active', 'exit');
+            });
+
+            const activeEl = document.getElementById(`item-${index}`);
+            if (activeEl) {
+                activeEl.classList.add('active');
+            }
+
+            const currentItem = items[index];
+            const duration = currentItem.duration_ms || settings.interval_ms || 5000;
+            
+            rotationTimeout = setTimeout(() => {
+                if (activeEl) {
+                    activeEl.classList.remove('active');
+                    activeEl.classList.add('exit');
+                }
+                
+                currentIndex = (currentIndex + 1) % items.length;
+                showItem(currentIndex);
+            }, duration);
+        }
+    </script>
+</body>
+</html>
