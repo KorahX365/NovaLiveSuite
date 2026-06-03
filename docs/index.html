@@ -510,6 +510,67 @@
         }
         .url-card-copy:hover { border-color: var(--purple); color: var(--purple); }
 
+        /* ── DOWNLOAD CARD ── */
+        .download-card {
+            display: flex; justify-content: space-between; align-items: center;
+            background: linear-gradient(135deg, rgba(168,85,247,0.1) 0%, rgba(236,72,153,0.08) 100%);
+            border: 1px solid rgba(168,85,247,0.35);
+            border-radius: var(--radius-xl); padding: 32px 40px;
+            margin-bottom: 56px; gap: 32px; flex-wrap: wrap;
+            box-shadow: 0 8px 40px rgba(168,85,247,0.12), inset 0 1px 0 rgba(255,255,255,0.06);
+            position: relative; overflow: hidden;
+        }
+        .download-card::before {
+            content: ''; position: absolute; top: -60px; right: -60px;
+            width: 220px; height: 220px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(168,85,247,0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .download-card-left { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 220px; }
+        .download-badge {
+            display: inline-flex; align-items: center; gap: 7px;
+            background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+            color: var(--txt-3); padding: 4px 12px; border-radius: 20px;
+            font-size: 0.78rem; font-weight: 600; font-family: var(--font-mono);
+            width: fit-content;
+        }
+        .download-title {
+            font-family: var(--font-head); font-size: 1.8rem; font-weight: 900;
+            color: var(--txt-1); letter-spacing: -0.03em;
+        }
+        .download-meta {
+            display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+            font-size: 0.85rem; color: var(--txt-3);
+        }
+        .download-meta .meta-tag {
+            display: flex; align-items: center; gap: 5px;
+            background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+            padding: 3px 10px; border-radius: 6px; font-family: var(--font-mono); font-size: 0.78rem;
+        }
+        .meta-tag.version { color: var(--purple); border-color: rgba(168,85,247,0.3); background: rgba(168,85,247,0.08); }
+        .meta-tag.size { color: var(--cyan); }
+        .meta-tag.downloads { color: var(--green); }
+        .download-spinner { color: var(--txt-3); }
+        .download-card-right { display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
+        .btn-download {
+            display: inline-flex; align-items: center; gap: 10px;
+            background: var(--grad-main); color: white; text-decoration: none;
+            padding: 16px 36px; border-radius: 30px; font-family: var(--font-head);
+            font-weight: 800; font-size: 1.05rem;
+            box-shadow: 0 8px 30px rgba(236,72,153,0.4);
+            transition: transform 0.25s, box-shadow 0.25s;
+            white-space: nowrap;
+        }
+        .btn-download:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 14px 40px rgba(236,72,153,0.55); }
+        .btn-download:active { transform: scale(0.98); }
+        .btn-download i { font-size: 1rem; }
+        .btn-download-secondary {
+            display: inline-flex; align-items: center; gap: 7px;
+            color: var(--txt-3); text-decoration: none; font-size: 0.82rem;
+            transition: color 0.2s; padding: 4px 8px; border-radius: 6px;
+        }
+        .btn-download-secondary:hover { color: var(--txt-1); }
+
         /* ── TECH STACK ── */
         .tech { padding: 80px 0; border-top: 1px solid var(--border); }
         .tech-chips { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 40px; }
@@ -899,12 +960,32 @@
             <h2 class="reveal">En Marcha en 3 Pasos</h2>
             <p class="section-sub reveal">Sin configurar servidores, sin cuentas externas, sin dependencias extra. Solo descarga y ejecuta.</p>
 
+            <!-- ── DOWNLOAD CARD ── -->
+            <div class="download-card reveal" id="downloadCard">
+                <div class="download-card-left">
+                    <div class="download-badge"><i class="fa-brands fa-windows"></i> Windows x64</div>
+                    <div class="download-title">Nova Live Suite</div>
+                    <div class="download-meta" id="downloadMeta">
+                        <span class="download-spinner"><i class="fa-solid fa-circle-notch fa-spin"></i> Comprobando última versión...</span>
+                    </div>
+                </div>
+                <div class="download-card-right">
+                    <a class="btn-download" id="btnDownload" href="https://github.com/KorahX365/NovaLiveSuite/releases/latest" target="_blank">
+                        <i class="fa-solid fa-download"></i>
+                        <span id="btnDownloadText">Descargar .exe</span>
+                    </a>
+                    <a class="btn-download-secondary" href="https://github.com/KorahX365/NovaLiveSuite/releases" target="_blank">
+                        <i class="fa-solid fa-clock-rotate-left"></i> Versiones anteriores
+                    </a>
+                </div>
+            </div>
+
             <div class="steps">
                 <div class="step reveal">
                     <div class="step-circle">1</div>
                     <div class="step-body">
                         <h3>Descarga y Ejecuta</h3>
-                        <p>Descarga el binario compilado <code>.exe</code> para Windows desde el repositorio de GitHub. Ejecútalo directamente, sin instalador.</p>
+                        <p>Descarga el binario compilado <code>.exe</code> para Windows. Ejecútalo directamente, sin instalador ni dependencias extra.</p>
                     </div>
                 </div>
                 <div class="step reveal reveal-delay-1">
@@ -1219,6 +1300,50 @@
     // Init
     renderAlert();
     document.getElementById('npViz').classList.add('paused');
+
+    // ═══════════ LATEST RELEASE FETCH ═══════════
+    async function fetchLatestRelease() {
+        const meta = document.getElementById('downloadMeta');
+        const btn  = document.getElementById('btnDownload');
+        const btnText = document.getElementById('btnDownloadText');
+        try {
+            const res  = await fetch('https://api.github.com/repos/KorahX365/NovaLiveSuite/releases/latest');
+            if (!res.ok) throw new Error('no release');
+            const data = await res.json();
+
+            const version   = data.tag_name || 'latest';
+            const published = new Date(data.published_at).toLocaleDateString('es-ES', { year:'numeric', month:'short', day:'numeric' });
+
+            // Find .exe asset
+            const exeAsset = data.assets?.find(a => a.name.endsWith('.exe'));
+
+            let metaHTML = `
+                <span class="meta-tag version"><i class="fa-solid fa-tag"></i> ${version}</span>
+                <span class="meta-tag"><i class="fa-solid fa-calendar"></i> ${published}</span>`;
+
+            if (exeAsset) {
+                const sizeMB = (exeAsset.size / 1024 / 1024).toFixed(1);
+                const dlCount = exeAsset.download_count;
+                metaHTML += `
+                <span class="meta-tag size"><i class="fa-solid fa-weight-hanging"></i> ${sizeMB} MB</span>
+                <span class="meta-tag downloads"><i class="fa-solid fa-arrow-down"></i> ${dlCount.toLocaleString('es-ES')} descargas</span>`;
+                btn.href = exeAsset.browser_download_url;
+                btn.removeAttribute('target');
+                btn.setAttribute('download', exeAsset.name);
+                btnText.textContent = `Descargar ${exeAsset.name}`;
+            } else {
+                // No exe yet — link to releases page
+                btn.href = data.html_url;
+                btnText.textContent = 'Ver Release en GitHub';
+            }
+            meta.innerHTML = metaHTML;
+        } catch (e) {
+            // Fallback silently
+            document.getElementById('downloadMeta').innerHTML =
+                '<span class="meta-tag"><i class="fa-brands fa-github"></i> GitHub Releases</span>';
+        }
+    }
+    fetchLatestRelease();
     </script>
 </body>
 </html>
