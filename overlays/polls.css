@@ -233,3 +233,47 @@ body {
     opacity: 1;
     transform: translateY(0);
 }
+
+/* Transiciones de finalización de encuesta */
+.option-row {
+    transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.option-row.fade-out-option {
+    opacity: 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    border-color: transparent !important;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.option-row.winner-reveal {
+    min-height: 84px !important;
+    padding: 16px 20px !important;
+    border-color: rgba(99, 102, 241, 0.5) !important;
+    background: rgba(99, 102, 241, 0.1) !important;
+    box-shadow: 0 0 25px rgba(99, 102, 241, 0.18) !important;
+}
+
+.option-row.winner-reveal .option-label {
+    font-size: 1.3rem !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+}
+
+.option-row.winner-reveal .option-percent {
+    font-size: 1.6rem !important;
+    color: #a5b4fc !important;
+    text-shadow: 0 0 15px rgba(99, 102, 241, 0.6) !important;
+}
+
+.option-row.winner-reveal .option-votes {
+    font-size: 0.82rem !important;
+    color: #cbd5e1 !important;
+}
+
