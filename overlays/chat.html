@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova Cozy Chat Overlay</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: transparent;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            align-items: flex-end;
+            padding: 24px;
+        }
+
+        #chat-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 100%;
+            height: 100%;
+            justify-content: flex-end;
+            transition: all 0.3s ease;
+        }
+
+        .chat-message {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            line-height: 1.4;
+            max-width: 100%;
+            word-wrap: break-word;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+            opacity: 0;
+            display: block;
+            transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: fit-content;
+        }
+
+        .chat-message.slide-fade-in {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        .chat-message.slide-fade-out {
+            opacity: 0;
+            transform: translateY(-10px) scale(0.95);
+        }
+
+        .chat-message.fade-in { opacity: 1; }
+        .chat-message.fade-out { opacity: 0; }
+
+        .chat-message.scale-in { opacity: 1; transform: scale(1); }
+        .chat-message.scale-out { opacity: 0; transform: scale(0.8); }
+
+        .user-name {
+            font-weight: 700;
+        }
+
+        .message-content {
+            font-weight: 400;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            font-weight: bold;
+            vertical-align: middle;
+        }
+        .badge-broadcaster {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .badge-moderator {
+            background: transparent;
+            border: none;
+        }
+        .badge-lead-moderator {
+            background: transparent;
+            border: none;
+        }
+        .badge-subscriber {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container"></div>
+
+    <script>
+        const container = document.getElementById('chat-container');
+        let settings = {};
+        let enabled = true;
+
+        const formatPx = (val) => {
+            if (val === undefined || val === null || val === "") return "";
+            const s = val.toString().trim();
+            return /^\d+$/.test(s) ? s + "px" : s;
+        };
+
+        const sse = new EventSource('/api/stream');
+
+        sse.addEventListener('initial_config', (e) => {
+            console.log("Chat SSE initial_config received:", e.data);
+            try {
+                const data = JSON.parse(e.data);
+                applyConfig(data);
+            } catch (err) {
+                console.error("Error parsing initial config:", err);
+            }
+        });
+
+        sse.addEventListener('config_update', (e) => {
+            window.location.reload();
+        });
+
+        sse.addEventListener('chat_message', (e) => {
+            console.log("Chat SSE chat_message received:", e.data);
+            if (!enabled) {
+                console.log("Chat tool is disabled, skipping message.");
+                return;
+            }
+            try {
+                const msg = JSON.parse(e.data);
+                addMessage(msg);
+            } catch (err) {
+                console.error("Error parsing or displaying chat message:", err);
+            }
+        });
+
+        function applyConfig(config) {
+            settings = config.tools.chat.settings;
+            enabled = config.tools.chat.enabled;
+            
+            if (!enabled) {
+                container.innerHTML = "";
+                return;
+            }
+            
+            document.body.style.fontFamily = settings.font_family + ", sans-serif";
+            container.style.gap = (settings.message_spacing_px || 10) + "px";
+            container.style.alignItems = settings.alignment === 'center' ? 'center' : (settings.alignment === 'right' ? 'flex-end' : 'flex-start');
+            
+            const rgbaBg = hexToRgba(settings.bg_color, settings.bg_opacity);
+            const messages = container.querySelectorAll('.chat-message');
+            messages.forEach(msg => {
+                msg.style.backgroundColor = rgbaBg;
+                msg.style.borderColor = settings.border_color;
+                msg.style.borderWidth = formatPx(settings.border_width);
+                msg.style.borderStyle = "solid";
+                msg.style.borderRadius = formatPx(settings.border_radius);
+                msg.style.fontSize = formatPx(settings.font_size);
+                msg.style.color = settings.color_text;
+                msg.style.textShadow = settings.text_shadow;
+                msg.style.padding = `${settings.padding_px}px ${settings.padding_px * 1.4}px`;
+                
+                const user = msg.querySelector('.user-name');
+                if (user) {
+                    const originalColor = user.getAttribute('data-color') || settings.color_user;
+                    user.style.color = originalColor;
+                }
+
+                const badges = msg.querySelectorAll('.badge');
+                badges.forEach(b => {
+                    b.style.fontSize = (settings.badge_size_px - 4) + "px";
+                    b.style.width = settings.badge_size_px + "px";
+                    b.style.height = settings.badge_size_px + "px";
+                });
+            });
+        }
+
+        function hexToRgba(hex, opacity) {
+            let c;
+            if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
+                c= hex.substring(1).split('');
+                if(c.length== 3){
+                    c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+                }
+                c= '0x' + c.join('');
+                return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+','+opacity+')';
+            }
+            return `rgba(13, 14, 18, ${opacity})`;
+        }
+
+        function addMessage(msg) {
+            const messages = container.querySelectorAll('.chat-message');
+            if (messages.length >= settings.max_messages) {
+                messages[0].remove();
+            }
+
+            const msgEl = document.createElement('div');
+            msgEl.className = 'chat-message';
+            
+            const rgbaBg = hexToRgba(settings.bg_color, settings.bg_opacity);
+            msgEl.style.backgroundColor = rgbaBg;
+            msgEl.style.borderColor = settings.border_color;
+            msgEl.style.borderWidth = formatPx(settings.border_width);
+            msgEl.style.borderStyle = "solid";
+            msgEl.style.borderRadius = formatPx(settings.border_radius);
+            msgEl.style.fontSize = formatPx(settings.font_size);
+            msgEl.style.color = settings.color_text;
+            msgEl.style.textShadow = settings.text_shadow;
+            msgEl.style.padding = `${settings.padding_px}px ${settings.padding_px * 1.4}px`;
+            
+            let inClass = 'slide-fade-in';
+            let outClass = 'slide-fade-out';
+            if (settings.animation_in === 'fade') {
+                inClass = 'fade-in';
+                outClass = 'fade-out';
+            } else if (settings.animation_in === 'scale') {
+                inClass = 'scale-in';
+                outClass = 'scale-out';
+            }
+
+            if (settings.animation_in === 'slide-fade') {
+                msgEl.style.transform = 'translateY(15px) scale(0.98)';
+            } else if (settings.animation_in === 'scale') {
+                msgEl.style.transform = 'scale(0.85)';
+            }
+
+            let badgesHtml = '';
+            if (msg.badges && Array.isArray(msg.badges)) {
+                if (msg.badges.includes('broadcaster')) {
+                    badgesHtml += `<img class="badge badge-broadcaster" src="https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/2" style="width: ${settings.badge_size_px}px; height: ${settings.badge_size_px}px;" />`;
+                }
+                if (msg.badges.includes('lead-moderator') || msg.badges.includes('lead_moderator') || msg.badges.includes('leadmoderator')) {
+                    badgesHtml += `<img class="badge badge-lead-moderator" src="https://static-cdn.jtvnw.net/badges/v1/0822047b-65e0-46f2-94a9-d1091d685d33/3" style="width: ${settings.badge_size_px}px; height: ${settings.badge_size_px}px;" />`;
+                } else if (msg.badges.includes('moderator')) {
+                    badgesHtml += `<img class="badge badge-moderator" src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/3" style="width: ${settings.badge_size_px}px; height: ${settings.badge_size_px}px;" />`;
+                }
+                if (msg.badges.includes('subscriber')) {
+                    badgesHtml += `<span class="badge badge-subscriber" style="font-size: ${settings.badge_size_px - 4}px; width: ${settings.badge_size_px}px; height: ${settings.badge_size_px}px;">⭐</span>`;
+                }
+            }
+
+            const userColor = msg.color || settings.color_user;
+            msgEl.innerHTML = `
+                ${badgesHtml}
+                <span class="user-name" data-color="${userColor}" style="color: ${userColor}">${escapeHtml(msg.user)}:</span>
+                <span class="message-content">${escapeHtml(msg.message)}</span>
+            `;
+
+            container.appendChild(msgEl);
+            
+            setTimeout(() => {
+                msgEl.classList.add(inClass);
+            }, 50);
+
+            setTimeout(() => {
+                msgEl.classList.remove(inClass);
+                msgEl.classList.add(outClass);
+                setTimeout(() => {
+                    msgEl.remove();
+                }, 500);
+            }, settings.fade_duration_s * 1000);
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+    </script>
+</body>
+</html>
