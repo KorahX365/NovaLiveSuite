@@ -34,9 +34,7 @@ body {
 }
 
 .poll-card.hidden {
-    transform: translateY(50px) scale(0.95);
-    opacity: 0;
-    pointer-events: none;
+    display: none !important;
 }
 
 @keyframes slideIn {
