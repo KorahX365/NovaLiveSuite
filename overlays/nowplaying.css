@@ -1,0 +1,525 @@
+:root {
+  --accent-color: #a855f7;
+  --accent-gradient: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+  --bg-glass: rgba(15, 15, 20, 0.65);
+  --border-glass: rgba(255, 255, 255, 0.08);
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --text-tertiary: rgba(255, 255, 255, 0.45);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: transparent;
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Container & Dynamic Scaling */
+#overlay-container {
+  position: relative;
+  width: 95vw;
+  max-width: 960px;
+  height: 28vw;
+  max-height: 280px;
+  /* Dynamic base font size that scales with screen width */
+  font-size: clamp(12px, 2.7vw, 25px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease;
+  opacity: 1;
+}
+
+#overlay-container.stopped,
+#overlay-container.paused-hidden,
+#overlay-container.alert-hidden {
+  transform: translateY(12em) scale(0.9);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Dynamic Blurred Background */
+#blur-bg {
+  position: absolute;
+  top: -10%;
+  left: -10%;
+  width: 120%;
+  height: 120%;
+  background-size: cover;
+  background-position: center;
+  filter: blur(2.6em) brightness(0.3) saturate(1.4);
+  opacity: 0.75;
+  z-index: 1;
+  transition: background-image 1s ease;
+  border-radius: 1.3em;
+}
+
+/* Procedural Audio Visualizer Canvas */
+#visualizer-canvas {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3em;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.55;
+  border-bottom-left-radius: 1.3em;
+  border-bottom-right-radius: 1.3em;
+  mask-image: linear-gradient(to top, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 100%);
+  -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 100%);
+  display: none;
+}
+
+.visualizer-active #visualizer-canvas {
+  display: block;
+}
+
+/* Glassmorphic Card */
+#card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(var(--accent-color-rgb, 168, 85, 247), 0.15) 0%, rgba(15, 15, 20, 0.72) 100%);
+  backdrop-filter: blur(1.3em) saturate(180%);
+  -webkit-backdrop-filter: blur(1.3em) saturate(180%);
+  border: 0.07em solid var(--border-glass);
+  border-radius: 1.3em;
+  padding: 1.1em;
+  display: flex;
+  align-items: center;
+  gap: 1.1em;
+  box-shadow: 0 0.8em 2.6em rgba(0, 0, 0, 0.4),
+    0 0 2.3em rgba(var(--accent-color), 0.12);
+  z-index: 3;
+  overflow: hidden;
+  transition: box-shadow 0.5s ease, background 0.5s ease;
+}
+
+/* Artwork & Vinyl Wrapper */
+#artwork-wrapper {
+  position: relative;
+  width: 8.0em;
+  height: 8.0em;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+#artwork-container {
+  position: relative;
+  width: 8.0em;
+  height: 8.0em;
+  z-index: 5;
+  border-radius: 0.8em;
+  box-shadow: 0 0.5em 1.3em rgba(0, 0, 0, 0.5);
+  background: #000;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#artwork {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0.8em;
+  position: relative;
+  z-index: 5;
+}
+
+/* Vinyl Disc */
+#vinyl-disc {
+  position: absolute;
+  width: 7.2em;
+  height: 7.2em;
+  left: 0.4em;
+  top: 0.4em;
+  border-radius: 50%;
+  background: #111;
+  z-index: 4;
+  box-shadow: 0 0.26em 1em rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.15);
+  transform: translateX(0);
+}
+
+/* Vinyl sticker artwork */
+#vinyl-artwork {
+  position: absolute;
+  width: 2.5em;
+  height: 2.5em;
+  border-radius: 50%;
+  object-fit: cover;
+  z-index: 6;
+}
+
+/* Record grooving details */
+#vinyl-grooves {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  background: repeating-radial-gradient(circle,
+      #181818,
+      #181818 1px,
+      #222 2px,
+      #121212 3px);
+  opacity: 0.85;
+  z-index: 5;
+}
+
+#vinyl-hole {
+  position: absolute;
+  width: 0.53em;
+  height: 0.53em;
+  background: var(--bg-glass);
+  border-radius: 50%;
+  z-index: 7;
+  box-shadow: inset 0 0.07em 0.2em rgba(0, 0, 0, 0.8);
+}
+
+/* Sliding active states (mostly inside the sleeve case) */
+.vinyl-active.playing #vinyl-disc {
+  transform: translateX(1.85em);
+  animation: spin 4s linear infinite;
+}
+
+.vinyl-active.paused #vinyl-disc {
+  transform: translateX(1.85em);
+  animation: spin 4s linear infinite;
+  animation-play-state: paused;
+}
+
+/* Shift card layout slightly when vinyl slides out to balance spacing */
+.vinyl-active #info-container {
+  margin-left: 1.3em;
+}
+
+/* Info Section */
+#info-container {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  overflow: hidden;
+  padding: 0.15em 0;
+  z-index: 5;
+  transition: margin-left 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.15);
+}
+
+#meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.13em;
+  width: 100%;
+  margin-top: 1em;
+}
+
+#title-wrapper {
+  overflow: hidden;
+  white-space: nowrap;
+  mask-image: linear-gradient(to right, #000 96%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, #000 96%, transparent 100%);
+  padding-right: 8.5em;
+  /* Avoid badge overlap */
+}
+
+#title-wrapper.marquee-active {
+  mask-image: linear-gradient(to right, transparent 0%, #000 2%, #000 98%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 2%, #000 98%, transparent 100%);
+  padding-right: 8.5em;
+  /* Avoid badge overlap */
+}
+
+#title {
+  font-size: 1.6em;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  overflow: hidden;
+}
+
+#artist {
+  font-size: 1.2em;
+  font-weight: 400;
+  color: var(--text-secondary);
+  overflow: hidden;
+  white-space: nowrap;
+  mask-image: linear-gradient(to right, #000 96%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, #000 96%, transparent 100%);
+  padding-right: 8.5em;
+  /* Avoid badge overlap */
+}
+
+/* Shared details row (album or synced lyrics) */
+#details-row {
+  display: flex;
+  align-items: center;
+  font-size: 0.98em;
+  min-height: 1.2em;
+  position: relative;
+  overflow: visible;
+  width: 100%;
+}
+
+#album {
+  color: var(--text-tertiary);
+  font-weight: 300;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: opacity 0.3s ease;
+  mask-image: linear-gradient(to right, #000 96%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, #000 96%, transparent 100%);
+}
+
+/* Synced Lyrics Container */
+#lyrics-box {
+  width: 100%;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+#lyric-text {
+  display: block;
+  font-size: 1.08em;
+  font-style: italic;
+  color: var(--accent-color);
+  opacity: 1;
+  letter-spacing: -0.01em;
+  filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.45));
+  white-space: normal;
+  word-wrap: break-word;
+  overflow: visible;
+  width: 100%;
+  animation: slide-up 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Progress bar */
+#progress-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.26em;
+  margin-top: 0.26em;
+  position: relative;
+}
+
+#progress-bar {
+  width: 100%;
+  height: 0.33em;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 0.2em;
+  overflow: hidden;
+  position: relative;
+}
+
+#progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0) 100%), var(--accent-gradient);
+  border-radius: 0.2em;
+  transition: width 0.25s linear;
+  box-shadow: 0 0 0.66em rgba(255, 255, 255, 0.35), 0 0 0.53em var(--accent-color);
+}
+
+#time-container {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.84em;
+  color: var(--text-tertiary);
+  font-weight: 400;
+}
+
+/* Source Badge */
+#source-badge {
+  position: absolute;
+  top: 0.8em;
+  right: 0.8em;
+  background: rgba(255, 255, 255, 0.08);
+  border: 0.07em solid rgba(255, 255, 255, 0.05);
+  border-radius: 1.3em;
+  padding: 0.24em 0.88em;
+  font-size: 0.8em;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.27em;
+  z-index: 10;
+}
+
+/* Badges coloring */
+.source-spotify #source-badge {
+  color: #1db954;
+  background: rgba(29, 185, 84, 0.1);
+  border-color: rgba(29, 185, 84, 0.2);
+}
+
+.source-jellyfin #source-badge {
+  color: #00a4dc;
+  background: rgba(0, 164, 220, 0.1);
+  border-color: rgba(0, 164, 220, 0.2);
+}
+
+.source-youtube-music #source-badge {
+  color: #ff0000;
+  background: rgba(255, 0, 0, 0.1);
+  border-color: rgba(255, 0, 0, 0.2);
+}
+
+/* Custom styles for theme: MINIMALIST */
+.theme-minimalist #card {
+  height: 4.6em;
+  border-radius: 0.8em;
+  padding: 0.66em 1.05em;
+}
+
+.theme-minimalist #overlay-container {
+  height: 4.6em;
+}
+
+.theme-minimalist #artwork-wrapper {
+  display: none;
+}
+
+.theme-minimalist #progress-container {
+  display: none;
+}
+
+.theme-minimalist #info-container {
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1.3em;
+}
+
+.theme-minimalist #meta {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.53em;
+}
+
+.theme-minimalist #title {
+  font-size: 1.05em;
+}
+
+.theme-minimalist #artist {
+  font-size: 0.95em;
+}
+
+.theme-minimalist #details-row {
+  display: none;
+}
+
+/* Pulse Album Glow */
+#pulse-ring {
+  position: absolute;
+  top: -0.13em;
+  left: -0.13em;
+  right: -0.13em;
+  bottom: -0.13em;
+  border-radius: 0.8em;
+  box-shadow: 0 0 1.33em var(--accent-color);
+  opacity: 0;
+  z-index: 4;
+  transition: opacity 0.5s ease;
+}
+
+#overlay-container.playing #pulse-ring {
+  animation: pulse-art 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  opacity: 0.55;
+}
+
+/* Animations */
+@keyframes spin {
+  0% {
+    transform: translateX(1.85em) rotate(0deg);
+  }
+
+  100% {
+    transform: translateX(1.85em) rotate(360deg);
+  }
+}
+
+@keyframes pulse-art {
+  0% {
+    transform: scale(0.99);
+    opacity: 0.4;
+  }
+
+  50% {
+    transform: scale(1.02);
+    opacity: 0.7;
+  }
+
+  100% {
+    transform: scale(0.99);
+    opacity: 0.4;
+  }
+}
+
+@keyframes slide-up {
+  0% {
+    transform: translateY(0.25em);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Transition text classes */
+.fade-out {
+  opacity: 0;
+  transform: translateY(-0.26em);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.fade-in {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+/* Title Marquee Auto-Scroll */
+.marquee {
+  display: inline-block !important;
+  white-space: nowrap;
+  animation: marquee-anim linear infinite alternate;
+  animation-delay: 2s;
+}
+
+@keyframes marquee-anim {
+
+  0%,
+  10% {
+    transform: translateX(0);
+  }
+
+  90%,
+  100% {
+    transform: translateX(var(--scroll-dist));
+  }
+}
