@@ -205,6 +205,8 @@ struct WorldCupSettings {
     team2_flag: String,
     match_stage: String,
     scorer_name: String,
+    team1_scorers: String,
+    team2_scorers: String,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
@@ -239,6 +241,8 @@ fn default_worldcup_tool() -> ToolWorldCup {
             team2_flag: "https://flagcdn.com/w80/us.png".to_string(),
             match_stage: "GROUP STAGE - GROUP A".to_string(),
             scorer_name: "L. MESSI 10'".to_string(),
+            team1_scorers: "".to_string(),
+            team2_scorers: "".to_string(),
         }
     }
 }
