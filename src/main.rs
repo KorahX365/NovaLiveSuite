@@ -207,6 +207,9 @@ struct WorldCupSettings {
     scorer_name: String,
     team1_scorers: String,
     team2_scorers: String,
+    team1_color: String,
+    team2_color: String,
+    added_time: String,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
@@ -243,6 +246,9 @@ fn default_worldcup_tool() -> ToolWorldCup {
             scorer_name: "L. MESSI 10'".to_string(),
             team1_scorers: "".to_string(),
             team2_scorers: "".to_string(),
+            team1_color: "#ff3d00".to_string(),
+            team2_color: "#00b0ff".to_string(),
+            added_time: "0".to_string(),
         }
     }
 }
