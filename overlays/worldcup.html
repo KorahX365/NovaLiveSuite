@@ -13,8 +13,8 @@
     <div id="overlay-container" class="overlay-container mode-in-progress">
         <!-- 1. COMPACT SCOREBOARD (Partido en curso) -->
         <div id="compact-scoreboard" class="compact-scoreboard-bar">
-            <div class="logo-circle-mask">
-                <img src="https://static.wikia.nocookie.net/logopedia/images/f/f7/FIFA_World_Cup_Canada_Mexico_USA_2026_Logo_With_World_Cup_%26_2026_Wordmarks_%28black_3%29.png/revision/latest/scale-to-width-down/1000?cb=20260521210834" alt="FWC26">
+            <div id="left-logo-mask" class="logo-circle-mask">
+                <img id="compact-left-logo" src="https://static.wikia.nocookie.net/logopedia/images/f/f7/FIFA_World_Cup_Canada_Mexico_USA_2026_Logo_With_World_Cup_%26_2026_Wordmarks_%28black_3%29.png/revision/latest/scale-to-width-down/1000?cb=20260521210834" alt="FWC26">
             </div>
             
             <div class="scoreboard-main-content">
@@ -27,6 +27,9 @@
                 <!-- Scores -->
                 <div class="compact-score-digits">
                     <span id="compact-score1">0</span>
+                    <div id="center-logo-mask" class="center-logo-mask">
+                        <img id="compact-center-logo" src="https://static.wikia.nocookie.net/logopedia/images/f/f7/FIFA_World_Cup_Canada_Mexico_USA_2026_Logo_With_World_Cup_%26_2026_Wordmarks_%28black_3%29.png/revision/latest/scale-to-width-down/1000?cb=20260521210834" alt="FWC26">
+                    </div>
                     <span class="score-dash">-</span>
                     <span id="compact-score2">0</span>
                 </div>
@@ -39,9 +42,14 @@
             </div>
             
             <!-- Timer Block -->
-            <div class="compact-timer-block">
-                <span id="compact-time">45:00</span>
-                <span class="live-blink-dot" id="compact-dot"></span>
+            <div class="compact-timer-block-wrapper">
+                <div class="compact-timer-block">
+                    <span id="compact-time">45:00</span>
+                    <span class="live-blink-dot" id="compact-dot"></span>
+                </div>
+                <div id="added-time-panel" class="added-time-panel">
+                    <span id="added-time-value">+0</span>
+                </div>
             </div>
         </div>
 
