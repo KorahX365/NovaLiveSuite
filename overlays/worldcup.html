@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIFA World Cup 2026 Scoreboard Overlay</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/overlays/worldcup.css">
+</head>
+<body>
+    <div id="scoreboard-widget" class="scoreboard-container horizontal-layout">
+        <!-- Logo Area -->
+        <div class="logo-wrapper" id="logo-container">
+            <img id="fwc-logo" src="https://static.wikia.nocookie.net/logopedia/images/4/44/FWC26_CanMexUSA_hz.png/revision/latest/scale-to-width-down/1000?cb=20260604001303" alt="FIFA World Cup 2026 Logo">
+        </div>
+        
+        <!-- Scoreboard Info -->
+        <div class="score-data-area">
+            <!-- Team 1 -->
+            <div class="team-block team-left">
+                <span class="team-name" id="team1-display">ESP</span>
+                <span class="team-score" id="team1-score-display">0</span>
+            </div>
+            
+            <!-- Time Indicator / Divider -->
+            <div class="time-block">
+                <span class="time-display" id="time-display">00:00</span>
+                <span class="live-dot" id="live-dot"></span>
+            </div>
+            
+            <!-- Team 2 -->
+            <div class="team-block team-right">
+                <span class="team-score" id="team2-score-display">0</span>
+                <span class="team-name" id="team2-display">USA</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="/overlays/worldcup.js"></script>
+</body>
+</html>
