@@ -1973,6 +1973,10 @@
                         </div>
                         <input type="hidden" name="team1_flag" id="worldcup-team1_flag">
                         <div class="form-group" style="margin-top: 8px;">
+                            <label>Goleadores (separados por coma)</label>
+                            <input type="text" class="form-control" name="team1_scorers" id="worldcup-team1_scorers" placeholder="L. Messi 10', J. Alvarez 45'">
+                        </div>
+                        <div class="form-group" style="margin-top: 8px;">
                             <label>Goles / Score 1</label>
                             <div style="display: flex; gap: 4px;">
                                 <button type="button" class="twitch-btn" style="padding: 0.4rem 0.8rem; background: var(--bg-card); border: 1px solid var(--border-light); font-weight: bold; width: 36px; justify-content: center;" onclick="adjustScore('worldcup-team1_score', -1)">-</button>
@@ -2001,6 +2005,10 @@
                             </div>
                         </div>
                         <input type="hidden" name="team2_flag" id="worldcup-team2_flag">
+                        <div class="form-group" style="margin-top: 8px;">
+                            <label>Goleadores (separados por coma)</label>
+                            <input type="text" class="form-control" name="team2_scorers" id="worldcup-team2_scorers" placeholder="K. Mbappe 80' (p)">
+                        </div>
                         <div class="form-group" style="margin-top: 8px;">
                             <label>Goles / Score 2</label>
                             <div style="display: flex; gap: 4px;">
@@ -3104,11 +3112,13 @@
                 document.getElementById('worldcup-team1_code').value = wc.team1_code || "ESP";
                 document.getElementById('worldcup-team1_flag').value = wc.team1_flag || "";
                 document.getElementById('worldcup-team1_score').value = wc.team1_score !== undefined ? wc.team1_score : 0;
+                document.getElementById('worldcup-team1_scorers').value = wc.team1_scorers || "";
                 
                 document.getElementById('worldcup-team2_name').value = wc.team2_name || "United States";
                 document.getElementById('worldcup-team2_code').value = wc.team2_code || "USA";
                 document.getElementById('worldcup-team2_flag').value = wc.team2_flag || "";
                 document.getElementById('worldcup-team2_score').value = wc.team2_score !== undefined ? wc.team2_score : 0;
+                document.getElementById('worldcup-team2_scorers').value = wc.team2_scorers || "";
                 
                 document.getElementById('worldcup-scorer_name').value = wc.scorer_name || "L. MESSI 10'";
                 document.getElementById('worldcup-match_time').value = wc.match_time || "45:00";
@@ -3237,10 +3247,12 @@ function initAutoSave() {
                         settings.team1_code = formData.get('team1_code') || "ESP";
                         settings.team1_flag = formData.get('team1_flag') || "";
                         settings.team1_score = parseInt(formData.get('team1_score')) || 0;
+                        settings.team1_scorers = formData.get('team1_scorers') || "";
                         settings.team2_name = formData.get('team2_name') || "United States";
                         settings.team2_code = formData.get('team2_code') || "USA";
                         settings.team2_flag = formData.get('team2_flag') || "";
                         settings.team2_score = parseInt(formData.get('team2_score')) || 0;
+                        settings.team2_scorers = formData.get('team2_scorers') || "";
                         settings.scorer_name = formData.get('scorer_name') || "L. MESSI 10'";
                         settings.match_time = formData.get('match_time') || "45:00";
                         settings.timer_active = document.getElementById('worldcup-timer_active').checked;
@@ -3602,6 +3614,11 @@ function initAutoSave() {
                 setupSlider('polls-border_radius', settings.border_radius, 'px');
                 setupSlider('polls-padding_px', settings.padding_px, 'px');
                 setupSlider('polls-default_duration_s', settings.default_duration_s, 's');
+            } else if (tool === 'worldcup') {
+                setupSlider('worldcup-font_size', settings.font_size, 'px');
+                setupSlider('worldcup-bg_opacity', settings.bg_opacity);
+                setupSlider('worldcup-border_width', settings.border_width, 'px');
+                setupSlider('worldcup-border_radius', settings.border_radius, 'px');
             }
         }
 
@@ -4056,7 +4073,13 @@ function initAutoSave() {
             { team1: "Argentina", code1: "ARG", flag1: "https://flagcdn.com/w80/ar.png", team2: "France", code2: "FRA", flag2: "https://flagcdn.com/w80/fr.png", stage: "ROUND OF 16" },
             { team1: "Mexico", code1: "MEX", flag1: "https://flagcdn.com/w80/mx.png", team2: "United States", code2: "USA", flag2: "https://flagcdn.com/w80/us.png", stage: "GROUP STAGE - GROUP B" },
             { team1: "Brazil", code1: "BRA", flag1: "https://flagcdn.com/w80/br.png", team2: "Italy", code2: "ITA", flag2: "https://flagcdn.com/w80/it.png", stage: "QUARTER-FINALS" },
-            { team1: "England", code1: "ENG", flag1: "https://flagcdn.com/w80/gb-eng.png", team2: "Portugal", code2: "POR", flag2: "https://flagcdn.com/w80/pt.png", stage: "SEMI-FINALS" }
+            { team1: "England", code1: "ENG", flag1: "https://flagcdn.com/w80/gb-eng.png", team2: "Portugal", code2: "POR", flag2: "https://flagcdn.com/w80/pt.png", stage: "SEMI-FINALS" },
+            // Friendly matches (Amistosos)
+            { team1: "Spain", code1: "ESP", flag1: "https://flagcdn.com/w80/es.png", team2: "Brazil", code2: "BRA", flag2: "https://flagcdn.com/w80/br.png", stage: "AMISTOSO INTERNACIONAL" },
+            { team1: "Argentina", code1: "ARG", flag1: "https://flagcdn.com/w80/ar.png", team2: "England", code2: "ENG", flag2: "https://flagcdn.com/w80/gb-eng.png", stage: "AMISTOSO INTERNACIONAL" },
+            { team1: "Mexico", code1: "MEX", flag1: "https://flagcdn.com/w80/mx.png", team2: "Colombia", code2: "COL", flag2: "https://flagcdn.com/w80/co.png", stage: "AMISTOSO INTERNACIONAL" },
+            { team1: "Germany", code1: "GER", flag1: "https://flagcdn.com/w80/de.png", team2: "Italy", code2: "ITA", flag2: "https://flagcdn.com/w80/it.png", stage: "AMISTOSO INTERNACIONAL" },
+            { team1: "Portugal", code1: "POR", flag1: "https://flagcdn.com/w80/pt.png", team2: "Netherlands", code2: "NED", flag2: "https://flagcdn.com/w80/nl.png", stage: "AMISTOSO INTERNACIONAL" }
         ];
 
         // Fetch country flags database
