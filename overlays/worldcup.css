@@ -56,8 +56,8 @@ body {
     border-radius: var(--border-radius);
     height: 2.7em;
     overflow: hidden;
-    box-shadow: 6px 6px 0px var(--neon-cyan),
-                -4px -4px 0px var(--neon-purple);
+    box-shadow: 6px 6px 0px var(--team2-color, var(--neon-cyan)),
+                -4px -4px 0px var(--team1-color, var(--neon-purple));
     z-index: 10;
     transition: all 0.3s ease;
 }
@@ -70,12 +70,48 @@ body {
     height: 100%;
     background: #ffffff;
     border-right: var(--border-width) solid var(--border-color);
+    transition: width 0.5s ease-in-out, opacity 0.5s ease-in-out, border-right-width 0.5s ease-in-out;
+    opacity: 1;
+    overflow: hidden;
 }
 
 .logo-circle-mask img {
     height: 1.6em;
     width: auto;
     object-fit: contain;
+}
+
+/* Center Logo layout toggling */
+.logo-center-layout .logo-circle-mask {
+    width: 0px !important;
+    opacity: 0 !important;
+    border-right-width: 0px !important;
+}
+
+.center-logo-mask {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 0px;
+    height: 1.8em;
+    background: #ffffff;
+    border: 1.5px solid var(--border-color);
+    border-radius: 4px;
+    opacity: 0;
+    overflow: hidden;
+    transition: width 0.5s ease-in-out, opacity 0.5s ease-in-out, margin 0.5s ease-in-out;
+}
+
+.center-logo-mask img {
+    height: 1.3em;
+    width: auto;
+    object-fit: contain;
+}
+
+.logo-center-layout .center-logo-mask {
+    width: 2.2em;
+    opacity: 1;
+    margin: 0 0.4em;
 }
 
 .scoreboard-main-content {
@@ -136,6 +172,42 @@ body {
     font-weight: 800;
     color: var(--accent-color);
     text-shadow: 0 0 8px var(--accent-glow);
+    z-index: 10;
+}
+
+.compact-timer-block-wrapper {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    position: relative;
+    overflow: visible;
+}
+
+.added-time-panel {
+    background: #ea580c;
+    color: #ffffff;
+    font-family: var(--font-outfit);
+    font-weight: 900;
+    font-size: 0.9em;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border-left: var(--border-width) solid var(--border-color);
+    transform: translateX(-100%);
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 5;
+}
+
+.added-time-panel.show {
+    transform: translateX(0);
+    opacity: 1;
+    width: 2.4em;
+    padding: 0 0.6em;
 }
 
 .live-blink-dot {
