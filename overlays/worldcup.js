@@ -28,16 +28,57 @@ const goalBanner = document.getElementById("goal-banner");
 const goalScorerFlag = document.getElementById("goal-scorer-flag");
 const goalScorerName = document.getElementById("goal-scorer-name");
 
+function hexToRgba(hex, alpha) {
+    if (!hex) return `rgba(0, 230, 118, ${alpha})`;
+    hex = hex.replace('#', '');
+    if (hex.length === 3) {
+        hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+    }
+    let r = parseInt(hex.substring(0, 2), 16) || 0;
+    let g = parseInt(hex.substring(2, 4), 16) || 0;
+    let b = parseInt(hex.substring(4, 6), 16) || 0;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function hexToRgbValues(hex) {
+    if (!hex) return "9, 9, 11";
+    hex = hex.replace('#', '');
+    if (hex.length === 3) {
+        hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+    }
+    let r = parseInt(hex.substring(0, 2), 16) || 0;
+    let g = parseInt(hex.substring(2, 4), 16) || 0;
+    let b = parseInt(hex.substring(4, 6), 16) || 0;
+    return `${r}, ${g}, ${b}`;
+}
+
 function applySettings(settings) {
     if (!settings) return;
     currentSettings = settings;
 
-    // Apply Fonts and Base layout Mode
+    // Apply CSS Variables for styling dynamically
     if (settings.font_family) {
         document.documentElement.style.setProperty('--font-sans', settings.font_family + ', sans-serif');
     }
+    
+    const rgbVal = hexToRgbValues(settings.bg_color || '#09090b');
+    document.documentElement.style.setProperty('--bg-charcoal-rgb', rgbVal);
+    document.documentElement.style.setProperty('--bg-card-rgb', rgbVal);
+    document.documentElement.style.setProperty('--bg-opacity', settings.bg_opacity !== undefined ? settings.bg_opacity : 0.85);
+    document.documentElement.style.setProperty('--border-color', settings.border_color || '#ffffff');
+    
+    // Safely convert to string first to prevent .replace throws if number is received
+    const borderW = settings.border_width !== undefined ? String(settings.border_width).replace('px','') : '3';
+    const borderR = settings.border_radius !== undefined ? String(settings.border_radius).replace('px','') : '4';
+    const fontSz = settings.font_size !== undefined ? String(settings.font_size).replace('px','') : '20';
+    
+    document.documentElement.style.setProperty('--border-width', borderW + 'px');
+    document.documentElement.style.setProperty('--border-radius', borderR + 'px');
+    document.documentElement.style.setProperty('--font-size', fontSz + 'px');
+    document.documentElement.style.setProperty('--accent-color', settings.accent_color || '#00e676');
+    document.documentElement.style.setProperty('--accent-glow', hexToRgba(settings.accent_color || '#00e676', 0.35));
 
-    // Toggle layouts
+    // Toggle layout modes
     if (overlayContainer) {
         if (settings.layout_mode === "full_time") {
             overlayContainer.className = "overlay-container mode-full-time";
@@ -65,6 +106,10 @@ function applySettings(settings) {
     if (cardName2) cardName2.innerText = settings.team2_name || "United States";
     if (cardScore2) cardScore2.innerText = settings.team2_score !== undefined ? settings.team2_score : 0;
 
+    // Render Scorers List underneath each team
+    renderScorers(settings.team1_scorers, "card-scorers-team1");
+    renderScorers(settings.team2_scorers, "card-scorers-team2");
+
     // Detect Goal Event (Score increments)
     const currentScore1 = settings.team1_score !== undefined ? parseInt(settings.team1_score) : 0;
     const currentScore2 = settings.team2_score !== undefined ? parseInt(settings.team2_score) : 0;
@@ -82,6 +127,24 @@ function applySettings(settings) {
 
     // Sync timer
     syncTimer(settings.match_time || "45:00", settings.timer_active);
+}
+
+function renderScorers(scorersStr, elementId) {
+    const container = document.getElementById(elementId);
+    if (!container) return;
+    container.innerHTML = "";
+    if (!scorersStr || !scorersStr.trim()) return;
+    
+    // Split by comma or newline
+    const items = scorersStr.split(/,|\n/);
+    items.forEach(item => {
+        const clean = item.trim();
+        if (!clean) return;
+        const el = document.createElement("div");
+        el.className = "card-scorer-item";
+        el.innerHTML = `⚽ ${clean}`;
+        container.appendChild(el);
+    });
 }
 
 function triggerGoalCelebration(flagUrl, scorerDetails) {
