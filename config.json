@@ -1,0 +1,124 @@
+{
+  "twitch_channel": "",
+  "twitch_connected": false,
+  "twitch_username": "",
+  "tools": {
+    "chat": {
+      "enabled": true,
+      "settings": {
+        "font_family": "Outfit",
+        "font_size": "18px",
+        "color_user": "#00f0ff",
+        "color_text": "#ffffff",
+        "bg_opacity": 0.4,
+        "bg_color": "#0a0a0f",
+        "border_color": "#3b82f6",
+        "border_width": "1px",
+        "border_radius": "12px",
+        "fade_duration_s": 8,
+        "animation_in": "slide-fade",
+        "max_messages": 10,
+        "message_spacing_px": 10,
+        "badge_size_px": 16,
+        "text_shadow": "0 2px 4px rgba(0,0,0,0.5)",
+        "padding_px": 10,
+        "alignment": "left"
+      }
+    },
+    "carousel": {
+      "enabled": true,
+      "settings": {
+        "interval_ms": 5000,
+        "transition": "fade",
+        "items": [
+          {
+            "id": "1",
+            "type": "image",
+            "url": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800",
+            "duration_ms": 5000
+          },
+          {
+            "id": "2",
+            "type": "image",
+            "url": "https://images.unsplash.com/photo-1600132806370-bf17e65e942f?q=80&w=800",
+            "duration_ms": 5000
+          }
+        ],
+        "width_px": "100%",
+        "height_px": "100%",
+        "border_radius": "0px",
+        "border_color": "#3b82f6",
+        "border_width": "0px",
+        "bg_color": "#000000",
+        "bg_opacity": 0.0
+      }
+    },
+    "nowplaying": {
+      "enabled": true,
+      "settings": {
+        "font_family": "Outfit",
+        "font_size": "16px",
+        "color_title": "#00f0ff",
+        "color_artist": "#a78bfa",
+        "color_bg": "#0a0a0f",
+        "bg_opacity": 0.5,
+        "border_color": "#3b82f6",
+        "border_width": "1px",
+        "border_radius": "10px",
+        "scroll_text": true,
+        "detect_spotify": true,
+        "detect_chrome": true,
+        "detect_firefox": true,
+        "detect_system": true,
+        "padding_px": 12
+      }
+    },
+    "alerts": {
+      "enabled": true,
+      "settings": {
+        "follow_duration_ms": 4000,
+        "sub_duration_ms": 5000,
+        "raid_duration_ms": 6000,
+        "follow_template": "{user} is now following!",
+        "sub_template": "{user} subscribed!",
+        "raid_template": "{user} is raiding with {count} viewers!",
+        "follow_image": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3N2c2t3bnoxdmFidmx0eWd0Mm0wdXNldnR5czRpdWdta2I5dzdrZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/L330J40l95cE9bU0W2/giphy.gif",
+        "sub_image": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdm4yN2V6NWc3bW9yc2Z0Znp3ZnpvbmM1dTR4NXJ4MXR0Zzh5Zjl4ZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/3orif2us7Oa9N2K9Ve/giphy.gif",
+        "raid_image": "https://media.giphy.com/media/134DVXcD94sOWI/giphy.gif",
+        "follow_sound": "",
+        "sub_sound": "",
+        "raid_sound": "",
+        "font_family": "Outfit",
+        "font_size": "24px",
+        "font_color": "#ffffff",
+        "bg_color": "#0a0a0f",
+        "bg_opacity": 0.6,
+        "border_color": "#8b5cf6",
+        "border_width": "2px",
+        "border_radius": "16px",
+        "animation_in": "slide-fade",
+        "animation_out": "fade"
+      }
+    },
+    "worldcup": {
+      "enabled": true,
+      "settings": {
+        "font_family": "Outfit",
+        "font_size": "20px",
+        "bg_color": "#0f0f16",
+        "bg_opacity": 0.85,
+        "border_color": "#eab308",
+        "border_width": "2px",
+        "border_radius": "16px",
+        "team1_name": "ESP",
+        "team1_score": 0,
+        "team2_name": "USA",
+        "team2_score": 0,
+        "match_time": "00:00",
+        "timer_active": false,
+        "logo_variant": "horizontal_color",
+        "accent_color": "#eab308"
+      }
+    }
+  }
+}
