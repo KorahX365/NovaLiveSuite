@@ -1984,6 +1984,10 @@
                                 <button type="button" class="twitch-btn" style="padding: 0.4rem 0.8rem; background: var(--bg-card); border: 1px solid var(--border-light); font-weight: bold; width: 36px; justify-content: center;" onclick="adjustScore('worldcup-team1_score', 1)">+</button>
                             </div>
                         </div>
+                        <div class="form-group" style="margin-top: 8px;">
+                            <label>Color de Sombra del País (Accent Izq)</label>
+                            <input type="color" class="form-control" name="team1_color" id="worldcup-team1_color" value="#ff3d00" style="height:38px; padding:4px; cursor:pointer;">
+                        </div>
                     </div>
 
                     <!-- Team 2 -->
@@ -2017,6 +2021,10 @@
                                 <button type="button" class="twitch-btn" style="padding: 0.4rem 0.8rem; background: var(--bg-card); border: 1px solid var(--border-light); font-weight: bold; width: 36px; justify-content: center;" onclick="adjustScore('worldcup-team2_score', 1)">+</button>
                             </div>
                         </div>
+                        <div class="form-group" style="margin-top: 8px;">
+                            <label>Color de Sombra del País (Accent Der)</label>
+                            <input type="color" class="form-control" name="team2_color" id="worldcup-team2_color" value="#00b0ff" style="height:38px; padding:4px; cursor:pointer;">
+                        </div>
                     </div>
                 </div>
             </details>
@@ -2042,6 +2050,10 @@
                     <div class="form-group">
                         <label><span data-i18n="lbl_match_time">Match Time (MM:SS)</span></label>
                         <input type="text" class="form-control" name="match_time" id="worldcup-match_time" value="00:00" placeholder="00:00">
+                    </div>
+                    <div class="form-group" style="margin-top: 8px;">
+                        <label>Tiempo Añadido (Minutos)</label>
+                        <input type="number" class="form-control" name="added_time" id="worldcup-added_time" min="0" max="15" value="0" style="text-align: center;">
                     </div>
                     <div class="form-group" style="display: flex; align-items: center; gap: 8px; margin-top: 12px;">
                         <input type="checkbox" name="timer_active" id="worldcup-timer_active" style="width: 18px; height: 18px; cursor: pointer;">
@@ -3113,16 +3125,19 @@
                 document.getElementById('worldcup-team1_flag').value = wc.team1_flag || "";
                 document.getElementById('worldcup-team1_score').value = wc.team1_score !== undefined ? wc.team1_score : 0;
                 document.getElementById('worldcup-team1_scorers').value = wc.team1_scorers || "";
+                document.getElementById('worldcup-team1_color').value = wc.team1_color || "#ff3d00";
                 
                 document.getElementById('worldcup-team2_name').value = wc.team2_name || "United States";
                 document.getElementById('worldcup-team2_code').value = wc.team2_code || "USA";
                 document.getElementById('worldcup-team2_flag').value = wc.team2_flag || "";
                 document.getElementById('worldcup-team2_score').value = wc.team2_score !== undefined ? wc.team2_score : 0;
                 document.getElementById('worldcup-team2_scorers').value = wc.team2_scorers || "";
+                document.getElementById('worldcup-team2_color').value = wc.team2_color || "#00b0ff";
                 
                 document.getElementById('worldcup-scorer_name').value = wc.scorer_name || "L. MESSI 10'";
                 document.getElementById('worldcup-match_time').value = wc.match_time || "45:00";
                 document.getElementById('worldcup-timer_active').checked = wc.timer_active === true;
+                document.getElementById('worldcup-added_time').value = wc.added_time !== undefined ? wc.added_time : "0";
                 
                 document.getElementById('worldcup-logo_variant').value = wc.logo_variant || "horizontal_color";
                 document.getElementById('worldcup-font_family').value = wc.font_family || "Outfit";
@@ -3248,14 +3263,17 @@ function initAutoSave() {
                         settings.team1_flag = formData.get('team1_flag') || "";
                         settings.team1_score = parseInt(formData.get('team1_score')) || 0;
                         settings.team1_scorers = formData.get('team1_scorers') || "";
+                        settings.team1_color = formData.get('team1_color') || "#ff3d00";
                         settings.team2_name = formData.get('team2_name') || "United States";
                         settings.team2_code = formData.get('team2_code') || "USA";
                         settings.team2_flag = formData.get('team2_flag') || "";
                         settings.team2_score = parseInt(formData.get('team2_score')) || 0;
                         settings.team2_scorers = formData.get('team2_scorers') || "";
+                        settings.team2_color = formData.get('team2_color') || "#00b0ff";
                         settings.scorer_name = formData.get('scorer_name') || "L. MESSI 10'";
                         settings.match_time = formData.get('match_time') || "45:00";
                         settings.timer_active = document.getElementById('worldcup-timer_active').checked;
+                        settings.added_time = formData.get('added_time') || "0";
                         settings.logo_variant = formData.get('logo_variant') || "horizontal_color";
                         settings.font_family = formData.get('font_family');
                         settings.font_size = formData.get('font_size');
