@@ -6,70 +6,94 @@ let previousScores = { team1: null, team2: null };
 let goalBannerTimeout = null;
 
 // DOM Elements
-const team1Code = document.getElementById("team1-code-display");
-const team1Score = document.getElementById("team1-score-box");
-const team2Code = document.getElementById("team2-code-display");
-const team2Score = document.getElementById("team2-score-box");
-const timeDisplay = document.getElementById("time-display");
-const timerDot = document.getElementById("timer-dot");
+const overlayContainer = document.getElementById("overlay-container");
+const compactFlag1 = document.getElementById("compact-flag1");
+const compactCode1 = document.getElementById("compact-code1");
+const compactScore1 = document.getElementById("compact-score1");
+const compactFlag2 = document.getElementById("compact-flag2");
+const compactCode2 = document.getElementById("compact-code2");
+const compactScore2 = document.getElementById("compact-score2");
+const compactTime = document.getElementById("compact-time");
+const compactDot = document.getElementById("compact-dot");
+
+const cardStage = document.getElementById("card-stage");
+const cardFlag1 = document.getElementById("card-flag1");
+const cardName1 = document.getElementById("card-name1");
+const cardScore1 = document.getElementById("card-score1");
+const cardFlag2 = document.getElementById("card-flag2");
+const cardName2 = document.getElementById("card-name2");
+const cardScore2 = document.getElementById("card-score2");
+
 const goalBanner = document.getElementById("goal-banner");
-const goalTeamLabel = document.getElementById("goal-team-label");
+const goalScorerFlag = document.getElementById("goal-scorer-flag");
+const goalScorerName = document.getElementById("goal-scorer-name");
 
 function applySettings(settings) {
     if (!settings) return;
     currentSettings = settings;
 
-    // Apply basic font settings dynamically
+    // Apply Fonts and Base layout Mode
     if (settings.font_family) {
-        document.documentElement.style.setProperty('--font-family-title', settings.font_family + ', sans-serif');
+        document.documentElement.style.setProperty('--font-sans', settings.font_family + ', sans-serif');
     }
 
-    // Set Team Codes and scores
-    if (team1Code) team1Code.innerText = settings.team1_name || "ESP";
-    if (team1Score) team1Score.innerText = settings.team1_score !== undefined ? settings.team1_score : 0;
+    // Toggle layouts
+    if (overlayContainer) {
+        if (settings.layout_mode === "full_time") {
+            overlayContainer.className = "overlay-container mode-full-time";
+        } else {
+            overlayContainer.className = "overlay-container mode-in-progress";
+        }
+    }
+
+    // Bind flags, names, codes, and scores
+    if (compactFlag1) compactFlag1.src = settings.team1_flag || "https://flagcdn.com/w80/es.png";
+    if (compactCode1) compactCode1.innerText = settings.team1_code || "ESP";
+    if (compactScore1) compactScore1.innerText = settings.team1_score !== undefined ? settings.team1_score : 0;
     
-    if (team2Code) team2Code.innerText = settings.team2_name || "USA";
-    if (team2Score) team2Score.innerText = settings.team2_score !== undefined ? settings.team2_score : 0;
+    if (compactFlag2) compactFlag2.src = settings.team2_flag || "https://flagcdn.com/w80/us.png";
+    if (compactCode2) compactCode2.innerText = settings.team2_code || "USA";
+    if (compactScore2) compactScore2.innerText = settings.team2_score !== undefined ? settings.team2_score : 0;
+
+    // Wide card binding
+    if (cardStage) cardStage.innerText = settings.match_stage || "GROUP STAGE - GROUP A";
+    if (cardFlag1) cardFlag1.src = settings.team1_flag || "https://flagcdn.com/w320/es.png";
+    if (cardName1) cardName1.innerText = settings.team1_name || "Spain";
+    if (cardScore1) cardScore1.innerText = settings.team1_score !== undefined ? settings.team1_score : 0;
+
+    if (cardFlag2) cardFlag2.src = settings.team2_flag || "https://flagcdn.com/w320/us.png";
+    if (cardName2) cardName2.innerText = settings.team2_name || "United States";
+    if (cardScore2) cardScore2.innerText = settings.team2_score !== undefined ? settings.team2_score : 0;
 
     // Detect Goal Event (Score increments)
     const currentScore1 = settings.team1_score !== undefined ? parseInt(settings.team1_score) : 0;
     const currentScore2 = settings.team2_score !== undefined ? parseInt(settings.team2_score) : 0;
 
     if (previousScores.team1 !== null && currentScore1 > previousScores.team1) {
-        triggerGoalCelebration(settings.team1_name || "ESP", "left");
+        triggerGoalCelebration(settings.team1_flag, settings.scorer_name || "GOAL!");
     }
     if (previousScores.team2 !== null && currentScore2 > previousScores.team2) {
-        triggerGoalCelebration(settings.team2_name || "USA", "right");
+        triggerGoalCelebration(settings.team2_flag, settings.scorer_name || "GOAL!");
     }
 
-    // Update previous scores baseline
+    // Sync baseline
     previousScores.team1 = currentScore1;
     previousScores.team2 = currentScore2;
 
-    // Timer setup
-    syncTimer(settings.match_time || "00:00", settings.timer_active);
+    // Sync timer
+    syncTimer(settings.match_time || "45:00", settings.timer_active);
 }
 
-function triggerGoalCelebration(teamName, side) {
+function triggerGoalCelebration(flagUrl, scorerDetails) {
     if (goalBannerTimeout) {
         clearTimeout(goalBannerTimeout);
     }
 
-    if (goalTeamLabel) {
-        goalTeamLabel.innerText = teamName;
-    }
+    if (goalScorerFlag) goalScorerFlag.src = flagUrl || "";
+    if (goalScorerName) goalScorerName.innerText = scorerDetails || "GOAL!";
 
     if (goalBanner) {
-        // Set dynamic colors based on side or tournament colors
-        if (side === "left") {
-            goalBanner.style.background = "linear-gradient(135deg, #ff3d00 0%, #d500f9 100%)"; // coral to purple
-        } else {
-            goalBanner.style.background = "linear-gradient(135deg, #00b0ff 0%, #00e676 100%)"; // cyan to lime green
-        }
-        
         goalBanner.classList.add("show");
-
-        // Retract banner after 6 seconds
         goalBannerTimeout = setTimeout(() => {
             goalBanner.classList.remove("show");
         }, 6000);
@@ -88,13 +112,13 @@ function syncTimer(timeStr, isActive) {
     updateTimerDisplay();
 
     if (isActive) {
-        if (timerDot) timerDot.classList.add("active");
+        if (compactDot) compactDot.style.display = "inline-block";
         timerInterval = setInterval(() => {
             secondsCounter++;
             updateTimerDisplay();
         }, 1000);
     } else {
-        if (timerDot) timerDot.classList.remove("active");
+        if (compactDot) compactDot.style.display = "none";
     }
 }
 
@@ -102,7 +126,7 @@ function updateTimerDisplay() {
     const mins = Math.floor(secondsCounter / 60);
     const secs = secondsCounter % 60;
     const formatted = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-    if (timeDisplay) timeDisplay.innerText = formatted;
+    if (compactTime) compactTime.innerText = formatted;
 }
 
 // Connect to SSE stream
