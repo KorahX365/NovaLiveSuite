@@ -126,7 +126,10 @@
         "match_stage": "GROUP STAGE - GROUP A",
         "scorer_name": "L. MESSI 10'",
         "team1_scorers": "",
-        "team2_scorers": ""
+        "team2_scorers": "",
+        "team1_color": "#ff3d00",
+        "team2_color": "#00b0ff",
+        "added_time": "0"
       }
     }
   }
