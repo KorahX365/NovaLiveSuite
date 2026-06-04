@@ -1919,16 +1919,61 @@
             <button class="close-panel-btn" onclick="closePanel('worldcup')"><i class="fa-solid fa-times"></i></button>
         </div>
         <form id="form-worldcup" onsubmit="event.preventDefault();">
+            <!-- 1. Match Mode Switch -->
             <details class="settings-category" open>
-                <summary><span data-i18n="cat_scoreboard_match">Scoreboard & Match</span></summary>
+                <summary><span data-i18n="cat_overlay_mode">Overlay Layout Mode</span></summary>
                 <div class="category-content">
-                    <div style="display: flex; gap: 12px; margin-bottom: 12px;">
-                        <div style="flex: 1;">
-                            <label><span data-i18n="lbl_team1_name">Team 1 (Left)</span></label>
-                            <input type="text" class="form-control" name="team1_name" id="worldcup-team1_name" placeholder="ESP" style="text-transform: uppercase;">
+                    <div class="form-group">
+                        <label>Layout Mode</label>
+                        <select class="form-control" name="layout_mode" id="worldcup-layout_mode">
+                            <option value="in_progress">Partido en Curso (Compact Top Scoreboard)</option>
+                            <option value="full_time">Partido Acabado (Wide Presentation Card)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tournament Stage</label>
+                        <input type="text" class="form-control" name="match_stage" id="worldcup-match_stage" placeholder="GROUP STAGE - GROUP A">
+                    </div>
+                </div>
+            </details>
+
+            <!-- 2. Dynamic Matches Search & Autocomplete -->
+            <details class="settings-category" open>
+                <summary><span>Buscar Partidos Programados</span></summary>
+                <div class="category-content">
+                    <div class="form-group" style="position: relative;">
+                        <label>Buscar Partido (ej: Spain vs Germany)</label>
+                        <input type="text" class="form-control" id="match-search-input" placeholder="Escribe para buscar partidos de la Copa del Mundo..." oninput="filterUpcomingMatches(this.value)">
+                        <div id="match-search-dropdown" class="autocomplete-dropdown" style="display: none; position: absolute; width: 100%; max-height: 200px; overflow-y: auto; background: var(--bg-surface); border: 1px solid var(--border-light); z-index: 100; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);"></div>
+                    </div>
+                </div>
+            </details>
+
+            <!-- 3. Country / Flag Selectors -->
+            <details class="settings-category" open>
+                <summary><span data-i18n="cat_scoreboard_match">Teams Selection</span></summary>
+                <div class="category-content">
+                    <!-- Team 1 -->
+                    <div style="border: 1px solid rgba(255,255,255,0.05); padding: 12px; border-radius: 6px; margin-bottom: 12px; position: relative;">
+                        <h4 style="font-size: 0.85rem; color: var(--accent); margin-bottom: 8px;">Equipo 1 (Izquierda)</h4>
+                        <div class="form-group" style="position: relative;">
+                            <label>Buscar País / Selección</label>
+                            <input type="text" class="form-control" id="team1-search-input" placeholder="Buscar país..." oninput="filterCountries(this.value, 'team1')" onfocus="filterCountries('', 'team1')">
+                            <div id="team1-countries-dropdown" class="autocomplete-dropdown" style="display: none; position: absolute; width: 100%; max-height: 180px; overflow-y: auto; background: var(--bg-surface); border: 1px solid var(--border-light); z-index: 101; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);"></div>
                         </div>
-                        <div style="flex: 1;">
-                            <label><span data-i18n="lbl_team1_score">Score 1</span></label>
+                        <div style="display: flex; gap: 8px; margin-top: 8px;">
+                            <div style="flex: 2;">
+                                <label>Nombre Completo</label>
+                                <input type="text" class="form-control" name="team1_name" id="worldcup-team1_name" placeholder="Spain" readonly>
+                            </div>
+                            <div style="flex: 1;">
+                                <label>Sigla</label>
+                                <input type="text" class="form-control" name="team1_code" id="worldcup-team1_code" placeholder="ESP" readonly>
+                            </div>
+                        </div>
+                        <input type="hidden" name="team1_flag" id="worldcup-team1_flag">
+                        <div class="form-group" style="margin-top: 8px;">
+                            <label>Goles / Score 1</label>
                             <div style="display: flex; gap: 4px;">
                                 <button type="button" class="twitch-btn" style="padding: 0.4rem 0.8rem; background: var(--bg-card); border: 1px solid var(--border-light); font-weight: bold; width: 36px; justify-content: center;" onclick="adjustScore('worldcup-team1_score', -1)">-</button>
                                 <input type="number" class="form-control" name="team1_score" id="worldcup-team1_score" min="0" value="0" style="text-align: center;">
@@ -1936,19 +1981,49 @@
                             </div>
                         </div>
                     </div>
-                    <div style="display: flex; gap: 12px; margin-bottom: 12px;">
-                        <div style="flex: 1;">
-                            <label><span data-i18n="lbl_team2_name">Team 2 (Right)</span></label>
-                            <input type="text" class="form-control" name="team2_name" id="worldcup-team2_name" placeholder="USA" style="text-transform: uppercase;">
+
+                    <!-- Team 2 -->
+                    <div style="border: 1px solid rgba(255,255,255,0.05); padding: 12px; border-radius: 6px; position: relative;">
+                        <h4 style="font-size: 0.85rem; color: var(--success); margin-bottom: 8px;">Equipo 2 (Derecha)</h4>
+                        <div class="form-group" style="position: relative;">
+                            <label>Buscar País / Selección</label>
+                            <input type="text" class="form-control" id="team2-search-input" placeholder="Buscar país..." oninput="filterCountries(this.value, 'team2')" onfocus="filterCountries('', 'team2')">
+                            <div id="team2-countries-dropdown" class="autocomplete-dropdown" style="display: none; position: absolute; width: 100%; max-height: 180px; overflow-y: auto; background: var(--bg-surface); border: 1px solid var(--border-light); z-index: 101; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);"></div>
                         </div>
-                        <div style="flex: 1;">
-                            <label><span data-i18n="lbl_team2_score">Score 2</span></label>
+                        <div style="display: flex; gap: 8px; margin-top: 8px;">
+                            <div style="flex: 2;">
+                                <label>Nombre Completo</label>
+                                <input type="text" class="form-control" name="team2_name" id="worldcup-team2_name" placeholder="United States" readonly>
+                            </div>
+                            <div style="flex: 1;">
+                                <label>Sigla</label>
+                                <input type="text" class="form-control" name="team2_code" id="worldcup-team2_code" placeholder="USA" readonly>
+                            </div>
+                        </div>
+                        <input type="hidden" name="team2_flag" id="worldcup-team2_flag">
+                        <div class="form-group" style="margin-top: 8px;">
+                            <label>Goles / Score 2</label>
                             <div style="display: flex; gap: 4px;">
                                 <button type="button" class="twitch-btn" style="padding: 0.4rem 0.8rem; background: var(--bg-card); border: 1px solid var(--border-light); font-weight: bold; width: 36px; justify-content: center;" onclick="adjustScore('worldcup-team2_score', -1)">-</button>
                                 <input type="number" class="form-control" name="team2_score" id="worldcup-team2_score" min="0" value="0" style="text-align: center;">
                                 <button type="button" class="twitch-btn" style="padding: 0.4rem 0.8rem; background: var(--bg-card); border: 1px solid var(--border-light); font-weight: bold; width: 36px; justify-content: center;" onclick="adjustScore('worldcup-team2_score', 1)">+</button>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </details>
+
+            <!-- 4. Goal Simulators -->
+            <details class="settings-category">
+                <summary><span>Simulación de Goles y Eventos</span></summary>
+                <div class="category-content">
+                    <div class="form-group">
+                        <label>Nombre del Goleador (ej: L. MESSI 10')</label>
+                        <input type="text" class="form-control" name="scorer_name" id="worldcup-scorer_name" placeholder="L. MESSI 10'">
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
+                        <button type="button" class="btn-toggle-tool enabled" style="margin-top: 0; background: rgba(255, 61, 0, 0.15); color: #ff8a65; border: 1px solid rgba(255, 61, 0, 0.3);" onclick="simulateGoal('team1')"><i class="fa-solid fa-futbol"></i> Simular Gol de Equipo 1</button>
+                        <button type="button" class="btn-toggle-tool enabled" style="margin-top: 0; background: rgba(0, 230, 118, 0.15); color: #b9f6ca; border: 1px solid rgba(0, 230, 118, 0.3);" onclick="simulateGoal('team2')"><i class="fa-solid fa-futbol"></i> Simular Gol de Equipo 2</button>
                     </div>
                 </div>
             </details>
@@ -3023,12 +3098,22 @@
             // Update World Cup Settings
             if (activePanel !== 'worldcup') {
                 const wc = currentConfig.tools.worldcup.settings;
-                document.getElementById('worldcup-team1_name').value = wc.team1_name || "ESP";
+                document.getElementById('worldcup-layout_mode').value = wc.layout_mode || "in_progress";
+                document.getElementById('worldcup-match_stage').value = wc.match_stage || "GROUP STAGE - GROUP A";
+                document.getElementById('worldcup-team1_name').value = wc.team1_name || "Spain";
+                document.getElementById('worldcup-team1_code').value = wc.team1_code || "ESP";
+                document.getElementById('worldcup-team1_flag').value = wc.team1_flag || "";
                 document.getElementById('worldcup-team1_score').value = wc.team1_score !== undefined ? wc.team1_score : 0;
-                document.getElementById('worldcup-team2_name').value = wc.team2_name || "USA";
+                
+                document.getElementById('worldcup-team2_name').value = wc.team2_name || "United States";
+                document.getElementById('worldcup-team2_code').value = wc.team2_code || "USA";
+                document.getElementById('worldcup-team2_flag').value = wc.team2_flag || "";
                 document.getElementById('worldcup-team2_score').value = wc.team2_score !== undefined ? wc.team2_score : 0;
-                document.getElementById('worldcup-match_time').value = wc.match_time || "00:00";
+                
+                document.getElementById('worldcup-scorer_name').value = wc.scorer_name || "L. MESSI 10'";
+                document.getElementById('worldcup-match_time').value = wc.match_time || "45:00";
                 document.getElementById('worldcup-timer_active').checked = wc.timer_active === true;
+                
                 document.getElementById('worldcup-logo_variant').value = wc.logo_variant || "horizontal_color";
                 document.getElementById('worldcup-font_family').value = wc.font_family || "Outfit";
                 document.getElementById('worldcup-font_size').value = parseInt(wc.font_size) || 20;
@@ -3044,6 +3129,10 @@
                 document.getElementById('worldcup-bg_opacity-val').innerText = wc.bg_opacity !== undefined ? wc.bg_opacity : 0.85;
                 document.getElementById('worldcup-border_width-val').innerText = (parseInt(wc.border_width) || 2) + "px";
                 document.getElementById('worldcup-border_radius-val').innerText = (parseInt(wc.border_radius) || 16) + "px";
+                
+                // Sync text search inputs too
+                document.getElementById('team1-search-input').value = wc.team1_name || "Spain";
+                document.getElementById('team2-search-input').value = wc.team2_name || "United States";
             }
         }
 
@@ -3142,11 +3231,18 @@ function initAutoSave() {
                         settings.padding_px = parseInt(formData.get('padding_px')) || 24;
                         settings.default_duration_s = parseInt(formData.get('default_duration_s')) || 60;
                     } else if (tool === 'worldcup') {
-                        settings.team1_name = formData.get('team1_name') || "ESP";
+                        settings.layout_mode = formData.get('layout_mode') || "in_progress";
+                        settings.match_stage = formData.get('match_stage') || "GROUP STAGE - GROUP A";
+                        settings.team1_name = formData.get('team1_name') || "Spain";
+                        settings.team1_code = formData.get('team1_code') || "ESP";
+                        settings.team1_flag = formData.get('team1_flag') || "";
                         settings.team1_score = parseInt(formData.get('team1_score')) || 0;
-                        settings.team2_name = formData.get('team2_name') || "USA";
+                        settings.team2_name = formData.get('team2_name') || "United States";
+                        settings.team2_code = formData.get('team2_code') || "USA";
+                        settings.team2_flag = formData.get('team2_flag') || "";
                         settings.team2_score = parseInt(formData.get('team2_score')) || 0;
-                        settings.match_time = formData.get('match_time') || "00:00";
+                        settings.scorer_name = formData.get('scorer_name') || "L. MESSI 10'";
+                        settings.match_time = formData.get('match_time') || "45:00";
                         settings.timer_active = document.getElementById('worldcup-timer_active').checked;
                         settings.logo_variant = formData.get('logo_variant') || "horizontal_color";
                         settings.font_family = formData.get('font_family');
@@ -3952,6 +4048,187 @@ function initAutoSave() {
             };
         }
         setTimeout(connectNowPlayingWS, 500);
+
+        // --- FIFA World Cup 2026 Autocomplete & Match Search Logic ---
+        let allCountriesList = [];
+        const upcomingMatches = [
+            { team1: "Spain", code1: "ESP", flag1: "https://flagcdn.com/w80/es.png", team2: "Germany", code2: "GER", flag2: "https://flagcdn.com/w80/de.png", stage: "GROUP STAGE - GROUP A" },
+            { team1: "Argentina", code1: "ARG", flag1: "https://flagcdn.com/w80/ar.png", team2: "France", code2: "FRA", flag2: "https://flagcdn.com/w80/fr.png", stage: "ROUND OF 16" },
+            { team1: "Mexico", code1: "MEX", flag1: "https://flagcdn.com/w80/mx.png", team2: "United States", code2: "USA", flag2: "https://flagcdn.com/w80/us.png", stage: "GROUP STAGE - GROUP B" },
+            { team1: "Brazil", code1: "BRA", flag1: "https://flagcdn.com/w80/br.png", team2: "Italy", code2: "ITA", flag2: "https://flagcdn.com/w80/it.png", stage: "QUARTER-FINALS" },
+            { team1: "England", code1: "ENG", flag1: "https://flagcdn.com/w80/gb-eng.png", team2: "Portugal", code2: "POR", flag2: "https://flagcdn.com/w80/pt.png", stage: "SEMI-FINALS" }
+        ];
+
+        // Fetch country flags database
+        async function fetchCountriesDatabase() {
+            try {
+                const response = await fetch('https://restcountries.com/v3.1/all?fields=name,cca3,flags');
+                const data = await response.json();
+                allCountriesList = data.map(c => ({
+                    name: c.name.common,
+                    code: c.cca3,
+                    flag: c.flags.png
+                })).sort((a,b) => a.name.localeCompare(b.name));
+            } catch (err) {
+                console.error("Failed to fetch countries details from REST Countries API:", err);
+                // Fail-safe default list
+                allCountriesList = [
+                    { name: "Spain", code: "ESP", flag: "https://flagcdn.com/w80/es.png" },
+                    { name: "United States", code: "USA", flag: "https://flagcdn.com/w80/us.png" },
+                    { name: "Germany", code: "GER", flag: "https://flagcdn.com/w80/de.png" },
+                    { name: "Argentina", code: "ARG", flag: "https://flagcdn.com/w80/ar.png" },
+                    { name: "France", code: "FRA", flag: "https://flagcdn.com/w80/fr.png" },
+                    { name: "Mexico", code: "MEX", flag: "https://flagcdn.com/w80/mx.png" }
+                ];
+            }
+        }
+        fetchCountriesDatabase();
+
+        // Autocomplete Scheduled Match Search
+        function filterUpcomingMatches(query) {
+            const dropdown = document.getElementById("match-search-dropdown");
+            if (!dropdown) return;
+            
+            if (!query.trim()) {
+                dropdown.style.display = "none";
+                return;
+            }
+
+            const filtered = upcomingMatches.filter(m => 
+                m.team1.toLowerCase().includes(query.toLowerCase()) || 
+                m.team2.toLowerCase().includes(query.toLowerCase())
+            );
+
+            if (filtered.length === 0) {
+                dropdown.style.display = "none";
+                return;
+            }
+
+            dropdown.innerHTML = "";
+            filtered.forEach(match => {
+                const item = document.createElement("div");
+                item.style.padding = "8px 12px";
+                item.style.cursor = "pointer";
+                item.style.borderBottom = "1px solid rgba(255,255,255,0.05)";
+                item.style.display = "flex";
+                item.style.justifyContent = "space-between";
+                item.style.alignItems = "center";
+                item.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <img src="${match.flag1}" style="width:20px; height:14px; object-fit:cover; border-radius:2px;">
+                        <span>${match.team1}</span>
+                        <span style="color:var(--text-muted); font-size:12px;">vs</span>
+                        <img src="${match.flag2}" style="width:20px; height:14px; object-fit:cover; border-radius:2px;">
+                        <span>${match.team2}</span>
+                    </div>
+                    <span style="font-size:11px; background:rgba(255,255,255,0.08); padding:2px 6px; border-radius:3px; color:var(--text-muted);">${match.stage}</span>
+                `;
+                item.onclick = () => selectScheduledMatch(match);
+                dropdown.appendChild(item);
+            });
+            dropdown.style.display = "block";
+        }
+
+        function selectScheduledMatch(match) {
+            document.getElementById("worldcup-team1_name").value = match.team1;
+            document.getElementById("worldcup-team1_code").value = match.code1;
+            document.getElementById("worldcup-team1_flag").value = match.flag1;
+
+            document.getElementById("worldcup-team2_name").value = match.team2;
+            document.getElementById("worldcup-team2_code").value = match.code2;
+            document.getElementById("worldcup-team2_flag").value = match.flag2;
+
+            document.getElementById("worldcup-match_stage").value = match.stage;
+
+            // Trigger updates to save
+            const form = document.getElementById("form-worldcup");
+            if (form) {
+                const inputEvent = new Event('input', { bubbles: true });
+                form.querySelector("[name='team1_name']").dispatchEvent(inputEvent);
+            }
+
+            document.getElementById("match-search-input").value = `${match.team1} vs ${match.team2}`;
+            document.getElementById("match-search-dropdown").style.display = "none";
+            showToast("Partido seleccionado e integrado con éxito!");
+        }
+
+        // Country Dropdowns Filter
+        function filterCountries(query, targetId) {
+            const dropdown = document.getElementById(`${targetId}-countries-dropdown`);
+            if (!dropdown) return;
+
+            const filtered = allCountriesList.filter(c => 
+                c.name.toLowerCase().includes(query.toLowerCase()) ||
+                c.code.toLowerCase().includes(query.toLowerCase())
+            );
+
+            dropdown.innerHTML = "";
+            filtered.slice(0, 10).forEach(country => {
+                const item = document.createElement("div");
+                item.style.padding = "8px 12px";
+                item.style.cursor = "pointer";
+                item.style.borderBottom = "1px solid rgba(255,255,255,0.05)";
+                item.style.display = "flex";
+                item.style.alignItems = "center";
+                item.style.gap = "10px";
+                item.innerHTML = `
+                    <img src="${country.flag}" style="width:24px; height:16px; object-fit:cover; border-radius:2px; border:1px solid rgba(255,255,255,0.1)">
+                    <span>${country.name} (${country.code})</span>
+                `;
+                item.onclick = () => selectCountry(country, targetId);
+                dropdown.appendChild(item);
+            });
+            dropdown.style.display = "block";
+        }
+
+        function selectCountry(country, targetId) {
+            document.getElementById(`worldcup-${targetId}_name`).value = country.name;
+            document.getElementById(`worldcup-${targetId}_code`).value = country.code;
+            document.getElementById(`worldcup-${targetId}_flag`).value = country.flag;
+
+            // Trigger saving
+            const form = document.getElementById("form-worldcup");
+            if (form) {
+                const inputEvent = new Event('input', { bubbles: true });
+                form.querySelector(`[name='${targetId}_name']`).dispatchEvent(inputEvent);
+            }
+
+            document.getElementById(`${targetId}-search-input`).value = country.name;
+            document.getElementById(`${targetId}-countries-dropdown`).style.display = "none";
+        }
+
+        // Hide autocomplete lists if user clicks elsewhere
+        document.addEventListener("click", (e) => {
+            if (!e.target.closest("#match-search-input")) {
+                const d = document.getElementById("match-search-dropdown");
+                if (d) d.style.display = "none";
+            }
+            if (!e.target.closest("#team1-search-input")) {
+                const d = document.getElementById("team1-countries-dropdown");
+                if (d) d.style.display = "none";
+            }
+            if (!e.target.closest("#team2-search-input")) {
+                const d = document.getElementById("team2-countries-dropdown");
+                if (d) d.style.display = "none";
+            }
+        });
+
+        // Simulate Goal celebration trigger
+        function simulateGoal(teamKey) {
+            const scorerInput = document.getElementById("worldcup-scorer_name");
+            const scorerText = scorerInput ? scorerInput.value.trim() : "GOAL!";
+            
+            // Increment score of team temporarily to trigger overlay update
+            const scoreInput = document.getElementById(`worldcup-${teamKey}_score`);
+            if (scoreInput) {
+                let score = parseInt(scoreInput.value) || 0;
+                scoreInput.value = score + 1;
+                
+                // Dispatch event to save configuration and notify overlay
+                scoreInput.dispatchEvent(new Event('input', { bubbles: true }));
+                showToast(`¡Gol simulado para ${teamKey === 'team1' ? 'Equipo 1' : 'Equipo 2'}!`);
+            }
+        }
 
         function adjustScore(inputId, delta) {
             const input = document.getElementById(inputId);
