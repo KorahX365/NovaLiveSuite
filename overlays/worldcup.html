@@ -3,54 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FIFA World Cup 2026 TV Scoreboard</title>
+    <title>FIFA World Cup 2026 Overlay Suite</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/overlays/worldcup.css">
 </head>
 <body>
-    <div class="scoreboard-wrapper">
-        <!-- Main Scoreboard TV Bar -->
-        <div id="tv-scoreboard" class="tv-scoreboard-bar">
-            <!-- Left Logo Icon Block -->
-            <div class="fwc-logo-box">
-                <img id="fwc-logo-img" src="https://static.wikia.nocookie.net/logopedia/images/4/44/FWC26_CanMexUSA_hz.png/revision/latest/scale-to-width-down/1000?cb=20260604001303" alt="FWC 26 Logo">
+    <div id="overlay-container" class="overlay-container mode-in-progress">
+        <!-- 1. COMPACT SCOREBOARD (Partido en curso) -->
+        <div id="compact-scoreboard" class="compact-scoreboard-bar">
+            <div class="logo-circle-mask">
+                <img src="https://static.wikia.nocookie.net/logopedia/images/f/f7/FIFA_World_Cup_Canada_Mexico_USA_2026_Logo_With_World_Cup_%26_2026_Wordmarks_%28black_3%29.png/revision/latest/scale-to-width-down/1000?cb=20260521210834" alt="FWC26">
             </div>
-
-            <!-- Match Score Block -->
-            <div class="match-score-area">
+            
+            <div class="scoreboard-main-content">
                 <!-- Team 1 -->
-                <div class="team-capsule team-left">
-                    <span class="kit-color-bar" id="team1-color-bar" style="background-color: #ff3d00;"></span>
-                    <span class="team-code" id="team1-code-display">ESP</span>
+                <div class="compact-team-block">
+                    <img id="compact-flag1" class="flag-circle" src="https://flagcdn.com/w80/es.png" alt="ESP">
+                    <span id="compact-code1" class="compact-team-code">ESP</span>
                 </div>
-
-                <!-- Score digits -->
-                <div class="score-number-box" id="team1-score-box">0</div>
-                <div class="score-divider">:</div>
-                <div class="score-number-box" id="team2-score-box">0</div>
-
+                
+                <!-- Scores -->
+                <div class="compact-score-digits">
+                    <span id="compact-score1">0</span>
+                    <span class="score-dash">-</span>
+                    <span id="compact-score2">0</span>
+                </div>
+                
                 <!-- Team 2 -->
-                <div class="team-capsule team-right">
-                    <span class="team-code" id="team2-code-display">USA</span>
-                    <span class="kit-color-bar" id="team2-color-bar" style="background-color: #00b0ff;"></span>
+                <div class="compact-team-block">
+                    <span id="compact-code2" class="compact-team-code">USA</span>
+                    <img id="compact-flag2" class="flag-circle" src="https://flagcdn.com/w80/us.png" alt="USA">
                 </div>
             </div>
-
-            <!-- Timer Area -->
-            <div class="timer-display-box">
-                <span id="time-display">00:00</span>
-                <span class="timer-dot active" id="timer-dot"></span>
+            
+            <!-- Timer Block -->
+            <div class="compact-timer-block">
+                <span id="compact-time">45:00</span>
+                <span class="live-blink-dot" id="compact-dot"></span>
             </div>
         </div>
 
-        <!-- GOAL Celebratory Banner (Hidden by default, slides out/in) -->
-        <div id="goal-banner" class="goal-celebration-banner">
-            <div class="goal-gradient-overlay"></div>
-            <div class="goal-content">
-                <span class="goal-text-main">GOAL!</span>
-                <span class="goal-team-label" id="goal-team-label">ESP</span>
+        <!-- 2. WIDE MATCH PRESENTATION CARD (Partido acabado o Pre-partido) -->
+        <div id="wide-presentation-card" class="wide-presentation-card">
+            <div class="card-header-bar">
+                <span class="stage-label" id="card-stage">GROUP STAGE - GROUP A</span>
+                <span class="match-status-pill" id="card-status-pill">FULL TIME</span>
+            </div>
+            
+            <div class="card-versus-row">
+                <!-- Team 1 Left -->
+                <div class="card-team-side left-side">
+                    <div class="flag-large-frame">
+                        <img id="card-flag1" src="https://flagcdn.com/w320/es.png" alt="ESP">
+                    </div>
+                    <span class="card-team-name" id="card-name1">SPAIN</span>
+                </div>
+                
+                <!-- Scores & VS -->
+                <div class="card-score-center">
+                    <span id="card-score1" class="card-score-digit">0</span>
+                    <div class="card-vs-text">VS</div>
+                    <span id="card-score2" class="card-score-digit">0</span>
+                </div>
+                
+                <!-- Team 2 Right -->
+                <div class="card-team-side right-side">
+                    <div class="flag-large-frame">
+                        <img id="card-flag2" src="https://flagcdn.com/w320/us.png" alt="USA">
+                    </div>
+                    <span class="card-team-name" id="card-name2">UNITED STATES</span>
+                </div>
+            </div>
+
+            <!-- Scorers list or Info box -->
+            <div class="card-footer-scorers" id="card-scorers">
+                <!-- Dynamically populated or custom info text -->
+                <div class="scorer-note">FIFA World Cup 2026 Official Broadcast</div>
+            </div>
+        </div>
+
+        <!-- 3. GOAL EXPANDABLE BANNER (Expansión) -->
+        <div id="goal-banner" class="goal-expanded-panel">
+            <div class="goal-neon-glow"></div>
+            <div class="goal-banner-content">
+                <div class="goal-flag-circle">
+                    <img id="goal-scorer-flag" src="https://flagcdn.com/w80/es.png" alt="ESP">
+                </div>
+                <div class="goal-info-text">
+                    <span class="goal-title-flash">GOAL!</span>
+                    <span class="goal-scorer-name" id="goal-scorer-name">L. MESSI 10'</span>
+                </div>
             </div>
         </div>
     </div>
