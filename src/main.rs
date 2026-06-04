@@ -182,6 +182,54 @@ struct ToolPolls {
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
+struct WorldCupSettings {
+    font_family: String,
+    font_size: String,
+    bg_color: String,
+    bg_opacity: f32,
+    border_color: String,
+    border_width: String,
+    border_radius: String,
+    team1_name: String,
+    team1_score: u32,
+    team2_name: String,
+    team2_score: u32,
+    match_time: String,
+    timer_active: bool,
+    logo_variant: String,
+    accent_color: String,
+}
+
+#[derive(Clone, Serialize, Deserialize, Debug)]
+struct ToolWorldCup {
+    enabled: bool,
+    settings: WorldCupSettings,
+}
+
+fn default_worldcup_tool() -> ToolWorldCup {
+    ToolWorldCup {
+        enabled: true,
+        settings: WorldCupSettings {
+            font_family: "Outfit".to_string(),
+            font_size: "20px".to_string(),
+            bg_color: "#0f0f16".to_string(),
+            bg_opacity: 0.85,
+            border_color: "#eab308".to_string(),
+            border_width: "2px".to_string(),
+            border_radius: "16px".to_string(),
+            team1_name: "ESP".to_string(),
+            team1_score: 0,
+            team2_name: "USA".to_string(),
+            team2_score: 0,
+            match_time: "00:00".to_string(),
+            timer_active: false,
+            logo_variant: "horizontal_color".to_string(),
+            accent_color: "#eab308".to_string(),
+        }
+    }
+}
+
+#[derive(Clone, Serialize, Deserialize, Debug)]
 struct Tools {
     chat: ToolChat,
     carousel: ToolCarousel,
@@ -189,6 +237,8 @@ struct Tools {
     alerts: ToolAlerts,
     #[serde(default = "default_polls_tool")]
     polls: ToolPolls,
+    #[serde(default = "default_worldcup_tool")]
+    worldcup: ToolWorldCup,
 }
 
 fn default_polls_tool() -> ToolPolls {
@@ -336,6 +386,7 @@ impl Default for Config {
                     },
                 },
                 polls: default_polls_tool(),
+                worldcup: default_worldcup_tool(),
             },
         }
     }
@@ -1509,6 +1560,27 @@ async fn get_polls_js() -> impl IntoResponse {
         .into_response()
 }
 
+async fn get_worldcup_overlay() -> impl IntoResponse {
+    axum::response::Html(include_str!("../overlays/worldcup.html"))
+}
+
+async fn get_worldcup_css() -> impl IntoResponse {
+    (
+        [(axum::http::header::CONTENT_TYPE, "text/css")],
+        include_str!("../overlays/worldcup.css"),
+    )
+        .into_response()
+}
+
+async fn get_worldcup_js() -> impl IntoResponse {
+    (
+        [(axum::http::header::CONTENT_TYPE, "application/javascript")],
+        include_str!("../overlays/worldcup.js"),
+    )
+        .into_response()
+}
+
+
 
 #[derive(Deserialize)]
 struct UploadPayload {
@@ -2011,6 +2083,9 @@ async fn main() {
         .route("/overlays/polls", get(get_polls_overlay))
         .route("/overlays/polls.css", get(get_polls_css))
         .route("/overlays/polls.js", get(get_polls_js))
+        .route("/overlays/worldcup", get(get_worldcup_overlay))
+        .route("/overlays/worldcup.css", get(get_worldcup_css))
+        .route("/overlays/worldcup.js", get(get_worldcup_js))
         .route("/obs/nowplaying/ws", get(get_obs_nowplaying_ws))
         .route("/obs/polls/ws", get(get_obs_polls_ws))
         .route("/api/config", get(get_api_config).post(post_api_config))
