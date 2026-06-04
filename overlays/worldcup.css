@@ -1,15 +1,23 @@
 :root {
-    --bg-charcoal: #09090b;
-    --bg-card: #18181b;
-    --border-white: #ffffff;
+    --bg-charcoal-rgb: 9, 9, 11;
+    --bg-card-rgb: 24, 24, 27;
+    --bg-opacity: 0.85;
+    
+    --border-color: #ffffff;
+    --border-width: 3px;
+    --border-radius: 4px;
     
     --neon-coral: #ff3d00;
     --neon-cyan: #00b0ff;
     --neon-lime: #00e676;
     --neon-purple: #d500f9;
     
+    --accent-color: #00e676; /* lime green */
+    --accent-glow: rgba(0, 230, 118, 0.35);
+    
     --font-sans: 'Plus Jakarta Sans', sans-serif;
     --font-outfit: 'Outfit', sans-serif;
+    --font-size: 20px;
 }
 
 * {
@@ -36,16 +44,17 @@ body {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    font-size: var(--font-size);
 }
 
 /* 1. COMPACT SCOREBOARD */
 .compact-scoreboard-bar {
     display: flex;
     align-items: center;
-    background: var(--bg-charcoal);
-    border: 3px solid var(--border-white);
-    border-radius: 4px;
-    height: 54px;
+    background: rgba(var(--bg-charcoal-rgb), var(--bg-opacity));
+    border: var(--border-width) solid var(--border-color);
+    border-radius: var(--border-radius);
+    height: 2.7em;
     overflow: hidden;
     box-shadow: 6px 6px 0px var(--neon-cyan),
                 -4px -4px 0px var(--neon-purple);
@@ -57,14 +66,14 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 50px;
+    width: 2.5em;
     height: 100%;
     background: #ffffff;
-    border-right: 3px solid var(--border-white);
+    border-right: var(--border-width) solid var(--border-color);
 }
 
 .logo-circle-mask img {
-    height: 32px;
+    height: 1.6em;
     width: auto;
     object-fit: contain;
 }
@@ -73,51 +82,43 @@ body {
     display: flex;
     align-items: center;
     height: 100%;
-    background: #141416;
+    background: rgba(20, 20, 22, 0.65);
 }
 
 .compact-team-block {
     display: flex;
     align-items: center;
-    padding: 0 14px;
+    padding: 0 0.7em;
     height: 100%;
 }
 
 .flag-circle {
-    width: 26px;
-    height: 26px;
+    width: 1.3em;
+    height: 1.3em;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid var(--border-white);
-}
-
-.team-left .flag-circle {
-    margin-right: 10px;
-}
-
-.team-right .flag-circle {
-    margin-left: 10px;
+    border: 1.5px solid var(--border-color);
 }
 
 .compact-team-code {
-    font-size: 18px;
+    font-size: 0.9em;
     font-weight: 900;
     letter-spacing: 0.5px;
-    padding: 0 8px;
+    padding: 0 0.4em;
 }
 
 .compact-score-digits {
     font-family: var(--font-outfit);
-    font-size: 24px;
+    font-size: 1.2em;
     font-weight: 900;
-    background: #27272a;
+    background: rgba(39, 39, 42, 0.8);
     height: 100%;
-    padding: 0 14px;
+    padding: 0 0.7em;
     display: flex;
     align-items: center;
-    gap: 6px;
-    border-left: 3px solid var(--bg-charcoal);
-    border-right: 3px solid var(--bg-charcoal);
+    gap: 0.3em;
+    border-left: var(--border-width) solid var(--border-color);
+    border-right: var(--border-width) solid var(--border-color);
 }
 
 .score-dash {
@@ -127,13 +128,14 @@ body {
 .compact-timer-block {
     display: flex;
     align-items: center;
-    padding: 0 18px;
-    background: #1a1a1c;
+    padding: 0 0.9em;
+    background: rgba(26, 26, 28, 0.85);
     height: 100%;
     font-family: var(--font-outfit);
-    font-size: 20px;
+    font-size: 1em;
     font-weight: 800;
-    color: var(--neon-lime);
+    color: var(--accent-color);
+    text-shadow: 0 0 8px var(--accent-glow);
 }
 
 .live-blink-dot {
@@ -150,10 +152,10 @@ body {
 .wide-presentation-card {
     display: flex;
     flex-direction: column;
-    background: var(--bg-card);
-    border: 4px solid var(--border-white);
-    border-radius: 8px;
-    width: 580px;
+    background: rgba(var(--bg-card-rgb), var(--bg-opacity));
+    border: var(--border-width) solid var(--border-color);
+    border-radius: var(--border-radius);
+    width: 29em;
     box-shadow: 10px 10px 0px var(--neon-purple),
                 -6px -6px 0px var(--neon-lime);
     z-index: 10;
@@ -165,49 +167,50 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #0f0f12;
-    padding: 10px 18px;
-    border-bottom: 3px solid var(--border-white);
+    background: rgba(15, 15, 18, 0.9);
+    padding: 0.5em 0.9em;
+    border-bottom: var(--border-width) solid var(--border-color);
 }
 
 .stage-label {
-    font-size: 13px;
+    font-size: 0.65em;
     font-weight: 800;
     color: #a1a1aa;
     letter-spacing: 1px;
+    text-transform: uppercase;
 }
 
 .match-status-pill {
     background: var(--neon-coral);
     color: #ffffff;
-    font-size: 11px;
+    font-size: 0.55em;
     font-weight: 900;
-    padding: 4px 10px;
+    padding: 0.2em 0.5em;
     border-radius: 4px;
     letter-spacing: 0.5px;
 }
 
 .card-versus-row {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
-    padding: 24px 30px;
-    background: #141417;
+    padding: 1.2em 1.5em;
+    background: rgba(20, 20, 23, 0.85);
 }
 
 .card-team-side {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 160px;
-    gap: 12px;
+    width: 8em;
+    gap: 0.6em;
 }
 
 .flag-large-frame {
-    width: 90px;
-    height: 60px;
-    border: 3px solid var(--border-white);
-    border-radius: 6px;
+    width: 4.5em;
+    height: 3em;
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
     overflow: hidden;
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
 }
@@ -219,47 +222,67 @@ body {
 }
 
 .card-team-name {
-    font-size: 16px;
+    font-size: 0.8em;
     font-weight: 900;
     text-align: center;
     letter-spacing: 0.5px;
     text-transform: uppercase;
+    color: #ffffff;
+}
+
+/* Scorers list inside card */
+.card-scorers-list {
+    margin-top: 0.5em;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+    text-align: center;
+}
+
+.card-scorer-item {
+    font-size: 0.6em;
+    font-weight: 700;
+    color: #a1a1aa;
+    text-transform: uppercase;
+    word-break: break-word;
 }
 
 .card-score-center {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 16px;
+    gap: 0.8em;
+    margin-top: 0.5em;
 }
 
 .card-score-digit {
     font-family: var(--font-outfit);
-    font-size: 48px;
+    font-size: 2.4em;
     font-weight: 900;
-    background: #27272a;
-    padding: 4px 18px;
+    background: rgba(39, 39, 42, 0.9);
+    padding: 0.1em 0.4em;
     border: 2px solid rgba(255,255,255,0.1);
-    border-radius: 8px;
+    border-radius: 6px;
 }
 
 .card-vs-text {
-    font-size: 18px;
+    font-size: 0.9em;
     font-weight: 900;
     color: #71717a;
     font-style: italic;
 }
 
 .card-footer-scorers {
-    background: #0f0f12;
-    padding: 10px 20px;
+    background: rgba(15, 15, 18, 0.9);
+    padding: 0.5em 1em;
     border-top: 2px solid rgba(255,255,255,0.05);
     display: flex;
     justify-content: center;
 }
 
 .scorer-note {
-    font-size: 12px;
+    font-size: 0.6em;
     color: #71717a;
     font-weight: 700;
     text-transform: uppercase;
@@ -268,11 +291,11 @@ body {
 /* 3. GOAL EXPANDABLE BANNER */
 .goal-expanded-panel {
     position: absolute;
-    top: 54px;
+    top: 2.7em;
     left: 0;
     width: 100%;
     height: 0;
-    background: var(--neon-lime);
+    background: var(--accent-color);
     z-index: 5;
     overflow: hidden;
     display: flex;
@@ -283,8 +306,8 @@ body {
 }
 
 .goal-expanded-panel.show {
-    height: 60px;
-    border: 3px solid var(--border-white);
+    height: 3em;
+    border: var(--border-width) solid var(--border-color);
     border-top: none;
 }
 
@@ -302,17 +325,17 @@ body {
     display: flex;
     align-items: center;
     width: 100%;
-    padding: 0 20px;
-    gap: 14px;
+    padding: 0 1em;
+    gap: 0.7em;
     z-index: 6;
 }
 
 .goal-flag-circle {
-    width: 32px;
-    height: 32px;
+    width: 1.6em;
+    height: 1.6em;
     border-radius: 50%;
     overflow: hidden;
-    border: 2px solid var(--border-white);
+    border: 2.5px solid var(--border-color);
 }
 
 .goal-flag-circle img {
@@ -327,7 +350,7 @@ body {
 }
 
 .goal-title-flash {
-    font-size: 20px;
+    font-size: 1.2em;
     font-weight: 900;
     font-style: italic;
     color: #000000;
@@ -336,7 +359,7 @@ body {
 }
 
 .goal-scorer-name {
-    font-size: 14px;
+    font-size: 0.7em;
     font-weight: 800;
     color: rgba(0,0,0,0.7);
     text-transform: uppercase;
