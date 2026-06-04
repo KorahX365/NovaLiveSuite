@@ -110,14 +110,23 @@
         "border_color": "#eab308",
         "border_width": "2px",
         "border_radius": "16px",
-        "team1_name": "ESP",
+        "team1_name": "Spain",
+        "team1_code": "ESP",
+        "team1_flag": "https://flagcdn.com/w80/es.png",
         "team1_score": 0,
-        "team2_name": "USA",
+        "team2_name": "United States",
+        "team2_code": "USA",
+        "team2_flag": "https://flagcdn.com/w80/us.png",
         "team2_score": 0,
-        "match_time": "00:00",
+        "match_time": "45:00",
         "timer_active": false,
         "logo_variant": "horizontal_color",
-        "accent_color": "#eab308"
+        "accent_color": "#eab308",
+        "layout_mode": "in_progress",
+        "match_stage": "GROUP STAGE - GROUP A",
+        "scorer_name": "L. MESSI 10'",
+        "team1_scorers": "",
+        "team2_scorers": ""
       }
     }
   }
