@@ -198,6 +198,13 @@ struct WorldCupSettings {
     timer_active: bool,
     logo_variant: String,
     accent_color: String,
+    layout_mode: String,
+    team1_code: String,
+    team1_flag: String,
+    team2_code: String,
+    team2_flag: String,
+    match_stage: String,
+    scorer_name: String,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
@@ -217,14 +224,21 @@ fn default_worldcup_tool() -> ToolWorldCup {
             border_color: "#eab308".to_string(),
             border_width: "2px".to_string(),
             border_radius: "16px".to_string(),
-            team1_name: "ESP".to_string(),
+            team1_name: "Spain".to_string(),
             team1_score: 0,
-            team2_name: "USA".to_string(),
+            team2_name: "United States".to_string(),
             team2_score: 0,
-            match_time: "00:00".to_string(),
+            match_time: "45:00".to_string(),
             timer_active: false,
             logo_variant: "horizontal_color".to_string(),
             accent_color: "#eab308".to_string(),
+            layout_mode: "in_progress".to_string(),
+            team1_code: "ESP".to_string(),
+            team1_flag: "https://flagcdn.com/w80/es.png".to_string(),
+            team2_code: "USA".to_string(),
+            team2_flag: "https://flagcdn.com/w80/us.png".to_string(),
+            match_stage: "GROUP STAGE - GROUP A".to_string(),
+            scorer_name: "L. MESSI 10'".to_string(),
         }
     }
 }
