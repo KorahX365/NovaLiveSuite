@@ -1,18 +1,13 @@
 :root {
-    --bg-color-raw: 15, 15, 22;
-    --bg-opacity: 0.85;
+    --bg-main: #0c0c0e;
     --border-color: #eab308;
-    --border-width: 2px;
-    --border-radius: 16px;
-    --font-family: 'Outfit', sans-serif;
-    --font-size: 20px;
-    --accent-color: #eab308;
-    --accent-glow: rgba(234, 179, 8, 0.35);
+    --accent-color: #00e676; /* lime green */
+    --accent-purple: #d500f9;
+    --accent-cyan: #00b0ff;
+    --accent-coral: #ff3d00;
     
-    /* Official tournament colors */
-    --fwc-green: #00e676;
-    --fwc-blue: #00b0ff;
-    --fwc-purple: #d500f9;
+    --font-family-title: 'Plus Jakarta Sans', sans-serif;
+    --font-family-timer: 'Outfit', sans-serif;
 }
 
 * {
@@ -23,173 +18,223 @@
 
 body {
     background-color: transparent;
-    font-family: var(--font-family);
+    font-family: var(--font-family-title);
     color: #ffffff;
     height: 100vh;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 30px;
     overflow: hidden;
 }
 
-/* Scoreboard Main Container */
-.scoreboard-container {
-    display: flex;
-    align-items: center;
-    background: rgba(var(--bg-color-raw), var(--bg-opacity));
-    border: var(--border-width) solid var(--border-color);
-    border-radius: var(--border-radius);
-    padding: 0.6em 1.2em;
-    font-size: var(--font-size);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5),
-                0 0 20px var(--accent-glow);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    animation: slideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-/* Layout Variations */
-.scoreboard-container.horizontal-layout {
-    flex-direction: row;
-    gap: 1.2em;
-}
-
-.scoreboard-container.vertical-layout {
-    flex-direction: column;
-    gap: 0.8em;
-    padding: 1.2em;
-}
-
-/* Logo Wrapper */
-.logo-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: all 0.3s ease;
-}
-
-.horizontal-layout .logo-wrapper {
-    height: 2.8em;
-    border-right: 1px solid rgba(255, 255, 255, 0.15);
-    padding-right: 1.2em;
-}
-
-.vertical-layout .logo-wrapper {
-    width: 100%;
-    border-right: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-    padding-bottom: 0.8em;
-    padding-right: 0;
-}
-
-.logo-wrapper img {
-    max-height: 2.8em;
-    max-width: 8em;
-    object-fit: contain;
-    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
-}
-
-/* Data Area */
-.score-data-area {
-    display: flex;
-    align-items: center;
-    gap: 1.5em;
-}
-
-/* Team Blocks */
-.team-block {
-    display: flex;
-    align-items: center;
-    gap: 0.8em;
-}
-
-.team-name {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-weight: 800;
-    font-size: 1.2em;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: #ffffff;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-}
-
-.team-score {
-    font-family: 'Outfit', sans-serif;
-    font-weight: 900;
-    font-size: 1.6em;
-    padding: 0.1em 0.4em;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 6px;
-    min-width: 1.5em;
-    text-align: center;
-    font-variant-numeric: tabular-nums;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
-}
-
-/* Timer Section */
-.time-block {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+/* Scoreboard Wrapper containing the Bar and Goal banners */
+.scoreboard-wrapper {
     position: relative;
-    padding: 0 0.8em;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    filter: drop-shadow(4px 4px 0px rgba(0, 176, 255, 0.6))
+            drop-shadow(-4px -4px 0px rgba(213, 0, 249, 0.4));
 }
 
-.time-display {
-    font-family: 'Outfit', sans-serif;
+/* Main TV Scoreboard Bar */
+.tv-scoreboard-bar {
+    display: flex;
+    align-items: center;
+    background: var(--bg-main);
+    border: 3px solid #ffffff;
+    border-radius: 4px;
+    height: 60px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    z-index: 10;
+    overflow: hidden;
+    position: relative;
+}
+
+/* FWC 26 Logo Block */
+.fwc-logo-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    padding: 0 15px;
+    height: 100%;
+    border-right: 3px solid var(--bg-main);
+}
+
+.fwc-logo-box img {
+    height: 38px;
+    width: auto;
+    object-fit: contain;
+}
+
+/* Score Details Block */
+.match-score-area {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    background: var(--bg-main);
+}
+
+/* Team Abbreviation Capsule */
+.team-capsule {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding: 0 16px;
+    background: #141417;
+}
+
+.kit-color-bar {
+    width: 6px;
+    height: 24px;
+    border-radius: 2px;
+}
+
+.team-left .kit-color-bar {
+    margin-right: 12px;
+}
+
+.team-right .kit-color-bar {
+    margin-left: 12px;
+}
+
+.team-code {
+    font-size: 20px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* Score Numbers */
+.score-number-box {
+    font-family: var(--font-family-timer);
+    font-size: 28px;
     font-weight: 800;
-    font-size: 1.3em;
-    color: var(--accent-color);
-    text-shadow: 0 0 10px var(--accent-glow);
-    font-variant-numeric: tabular-nums;
+    width: 45px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #202024;
+    color: #ffffff;
 }
 
-.live-dot {
+.score-divider {
+    font-size: 22px;
+    font-weight: 800;
+    color: #a0a0a8;
+    padding: 0 4px;
+    background: #202024;
+}
+
+/* Timer Display Box */
+.timer-display-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1a1a1e;
+    height: 100%;
+    padding: 0 20px;
+    border-left: 3px solid var(--bg-main);
+    font-family: var(--font-family-timer);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent-color);
+    position: relative;
+}
+
+.timer-dot {
     width: 6px;
     height: 6px;
-    background-color: #ff4d4d;
+    background-color: #ff3d00;
     border-radius: 50%;
-    position: absolute;
-    top: -2px;
-    right: 0px;
-    box-shadow: 0 0 8px #ff4d4d;
+    margin-left: 8px;
     display: none;
 }
 
-.live-dot.active {
-    display: block;
-    animation: pulse 1.5s infinite;
+.timer-dot.active {
+    display: inline-block;
+    animation: flash 1.5s infinite;
+}
+
+/* Celebratory Goal Banner */
+.goal-celebration-banner {
+    position: absolute;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    height: 0;
+    background: #ff3d00; /* dynamic overlay will override colors */
+    border: 0px solid #ffffff;
+    border-radius: 0 0 6px 6px;
+    z-index: 5;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    transition: all 0.5s cubic-bezier(0.87, 0, 0.13, 1);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+.goal-celebration-banner.show {
+    height: 52px;
+    border: 3px solid #ffffff;
+    border-top: none;
+}
+
+.goal-gradient-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%);
+    animation: shine 2s infinite linear;
+}
+
+.goal-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0 24px;
+    z-index: 6;
+}
+
+.goal-text-main {
+    font-size: 32px;
+    font-weight: 900;
+    font-style: italic;
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(255,255,255,0.8);
+    letter-spacing: 2px;
+    animation: textFlash 0.6s infinite alternate;
+}
+
+.goal-team-label {
+    font-size: 24px;
+    font-weight: 900;
+    color: #ffffff;
+    text-transform: uppercase;
+    background: rgba(0,0,0,0.3);
+    padding: 2px 10px;
+    border-radius: 4px;
 }
 
 /* Animations */
-@keyframes pulse {
-    0% {
-        transform: scale(0.9);
-        opacity: 0.6;
-        box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.7);
-    }
-    70% {
-        transform: scale(1.1);
-        opacity: 1;
-        box-shadow: 0 0 0 6px rgba(255, 77, 77, 0);
-    }
-    100% {
-        transform: scale(0.9);
-        opacity: 0.6;
-        box-shadow: 0 0 0 0 rgba(255, 77, 77, 0);
-    }
+@keyframes flash {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 1; }
 }
 
-@keyframes slideIn {
-    from {
-        transform: translateY(-20px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
+@keyframes textFlash {
+    0% { transform: scale(1); text-shadow: 0 0 5px rgba(255,255,255,0.6); }
+    100% { transform: scale(1.05); text-shadow: 0 0 15px rgba(255,255,255,1); }
+}
+
+@keyframes shine {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
 }
