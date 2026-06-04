@@ -52,6 +52,18 @@ function hexToRgbValues(hex) {
     return `${r}, ${g}, ${b}`;
 }
 
+const LOGO_URLS = {
+    horizontal_color: "https://static.wikia.nocookie.net/logopedia/images/4/44/FWC26_CanMexUSA_hz.png/revision/latest/scale-to-width-down/1000?cb=20260604001303",
+    vertical_color: "https://static.wikia.nocookie.net/logopedia/images/5/51/FIFA_World_Cup_Canada_Mexico_USA_2026_Logo_With_World_Cup_%26_2026_Wordmarks_%26_Combined_Host_Countries_%28Dark_Gray_Text%29.png/revision/latest/scale-to-width-down/1000?cb=20260528181006",
+    vertical_black: "https://static.wikia.nocookie.net/logopedia/images/f/f7/FIFA_World_Cup_Canada_Mexico_USA_2026_Logo_With_World_Cup_%26_2026_Wordmarks_%28black_3%29.png/revision/latest/scale-to-width-down/1000?cb=20260521210834"
+};
+
+function secondsToTimeStr(totalSecs) {
+    const mins = Math.floor(totalSecs / 60);
+    const secs = totalSecs % 60;
+    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+}
+
 function applySettings(settings) {
     if (!settings) return;
     currentSettings = settings;
@@ -77,6 +89,28 @@ function applySettings(settings) {
     document.documentElement.style.setProperty('--font-size', fontSz + 'px');
     document.documentElement.style.setProperty('--accent-color', settings.accent_color || '#00e676');
     document.documentElement.style.setProperty('--accent-glow', hexToRgba(settings.accent_color || '#00e676', 0.35));
+
+    // Team Accent Colors for shadow borders
+    document.documentElement.style.setProperty('--team1-color', settings.team1_color || '#ff3d00');
+    document.documentElement.style.setProperty('--team2-color', settings.team2_color || '#00b0ff');
+
+    // Toggle logo layout and image sources
+    const variant = settings.logo_variant || 'horizontal_color';
+    const logoUrl = LOGO_URLS[variant] || LOGO_URLS.horizontal_color;
+    
+    const leftLogo = document.getElementById("compact-left-logo");
+    const centerLogo = document.getElementById("compact-center-logo");
+    if (leftLogo) leftLogo.src = logoUrl;
+    if (centerLogo) centerLogo.src = logoUrl;
+    
+    const scoreboardBar = document.getElementById("compact-scoreboard");
+    if (scoreboardBar) {
+        if (variant.startsWith("vertical")) {
+            scoreboardBar.classList.add("logo-center-layout");
+        } else {
+            scoreboardBar.classList.remove("logo-center-layout");
+        }
+    }
 
     // Toggle layout modes
     if (overlayContainer) {
@@ -109,6 +143,19 @@ function applySettings(settings) {
     // Render Scorers List underneath each team
     renderScorers(settings.team1_scorers, "card-scorers-team1");
     renderScorers(settings.team2_scorers, "card-scorers-team2");
+
+    // Injury Time (added time) Slide Panel
+    const addedTimeVal = parseInt(settings.added_time) || 0;
+    const addedTimePanel = document.getElementById("added-time-panel");
+    const addedTimeValue = document.getElementById("added-time-value");
+    if (addedTimePanel && addedTimeValue) {
+        if (addedTimeVal > 0) {
+            addedTimeValue.innerText = `+${addedTimeVal}`;
+            addedTimePanel.classList.add("show");
+        } else {
+            addedTimePanel.classList.remove("show");
+        }
+    }
 
     // Detect Goal Event (Score increments)
     const currentScore1 = settings.team1_score !== undefined ? parseInt(settings.team1_score) : 0;
@@ -178,6 +225,48 @@ function syncTimer(timeStr, isActive) {
         if (compactDot) compactDot.style.display = "inline-block";
         timerInterval = setInterval(() => {
             secondsCounter++;
+            
+            // Check auto-pause conditions: 45, 90, 105, 120 minutes + added_time
+            const addedMinutes = currentSettings ? (parseInt(currentSettings.added_time) || 0) : 0;
+            const addedSeconds = addedMinutes * 60;
+            
+            const firstHalfLimit = 45 * 60 + addedSeconds;
+            const secondHalfLimit = 90 * 60 + addedSeconds;
+            const extraFirstLimit = 105 * 60 + addedSeconds;
+            const extraSecondLimit = 120 * 60 + addedSeconds;
+            
+            let shouldPause = false;
+            if (secondsCounter === firstHalfLimit ||
+                secondsCounter === secondHalfLimit ||
+                secondsCounter === extraFirstLimit ||
+                secondsCounter === extraSecondLimit) {
+                shouldPause = true;
+            }
+            
+            if (shouldPause) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                if (compactDot) compactDot.style.display = "none";
+                
+                // Synchronize pause state to the dashboard/server
+                const newTimeStr = secondsToTimeStr(secondsCounter);
+                fetch('/api/config')
+                    .then(res => res.json())
+                    .then(config => {
+                        if (config.tools && config.tools.worldcup && config.tools.worldcup.settings) {
+                            config.tools.worldcup.settings.timer_active = false;
+                            config.tools.worldcup.settings.match_time = newTimeStr;
+                            
+                            return fetch('/api/config', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(config)
+                            });
+                        }
+                    })
+                    .catch(err => console.error("Error auto-pausing server timer:", err));
+            }
+            
             updateTimerDisplay();
         }, 1000);
     } else {
