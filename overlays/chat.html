@@ -103,14 +103,313 @@
 
     <script>
         const container = document.getElementById('chat-container');
-        let settings = {};
+        let settings = {
+            font_family: "Outfit",
+            font_size: "18px",
+            color_user: "#00f0ff",
+            color_text: "#ffffff",
+            bg_opacity: 0.4,
+            bg_color: "#0a0a0f",
+            border_color: "#3b82f6",
+            border_width: "1px",
+            border_radius: "12px",
+            fade_duration_s: 8,
+            animation_in: "slide-fade",
+            max_messages: 10,
+            message_spacing_px: 10,
+            badge_size_px: 16,
+            text_shadow: "0 2px 4px rgba(0,0,0,0.5)",
+            padding_px: 10,
+            alignment: "left"
+        };
         let enabled = true;
+        let emotesMap = {};
+        let currentChannel = "";
 
         const formatPx = (val) => {
             if (val === undefined || val === null || val === "") return "";
             const s = val.toString().trim();
             return /^\d+$/.test(s) ? s + "px" : s;
         };
+
+        function escapeHtml(text) {
+            if (text === undefined || text === null) return "";
+            const textStr = String(text);
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return textStr.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+
+        async function loadEmotes(channel) {
+            emotesMap = {};
+            if (!channel) {
+                console.log("No Twitch channel configured yet. Loading global emotes only.");
+            } else {
+                console.log("Loading emotes (7TV, FFZ, BTTV) for channel:", channel);
+            }
+            
+            // 1. FFZ Global Emotes
+            try {
+                const ffzGlobalRes = await fetch("https://api.frankerfacez.com/v1/set/global");
+                if (ffzGlobalRes.ok) {
+                    const data = await ffzGlobalRes.json();
+                    if (data.sets) {
+                        for (let setId in data.sets) {
+                            const emoticons = data.sets[setId].emoticons;
+                            if (Array.isArray(emoticons)) {
+                                emoticons.forEach(emote => {
+                                    let url = "";
+                                    if (emote.urls) {
+                                        url = emote.urls["1"] || emote.urls["2"] || Object.values(emote.urls)[0];
+                                    }
+                                    if (url) {
+                                        if (url.startsWith("//")) url = "https:" + url;
+                                        emotesMap[emote.name] = url;
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error("Error fetching FFZ global emotes:", err);
+            }
+
+            // 2. 7TV Global Emotes
+            try {
+                const sethGlobalRes = await fetch("https://7tv.io/v3/emote-sets/global");
+                if (sethGlobalRes.ok) {
+                    const data = await sethGlobalRes.json();
+                    if (Array.isArray(data.emotes)) {
+                        data.emotes.forEach(emote => {
+                            if (emote.data && emote.data.host && emote.data.host.url) {
+                                let url = "https:" + emote.data.host.url + "/1x.webp";
+                                emotesMap[emote.name] = url;
+                            }
+                        });
+                    }
+                }
+            } catch (err) {
+                console.error("Error fetching 7TV global emotes:", err);
+            }
+
+            // 3. BTTV Global Emotes
+            try {
+                const bttvGlobalRes = await fetch("https://api.betterttv.net/3/cached/emotes/global");
+                if (bttvGlobalRes.ok) {
+                    const data = await bttvGlobalRes.json();
+                    if (Array.isArray(data)) {
+                        data.forEach(emote => {
+                            if (emote.id && emote.code) {
+                                emotesMap[emote.code] = `https://cdn.betterttv.net/emote/${emote.id}/1x`;
+                            }
+                        });
+                    }
+                }
+            } catch (err) {
+                console.error("Error fetching BTTV global emotes:", err);
+            }
+
+            if (!channel) {
+                console.log(`Loaded ${Object.keys(emotesMap).length} global emotes.`);
+                return;
+            }
+
+            // 4. Resolve Twitch User ID
+            let twitchId = null;
+            try {
+                const idRes = await fetch(`https://decapi.me/twitch/id/${channel.toLowerCase()}`);
+                if (idRes.ok) {
+                    const text = await idRes.text();
+                    const cleanText = text.trim();
+                    if (/^\d+$/.test(cleanText)) {
+                        twitchId = cleanText;
+                        console.log(`Resolved Twitch User ID for ${channel}: ${twitchId}`);
+                    }
+                }
+            } catch (err) {
+                console.error("Error resolving Twitch ID from decapi.me:", err);
+            }
+
+            // FFZ Fallback for Twitch ID
+            if (!twitchId) {
+                try {
+                    const ffzChannelRes = await fetch(`https://api.frankerfacez.com/v1/room/${channel.toLowerCase()}`);
+                    if (ffzChannelRes.ok) {
+                        const data = await ffzChannelRes.json();
+                        if (data.room && data.room.twitch_id) {
+                            twitchId = data.room.twitch_id;
+                            console.log(`Resolved Twitch User ID from FFZ fallback: ${twitchId}`);
+                        }
+                    }
+                } catch (err) {
+                    console.error("Error fetching FFZ room for Twitch ID fallback:", err);
+                }
+            }
+
+            // 5. FFZ Channel Emotes (loading channel + popular variety fallbacks)
+            const channelsToLoad = [channel.toLowerCase()];
+            if (!channelsToLoad.includes("xqc")) channelsToLoad.push("xqc");
+            if (!channelsToLoad.includes("rubius")) channelsToLoad.push("rubius");
+
+            for (const ch of channelsToLoad) {
+                try {
+                    const ffzChannelRes = await fetch(`https://api.frankerfacez.com/v1/room/${ch}`);
+                    if (ffzChannelRes.ok) {
+                        const data = await ffzChannelRes.json();
+                        if (data.sets) {
+                            for (let setId in data.sets) {
+                                const emoticons = data.sets[setId].emoticons;
+                                if (Array.isArray(emoticons)) {
+                                    emoticons.forEach(emote => {
+                                        let url = "";
+                                        if (emote.urls) {
+                                            url = emote.urls["1"] || emote.urls["2"] || Object.values(emote.urls)[0];
+                                        }
+                                        if (url) {
+                                            if (url.startsWith("//")) url = "https:" + url;
+                                            emotesMap[emote.name] = url;
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    }
+                } catch (err) {
+                    console.error(`Error fetching FFZ channel emotes for ${ch}:`, err);
+                }
+            }
+
+            // 6. 7TV & BTTV Channel Emotes (loading channel + popular variety fallbacks)
+            const idsToLoad = [];
+            if (twitchId) {
+                idsToLoad.push(twitchId);
+            }
+            if (!idsToLoad.includes("71092938")) idsToLoad.push("71092938"); // xqc
+            if (!idsToLoad.includes("39276140")) idsToLoad.push("39276140"); // rubius
+
+            for (const id of idsToLoad) {
+                // Fetch 7TV Channel Emotes
+                try {
+                    const sethChannelRes = await fetch(`https://7tv.io/v3/users/twitch/${id}`);
+                    if (sethChannelRes.ok) {
+                        const data = await sethChannelRes.json();
+                        if (data.emote_set && Array.isArray(data.emote_set.emotes)) {
+                            data.emote_set.emotes.forEach(emote => {
+                                if (emote.data && emote.data.host && emote.data.host.url) {
+                                    let url = "https:" + emote.data.host.url + "/1x.webp";
+                                    emotesMap[emote.name] = url;
+                                }
+                            });
+                        }
+                    }
+                } catch (err) {
+                    console.error(`Error fetching 7TV emotes for Twitch ID ${id}:`, err);
+                }
+
+                // Fetch BTTV Channel Emotes
+                try {
+                    const bttvChannelRes = await fetch(`https://api.betterttv.net/3/cached/users/twitch/${id}`);
+                    if (bttvChannelRes.ok) {
+                        const data = await bttvChannelRes.json();
+                        if (Array.isArray(data.channelEmotes)) {
+                            data.channelEmotes.forEach(emote => {
+                                if (emote.id && emote.code) {
+                                    emotesMap[emote.code] = `https://cdn.betterttv.net/emote/${emote.id}/1x`;
+                                }
+                            });
+                        }
+                        if (Array.isArray(data.sharedEmotes)) {
+                            data.sharedEmotes.forEach(emote => {
+                                if (emote.id && emote.code) {
+                                    emotesMap[emote.code] = `https://cdn.betterttv.net/emote/${emote.id}/1x`;
+                                }
+                            });
+                        }
+                    }
+                } catch (err) {
+                    console.error(`Error fetching BTTV emotes for Twitch ID ${id}:`, err);
+                }
+            }
+            
+            console.log(`Successfully loaded ${Object.keys(emotesMap).length} custom emotes (7TV + FFZ + BTTV).`);
+        }
+
+        function parseEmotes(messageText, emotesTag) {
+            if (messageText === undefined || messageText === null) return "";
+            
+            const replacements = [];
+            
+            if (emotesTag) {
+                const parts = emotesTag.split('/');
+                for (const part of parts) {
+                    const subparts = part.split(':');
+                    if (subparts.length === 2) {
+                        const emoteId = subparts[0];
+                        const rangesStr = subparts[1];
+                        const ranges = rangesStr.split(',');
+                        for (const range of ranges) {
+                            const [startStr, endStr] = range.split('-');
+                            const start = parseInt(startStr, 10);
+                            const end = parseInt(endStr, 10);
+                            if (!isNaN(start) && !isNaN(end)) {
+                                const emoteText = messageText.substring(start, end + 1);
+                                replacements.push({
+                                    start: start,
+                                    end: end,
+                                    html: `<img src="https://static-cdn.jtvnw.net/emoticons/v2/${emoteId}/default/dark/2.0" class="chat-emote" alt="${escapeHtml(emoteText)}" style="height: 1.4em; vertical-align: middle; margin: -2px 2px 0 2px; max-height: 28px;" />`
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            
+            const wordRegex = /\S+/g;
+            let match;
+            while ((match = wordRegex.exec(messageText)) !== null) {
+                const word = match[0];
+                const start = match.index;
+                const end = start + word.length - 1;
+                
+                const isNative = replacements.some(r => (start >= r.start && start <= r.end) || (end >= r.start && end <= r.end));
+                if (!isNative) {
+                    if (emotesMap[word]) {
+                        replacements.push({
+                            start: start,
+                            end: end,
+                            html: `<img src="${emotesMap[word]}" class="chat-emote" alt="${word}" style="height: 1.4em; vertical-align: middle; margin: -2px 2px 0 2px; max-height: 28px;" />`
+                        });
+                    }
+                }
+            }
+            
+            if (replacements.length === 0) {
+                return escapeHtml(messageText);
+            }
+            
+            replacements.sort((a, b) => a.start - b.start);
+            
+            let resultHtml = "";
+            let lastIndex = 0;
+            for (const rep of replacements) {
+                if (rep.start > lastIndex) {
+                    resultHtml += escapeHtml(messageText.substring(lastIndex, rep.start));
+                }
+                resultHtml += rep.html;
+                lastIndex = rep.end + 1;
+            }
+            if (lastIndex < messageText.length) {
+                resultHtml += escapeHtml(messageText.substring(lastIndex));
+            }
+            
+            return resultHtml;
+        }
 
         const sse = new EventSource('/api/stream');
 
@@ -125,6 +424,7 @@
         });
 
         sse.addEventListener('config_update', (e) => {
+            console.log("Chat SSE config_update received, reloading page...");
             window.location.reload();
         });
 
@@ -143,47 +443,60 @@
         });
 
         function applyConfig(config) {
-            settings = config.tools.chat.settings;
-            enabled = config.tools.chat.enabled;
-            
-            if (!enabled) {
-                container.innerHTML = "";
-                return;
-            }
-            
-            document.body.style.fontFamily = settings.font_family + ", sans-serif";
-            container.style.gap = (settings.message_spacing_px || 10) + "px";
-            container.style.alignItems = settings.alignment === 'center' ? 'center' : (settings.alignment === 'right' ? 'flex-end' : 'flex-start');
-            
-            const rgbaBg = hexToRgba(settings.bg_color, settings.bg_opacity);
-            const messages = container.querySelectorAll('.chat-message');
-            messages.forEach(msg => {
-                msg.style.backgroundColor = rgbaBg;
-                msg.style.borderColor = settings.border_color;
-                msg.style.borderWidth = formatPx(settings.border_width);
-                msg.style.borderStyle = "solid";
-                msg.style.borderRadius = formatPx(settings.border_radius);
-                msg.style.fontSize = formatPx(settings.font_size);
-                msg.style.color = settings.color_text;
-                msg.style.textShadow = settings.text_shadow;
-                msg.style.padding = `${settings.padding_px}px ${settings.padding_px * 1.4}px`;
+            try {
+                if (!config || !config.tools || !config.tools.chat) return;
                 
-                const user = msg.querySelector('.user-name');
-                if (user) {
-                    const originalColor = user.getAttribute('data-color') || settings.color_user;
-                    user.style.color = originalColor;
+                settings = config.tools.chat.settings || settings;
+                enabled = config.tools.chat.enabled !== false;
+                
+                if (!enabled) {
+                    container.innerHTML = "";
+                    return;
                 }
+                
+                const channel = config.twitch_channel;
+                if (channel && channel.toLowerCase() !== currentChannel.toLowerCase()) {
+                    currentChannel = channel;
+                    loadEmotes(channel);
+                }
+                
+                document.body.style.fontFamily = (settings.font_family || "Outfit") + ", sans-serif";
+                container.style.gap = (settings.message_spacing_px || 10) + "px";
+                container.style.alignItems = settings.alignment === 'center' ? 'center' : (settings.alignment === 'right' ? 'flex-end' : 'flex-start');
+                
+                const rgbaBg = hexToRgba(settings.bg_color, settings.bg_opacity);
+                const messages = container.querySelectorAll('.chat-message');
+                messages.forEach(msg => {
+                    msg.style.backgroundColor = rgbaBg;
+                    msg.style.borderColor = settings.border_color;
+                    msg.style.borderWidth = formatPx(settings.border_width);
+                    msg.style.borderStyle = "solid";
+                    msg.style.borderRadius = formatPx(settings.border_radius);
+                    msg.style.fontSize = formatPx(settings.font_size);
+                    msg.style.color = settings.color_text;
+                    msg.style.textShadow = settings.text_shadow;
+                    msg.style.padding = `${settings.padding_px}px ${settings.padding_px * 1.4}px`;
+                    
+                    const user = msg.querySelector('.user-name');
+                    if (user) {
+                        const originalColor = user.getAttribute('data-color') || settings.color_user;
+                        user.style.color = originalColor;
+                    }
 
-                const badges = msg.querySelectorAll('.badge');
-                badges.forEach(b => {
-                    b.style.fontSize = (settings.badge_size_px - 4) + "px";
-                    b.style.width = settings.badge_size_px + "px";
-                    b.style.height = settings.badge_size_px + "px";
+                    const badges = msg.querySelectorAll('.badge');
+                    badges.forEach(b => {
+                        b.style.fontSize = (settings.badge_size_px - 4) + "px";
+                        b.style.width = settings.badge_size_px + "px";
+                        b.style.height = settings.badge_size_px + "px";
+                    });
                 });
-            });
+            } catch (err) {
+                console.error("Error applying config to UI:", err);
+            }
         }
 
         function hexToRgba(hex, opacity) {
+            if (!hex) return `rgba(10, 10, 15, ${opacity})`;
             let c;
             if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
                 c= hex.substring(1).split('');
@@ -193,92 +506,91 @@
                 c= '0x' + c.join('');
                 return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+','+opacity+')';
             }
-            return `rgba(13, 14, 18, ${opacity})`;
+            return `rgba(10, 10, 15, ${opacity})`;
         }
 
         function addMessage(msg) {
-            const messages = container.querySelectorAll('.chat-message');
-            if (messages.length >= settings.max_messages) {
-                messages[0].remove();
-            }
-
-            const msgEl = document.createElement('div');
-            msgEl.className = 'chat-message';
-            
-            const rgbaBg = hexToRgba(settings.bg_color, settings.bg_opacity);
-            msgEl.style.backgroundColor = rgbaBg;
-            msgEl.style.borderColor = settings.border_color;
-            msgEl.style.borderWidth = formatPx(settings.border_width);
-            msgEl.style.borderStyle = "solid";
-            msgEl.style.borderRadius = formatPx(settings.border_radius);
-            msgEl.style.fontSize = formatPx(settings.font_size);
-            msgEl.style.color = settings.color_text;
-            msgEl.style.textShadow = settings.text_shadow;
-            msgEl.style.padding = `${settings.padding_px}px ${settings.padding_px * 1.4}px`;
-            
-            let inClass = 'slide-fade-in';
-            let outClass = 'slide-fade-out';
-            if (settings.animation_in === 'fade') {
-                inClass = 'fade-in';
-                outClass = 'fade-out';
-            } else if (settings.animation_in === 'scale') {
-                inClass = 'scale-in';
-                outClass = 'scale-out';
-            }
-
-            if (settings.animation_in === 'slide-fade') {
-                msgEl.style.transform = 'translateY(15px) scale(0.98)';
-            } else if (settings.animation_in === 'scale') {
-                msgEl.style.transform = 'scale(0.85)';
-            }
-
-            let badgesHtml = '';
-            if (msg.badges && Array.isArray(msg.badges)) {
-                if (msg.badges.includes('broadcaster')) {
-                    badgesHtml += `<img class="badge badge-broadcaster" src="https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/2" style="width: ${settings.badge_size_px}px; height: ${settings.badge_size_px}px;" />`;
+            try {
+                if (!msg) return;
+                const user = msg.user || "User";
+                const message = msg.message || "";
+                
+                const messages = container.querySelectorAll('.chat-message');
+                if (messages.length >= settings.max_messages) {
+                    messages[0].remove();
                 }
-                if (msg.badges.includes('lead-moderator') || msg.badges.includes('lead_moderator') || msg.badges.includes('leadmoderator')) {
-                    badgesHtml += `<img class="badge badge-lead-moderator" src="https://static-cdn.jtvnw.net/badges/v1/0822047b-65e0-46f2-94a9-d1091d685d33/3" style="width: ${settings.badge_size_px}px; height: ${settings.badge_size_px}px;" />`;
-                } else if (msg.badges.includes('moderator')) {
-                    badgesHtml += `<img class="badge badge-moderator" src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/3" style="width: ${settings.badge_size_px}px; height: ${settings.badge_size_px}px;" />`;
+
+                const msgEl = document.createElement('div');
+                msgEl.className = 'chat-message';
+                
+                const rgbaBg = hexToRgba(settings.bg_color, settings.bg_opacity);
+                msgEl.style.backgroundColor = rgbaBg;
+                msgEl.style.borderColor = settings.border_color;
+                msgEl.style.borderWidth = formatPx(settings.border_width);
+                msgEl.style.borderStyle = "solid";
+                msgEl.style.borderRadius = formatPx(settings.border_radius);
+                msgEl.style.fontSize = formatPx(settings.font_size);
+                msgEl.style.color = settings.color_text;
+                msgEl.style.textShadow = settings.text_shadow;
+                msgEl.style.padding = `${settings.padding_px}px ${settings.padding_px * 1.4}px`;
+                
+                let inClass = 'slide-fade-in';
+                let outClass = 'slide-fade-out';
+                if (settings.animation_in === 'fade') {
+                    inClass = 'fade-in';
+                    outClass = 'fade-out';
+                } else if (settings.animation_in === 'scale') {
+                    inClass = 'scale-in';
+                    outClass = 'scale-out';
                 }
-                if (msg.badges.includes('subscriber')) {
-                    badgesHtml += `<span class="badge badge-subscriber" style="font-size: ${settings.badge_size_px - 4}px; width: ${settings.badge_size_px}px; height: ${settings.badge_size_px}px;">⭐</span>`;
+
+                if (settings.animation_in === 'slide-fade') {
+                    msgEl.style.transform = 'translateY(15px) scale(0.98)';
+                } else if (settings.animation_in === 'scale') {
+                    msgEl.style.transform = 'scale(0.85)';
                 }
-            }
 
-            const userColor = msg.color || settings.color_user;
-            msgEl.innerHTML = `
-                ${badgesHtml}
-                <span class="user-name" data-color="${userColor}" style="color: ${userColor}">${escapeHtml(msg.user)}:</span>
-                <span class="message-content">${escapeHtml(msg.message)}</span>
-            `;
+                let badgesHtml = '';
+                if (msg.badges && Array.isArray(msg.badges)) {
+                    if (msg.badges.includes('broadcaster')) {
+                        badgesHtml += `<img class="badge badge-broadcaster" src="https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/2" style="width: ${settings.badge_size_px}px; height: ${settings.badge_size_px}px;" />`;
+                    }
+                    if (msg.badges.includes('lead-moderator') || msg.badges.includes('lead_moderator') || msg.badges.includes('leadmoderator')) {
+                        badgesHtml += `<img class="badge badge-lead-moderator" src="https://static-cdn.jtvnw.net/badges/v1/0822047b-65e0-46f2-94a9-d1091d685d33/3" style="width: ${settings.badge_size_px}px; height: ${settings.badge_size_px}px;" />`;
+                    } else if (msg.badges.includes('moderator')) {
+                        badgesHtml += `<img class="badge badge-moderator" src="https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/3" style="width: ${settings.badge_size_px}px; height: ${settings.badge_size_px}px;" />`;
+                    }
+                    if (msg.badges.includes('subscriber')) {
+                        badgesHtml += `<span class="badge badge-subscriber" style="font-size: ${settings.badge_size_px - 4}px; width: ${settings.badge_size_px}px; height: ${settings.badge_size_px}px;">⭐</span>`;
+                    }
+                }
 
-            container.appendChild(msgEl);
-            
-            setTimeout(() => {
-                msgEl.classList.add(inClass);
-            }, 50);
+                const userColor = msg.color || settings.color_user;
+                msgEl.innerHTML = `
+                    ${badgesHtml}
+                    <span class="user-name" data-color="${userColor}" style="color: ${userColor}">${escapeHtml(user)}:</span>
+                    <span class="message-content">${parseEmotes(message, msg.emotes)}</span>
+                `;
 
-            setTimeout(() => {
-                msgEl.classList.remove(inClass);
-                msgEl.classList.add(outClass);
+                container.appendChild(msgEl);
+                
                 setTimeout(() => {
-                    msgEl.remove();
-                }, 500);
-            }, settings.fade_duration_s * 1000);
+                    msgEl.classList.add(inClass);
+                }, 50);
+
+                setTimeout(() => {
+                    msgEl.classList.remove(inClass);
+                    msgEl.classList.add(outClass);
+                    setTimeout(() => {
+                        msgEl.remove();
+                    }, 500);
+                }, settings.fade_duration_s * 1000);
+            } catch (err) {
+                console.error("Critical error in addMessage:", err);
+            }
         }
 
-        function escapeHtml(text) {
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;'
-            };
-            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
-        }
+        loadEmotes("");
     </script>
 </body>
 </html>
