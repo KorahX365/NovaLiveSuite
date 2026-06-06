@@ -270,13 +270,13 @@ fn default_polls_tool() -> ToolPolls {
         enabled: true,
         settings: PollSettings {
             font_family: "Outfit".to_string(),
-            font_size: "18px".to_string(),
+            font_size: "20".to_string(),
             bg_color: "#0f0f16".to_string(),
-            bg_opacity: 0.65,
+            bg_opacity: 0.95,
             border_color: "#6366f1".to_string(),
-            border_width: "1px".to_string(),
-            border_radius: "20px".to_string(),
-            padding_px: 24,
+            border_width: "2".to_string(),
+            border_radius: "25".to_string(),
+            padding_px: 20,
             default_duration_s: 60,
         }
     }
@@ -308,29 +308,29 @@ impl Default for Config {
                     enabled: true,
                     settings: ChatSettings {
                         font_family: "Outfit".to_string(),
-                        font_size: "18px".to_string(),
+                        font_size: "18".to_string(),
                         color_user: "#00f0ff".to_string(),
                         color_text: "#ffffff".to_string(),
-                        bg_opacity: 0.4,
+                        bg_opacity: 0.8,
                         bg_color: "#0a0a0f".to_string(),
-                        border_color: "#3b82f6".to_string(),
-                        border_width: "1px".to_string(),
-                        border_radius: "12px".to_string(),
-                        fade_duration_s: 8,
+                        border_color: "#884485".to_string(),
+                        border_width: "2".to_string(),
+                        border_radius: "25".to_string(),
+                        fade_duration_s: 61,
                         animation_in: "slide-fade".to_string(),
-                        max_messages: 10,
-                        message_spacing_px: 10,
-                        badge_size_px: 16,
+                        max_messages: 50,
+                        message_spacing_px: 8,
+                        badge_size_px: 20,
                         text_shadow: "0 2px 4px rgba(0,0,0,0.5)".to_string(),
                         padding_px: 10,
-                        alignment: "left".to_string(),
+                        alignment: "center".to_string(),
                     },
                 },
                 carousel: ToolCarousel {
                     enabled: true,
                     settings: CarouselSettings {
-                        interval_ms: 5000,
-                        transition: "fade".to_string(),
+                        interval_ms: 10000,
+                        transition: "zoom".to_string(),
                         items: vec![
                             CarouselItem {
                                 id: "1".to_string(),
@@ -345,11 +345,11 @@ impl Default for Config {
                                 duration_ms: 5000,
                             },
                         ],
-                        width_px: "100%".to_string(),
-                        height_px: "100%".to_string(),
-                        border_radius: "0px".to_string(),
-                        border_color: "#3b82f6".to_string(),
-                        border_width: "0px".to_string(),
+                        width_px: "450".to_string(),
+                        height_px: "600".to_string(),
+                        border_radius: "0".to_string(),
+                        border_color: "#000000".to_string(),
+                        border_width: "0".to_string(),
                         bg_color: "#000000".to_string(),
                         bg_opacity: 0.0,
                     },
@@ -358,26 +358,26 @@ impl Default for Config {
                     enabled: true,
                     settings: NowPlayingSettings {
                         font_family: "Outfit".to_string(),
-                        font_size: "16px".to_string(),
-                        color_title: "#00f0ff".to_string(),
-                        color_artist: "#a78bfa".to_string(),
+                        font_size: "25".to_string(),
+                        color_title: "#ffffff".to_string(),
+                        color_artist: "#9780db".to_string(),
                         color_bg: "#0a0a0f".to_string(),
-                        bg_opacity: 0.5,
+                        bg_opacity: 0.1,
                         border_color: "#3b82f6".to_string(),
-                        border_width: "1px".to_string(),
-                        border_radius: "10px".to_string(),
+                        border_width: "0".to_string(),
+                        border_radius: "25".to_string(),
                         scroll_text: true,
                         detect_spotify: true,
                         detect_chrome: true,
                         detect_firefox: true,
                         detect_system: true,
-                        padding_px: 12,
+                        padding_px: 25,
                         vinyl_enabled: true,
                         lyrics_enabled: true,
                         visualizer_enabled: true,
                         theme: "glassmorphic".to_string(),
                         accent_color: "auto".to_string(),
-                        hide_on_alert: false,
+                        hide_on_alert: true,
                     },
                 },
                 alerts: ToolAlerts {
@@ -387,26 +387,26 @@ impl Default for Config {
                         sub_duration_ms: 5000,
                         raid_duration_ms: 6000,
                         follow_template: "{user} is now following!".to_string(),
-                        sub_template: "{user} subscribed!".to_string(),
-                        raid_template: "{user} is raiding with {count} viewers!".to_string(),
-                        follow_image: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3N2c2t3bnoxdmFidmx0eWd0Mm0wdXNldnR5czRpdWdta2I5dzdrZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/L330J40l95cE9bU0W2/giphy.gif".to_string(),
-                        sub_image: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdm4yN2V6NWc3bW9yc2Z0Znp3ZnpvbmM1dTR4NXJ4MXR0Zzh5Zjl4ZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/3orif2us7Oa9N2K9Ve/giphy.gif".to_string(),
-                        raid_image: "https://media.giphy.com/media/134DVXcD94sOWI/giphy.gif".to_string(),
-                        follow_sound: "".to_string(),
+                        sub_template: "{user} se ha suscrito!".to_string(),
+                        raid_template: "{user} ha venido con {count} amigxs!".to_string(),
+                        follow_image: "".to_string(),
+                        sub_image: "".to_string(),
+                        raid_image: "".to_string(),
+                        follow_sound: "https://static.wikia.nocookie.net/valorant/images/c/c3/CloveMeddleKill2.mp3".to_string(),
                         sub_sound: "".to_string(),
                         raid_sound: "".to_string(),
                         font_family: "Outfit".to_string(),
-                        font_size: "24px".to_string(),
+                        font_size: "32".to_string(),
                         font_color: "#ffffff".to_string(),
                         bg_color: "#0a0a0f".to_string(),
-                        bg_opacity: 0.6,
+                        bg_opacity: 0.8,
                         border_color: "#8b5cf6".to_string(),
-                        border_width: "2px".to_string(),
-                        border_radius: "16px".to_string(),
+                        border_width: "0".to_string(),
+                        border_radius: "25".to_string(),
                         animation_in: "slide-fade".to_string(),
                         animation_out: "fade".to_string(),
-                        image_size: "80px".to_string(),
-                        layout: "top".to_string(),
+                        image_size: "80".to_string(),
+                        layout: "over".to_string(),
                     },
                 },
                 polls: default_polls_tool(),
@@ -662,6 +662,7 @@ fn parse_twitch_msg(line: &str) -> Option<Value> {
     let mut color = "#FF69B4".to_string();
     let mut id = format!("{}", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs());
     let mut badges = Vec::new();
+    let mut emotes = "".to_string();
     
     for tag in tags_str.split(';') {
         let kv: Vec<&str> = tag.split('=').collect();
@@ -684,6 +685,11 @@ fn parse_twitch_msg(line: &str) -> Option<Value> {
                         }
                     }
                 }
+                "emotes" => {
+                    if !kv[1].is_empty() {
+                        emotes = kv[1].to_string();
+                    }
+                }
                 _ => {}
             }
         }
@@ -701,7 +707,8 @@ fn parse_twitch_msg(line: &str) -> Option<Value> {
         "color": color,
         "message": msg_text,
         "badges": badges,
-        "id": id
+        "id": id,
+        "emotes": emotes
     }))
 }
 
