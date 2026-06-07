@@ -823,6 +823,63 @@
                     <div class="feat-tag">:777/ · REST API</div>
                 </div>
             </div>
+
+            <!-- Overlays Temáticos / Thematic Overlays -->
+            <div class="reveal" style="margin-top: 60px; margin-bottom: 24px;">
+                <h3 style="font-family: var(--font-head); font-size: 1.6rem; font-weight: 800; color: var(--txt-1); display: flex; align-items: center; gap: 10px;">
+                    <i class="fa-solid fa-trophy" style="color: var(--amber)"></i> Overlays Temáticos
+                </h3>
+                <p style="color: var(--txt-3); font-size: 0.9rem; margin-top: 4px;">Packs especiales de overlays diseñados para eventos específicos y retransmisiones premium.</p>
+            </div>
+            <div class="feat-grid">
+                <a href="#overlay-details" onclick="switchDetailsTab('worldcup')" class="feat-card reveal" style="text-decoration: none; color: inherit; border-color: rgba(245,158,11,0.3); background: linear-gradient(135deg, rgba(245,158,11,0.05) 0%, rgba(11,11,18,0.6) 100%);">
+                    <div style="position: absolute; top: 12px; right: 12px; font-size: 0.7rem; background: var(--amber); color: #000; font-weight: 800; padding: 2px 8px; border-radius: 20px; text-transform: uppercase;">Especial</div>
+                    <div class="feat-icon-wrap" style="background: rgba(245,158,11,0.12); color: var(--amber);"><i class="fa-solid fa-gamepad"></i></div>
+                    <h3>Marcador FIFA World Cup 2026</h3>
+                    <p>Marcador de fútbol premium tematizado para la Copa del Mundo 2026. Con control de tiempos, goles, logotipos oficiales e integración de datos.</p>
+                    <div class="feat-tag">worldcup.html · Sports API</div>
+                </a>
+            </div>
+
+            <!-- Minijuegos e Interactivos / Minigames & Interactives -->
+            <div class="reveal" style="margin-top: 60px; margin-bottom: 24px;">
+                <h3 style="font-family: var(--font-head); font-size: 1.6rem; font-weight: 800; color: var(--txt-1); display: flex; align-items: center; gap: 10px;">
+                    <i class="fa-solid fa-gamepad" style="color: var(--cyan)"></i> Minijuegos e Interactivos
+                </h3>
+                <p style="color: var(--txt-3); font-size: 0.9rem; margin-top: 4px;">Suite interactiva local integrada para dinamizar tu transmisión y retar a tu comunidad.</p>
+            </div>
+            <div class="feat-grid" style="margin-bottom: 40px;">
+                <a href="#overlay-details" onclick="switchDetailsTab('minigames')" class="feat-card reveal" style="text-decoration: none; color: inherit;">
+                    <div class="feat-icon-wrap" style="background: rgba(244,63,94,0.12); color: #f43f5e;"><i class="fa-solid fa-people-carry-box"></i></div>
+                    <h3>Chat Avatars</h3>
+                    <p>Invoca avatares pixel-art/emoji de tus espectadores sobre la pantalla. Responden a comandos del chat como <code>!jump</code>, <code>!dance</code> y pelean con <code>!fight @usuario</code>.</p>
+                    <div class="feat-tag">avatars.html · IRC WS</div>
+                </a>
+                <a href="#overlay-details" onclick="switchDetailsTab('minigames')" class="feat-card reveal reveal-delay-1" style="text-decoration: none; color: inherit;">
+                    <div class="feat-icon-wrap" style="background: rgba(249,115,22,0.12); color: #f97316;"><i class="fa-solid fa-fire"></i></div>
+                    <h3>Fever Hype Meter</h3>
+                    <p>Medidor térmico de hype del chat en tiempo real. Activa un termómetro de intensidad con flujos y partículas de fuego progresivas cuando los mensajes se aceleran.</p>
+                    <div class="feat-tag">fever.html · WebSocket</div>
+                </a>
+                <a href="#overlay-details" onclick="switchDetailsTab('minigames')" class="feat-card reveal reveal-delay-2" style="text-decoration: none; color: inherit;">
+                    <div class="feat-icon-wrap" style="background: rgba(6,182,212,0.12); color: #06b6d4;"><i class="fa-solid fa-earth-americas"></i></div>
+                    <h3>Viewer World Map</h3>
+                    <p>Mapa del mundo de espectadores que geolocaliza a tu audiencia local. Proyecta líneas y arcos de neón desde el streamer hasta los puntos usando <code>!from [país]</code>.</p>
+                    <div class="feat-tag">map.html · Local Geocode</div>
+                </a>
+                <a href="#overlay-details" onclick="switchDetailsTab('minigames')" class="feat-card reveal reveal-delay-3" style="text-decoration: none; color: inherit;">
+                    <div class="feat-icon-wrap" style="background: rgba(168,85,247,0.12); color: #a855f7;"><i class="fa-solid fa-brain"></i></div>
+                    <h3>Trivia / Quiz</h3>
+                    <p>Juego de preguntas y respuestas automatizado. El chat vota seleccionando opciones (A, B, C, D) con temporizadores y tabla de clasificación de puntuación en vivo.</p>
+                    <div class="feat-tag">trivia.html · WS Tally</div>
+                </a>
+                <a href="#overlay-details" onclick="switchDetailsTab('minigames')" class="feat-card reveal" style="text-decoration: none; color: inherit;">
+                    <div class="feat-icon-wrap" style="background: rgba(16,185,129,0.12); color: #10b981;"><i class="fa-solid fa-palette"></i></div>
+                    <h3>Pixel Canvas</h3>
+                    <p>Lienzo colaborativo pixel-art donde la comunidad dibuja enviando <code>!paint [x] [y] [color]</code> sobre un tablero dinámico con registro de pintores.</p>
+                    <div class="feat-tag">canvas.html · WS Grid</div>
+                </a>
+            </div>
         </div>
     </section>
 
@@ -839,6 +896,8 @@
                 <button class="tab-btn" id="btn-tab-alerts" onclick="switchDetailsTab('alerts')"><i class="fa-solid fa-bolt"></i> Alertas en vivo</button>
                 <button class="tab-btn" id="btn-tab-carousel" onclick="switchDetailsTab('carousel')"><i class="fa-solid fa-images"></i> Carrusel</button>
                 <button class="tab-btn" id="btn-tab-polls" onclick="switchDetailsTab('polls')"><i class="fa-solid fa-square-poll-horizontal"></i> Encuestas y Predicciones</button>
+                <button class="tab-btn" id="btn-tab-worldcup" onclick="switchDetailsTab('worldcup')"><i class="fa-solid fa-trophy"></i> Marcador WC 2026</button>
+                <button class="tab-btn" id="btn-tab-minigames" onclick="switchDetailsTab('minigames')"><i class="fa-solid fa-gamepad"></i> Minijuegos e Interactivos</button>
             </div>
             
             <div class="details-content-box" style="background: var(--bg-1); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.3);">
@@ -975,6 +1034,56 @@
                     </div>
                     <a href="#simulator" class="btn-trigger" onclick="openSimTab('polls')" style="width:fit-content; text-decoration:none; padding:12px 30px;"><i class="fa-solid fa-play"></i> Probar en el Simulador</a>
                 </div>
+
+                <!-- World Cup Details -->
+                <div id="details-worldcup" class="details-tab-content">
+                    <h3 style="font-family:var(--font-head); font-size:1.8rem; color:var(--txt-1); margin-bottom:16px;">Marcador FIFA World Cup 2026</h3>
+                    <p style="margin-bottom:24px; color:var(--txt-2);">Un marcador deportivo profesional tematizado con la identidad oficial de la Copa del Mundo 2026. Diseñado para ofrecer una estética limpia, deportiva e inmersiva durante transmisiones de torneos, partidos o simulaciones.</p>
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:24px; margin-bottom:32px;">
+                        <div>
+                            <h4 style="color:var(--purple); margin-bottom:12px;"><i class="fa-solid fa-wand-magic-sparkles"></i> Lo que puedes hacer</h4>
+                            <ul style="list-style:inside; color:var(--txt-2); display:grid; gap:8px;">
+                                <li>Mostrar marcador de tiempo (cronómetro) con periodos configurables</li>
+                                <li>Mostrar nombres de equipos, banderas y marcadores de goles en vivo</li>
+                                <li>Integración con logos oficiales en variantes horizontal y vertical</li>
+                                <li>Soporte para layouts estéticos y limpios integrados en OBS</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 style="color:var(--pink); margin-bottom:12px;"><i class="fa-solid fa-sliders"></i> Opciones de Configuración</h4>
+                            <ul style="list-style:inside; color:var(--txt-2); display:grid; gap:8px;">
+                                <li>Selección de variantes oficiales de logotipos (Color, Vertical, Horizontal, Monocromático)</li>
+                                <li>Configuración manual rápida de goles y nombres desde el panel de control</li>
+                                <li>Ajuste de tiempos y estados del partido</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <a href="#simulator" class="btn-trigger" onclick="openSimTab('worldcup')" style="width:fit-content; text-decoration:none; padding:12px 30px;"><i class="fa-solid fa-play"></i> Probar en el Simulador</a>
+                </div>
+
+                <!-- Minijuegos Details -->
+                <div id="details-minigames" class="details-tab-content">
+                    <h3 style="font-family:var(--font-head); font-size:1.8rem; color:var(--txt-1); margin-bottom:16px;">Minijuegos e Interactivos</h3>
+                    <p style="margin-bottom:24px; color:var(--txt-2);">Una suite local completa de juegos e interactivos diseñados para maximizar la participación y la diversión de tu comunidad de Twitch directamente en tu pantalla, sin configuraciones complejas externas.</p>
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:24px; margin-bottom:32px;">
+                        <div>
+                            <h4 style="color:var(--cyan); margin-bottom:12px;"><i class="fa-solid fa-gamepad"></i> Interactividad del Chat</h4>
+                            <ul style="list-style:inside; color:var(--txt-2); display:grid; gap:8px;">
+                                <li><strong>Chat Avatars:</strong> Invocación de personajes con comandos <code>!jump</code>, <code>!dance</code> y combate de avatares <code>!fight</code>.</li>
+                                <li><strong>Fever Rate:</strong> Termómetro dinámico de actividad que mide el hype global del chat en tiempo real.</li>
+                                <li><strong>Viewer World Map:</strong> Mapeado con <code>!from [país]</code> y líneas curvadas con efecto de neón.</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 style="color:var(--purple); margin-bottom:12px;"><i class="fa-solid fa-circle-nodes"></i> Juegos Colectivos</h4>
+                            <ul style="list-style:inside; color:var(--txt-2); display:grid; gap:8px;">
+                                <li><strong>Trivia / Quiz:</strong> Preguntas de opciones múltiples (A, B, C, D) con temporizador y marcador de puntos en pantalla.</li>
+                                <li><strong>Pixel Canvas:</strong> Tablero colaborativo pixel-art donde el chat dibuja con <code>!paint x y color</code>.</li>
+                                <li>Integración local a través de conexiones WebSocket de alto rendimiento.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -1099,6 +1208,7 @@
                         <button type="button" class="sim-tab-btn" id="btn-sim-alerts" onclick="switchSimTab('alerts')">Alertas</button>
                         <button type="button" class="sim-tab-btn" id="btn-sim-carousel" onclick="switchSimTab('carousel')">Carrusel</button>
                         <button type="button" class="sim-tab-btn" id="btn-sim-polls" onclick="switchSimTab('polls')">Encuestas</button>
+                        <button type="button" class="sim-tab-btn" id="btn-sim-worldcup" onclick="switchSimTab('worldcup')">World Cup 2026</button>
                     </div>
 
                     <!-- Chat Sim Controls -->
@@ -1228,6 +1338,47 @@
                             <button class="btn-trigger" style="background:rgba(239,68,68,0.15); color:var(--red); border:1px solid rgba(239,68,68,0.3); box-shadow:none;" onclick="resetSimPoll()"><i class="fa-solid fa-trash"></i> Reset / Limpiar</button>
                         </div>
                     </div>
+
+                    <!-- World Cup Sim Controls -->
+                    <div id="sim-controls-worldcup" class="sim-tab-content">
+                        <div class="form-group">
+                            <label class="form-label">Variante de Logo</label>
+                            <select class="form-control" id="simWcLogo" onchange="updateWcSimPreview()">
+                                <option value="hz">Color Horizontal</option>
+                                <option value="vt">Color Vertical</option>
+                                <option value="vt_bk">Negro Vertical</option>
+                            </select>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;" class="form-group">
+                            <div>
+                                <label class="form-label">Local (Home)</label>
+                                <input class="form-control" type="text" id="simWcTeamA" value="ESP" oninput="updateWcSimPreview()">
+                            </div>
+                            <div>
+                                <label class="form-label">Visitante (Away)</label>
+                                <input class="form-control" type="text" id="simWcTeamB" value="USA" oninput="updateWcSimPreview()">
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;" class="form-group">
+                            <div>
+                                <label class="form-label">Goles Local</label>
+                                <input class="form-control" type="number" id="simWcScoreA" value="2" min="0" oninput="updateWcSimPreview()">
+                            </div>
+                            <div>
+                                <label class="form-label">Goles Visitante</label>
+                                <input class="form-control" type="number" id="simWcScoreB" value="1" min="0" oninput="updateWcSimPreview()">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="toggle-row" style="margin-bottom: 8px;">
+                                <span class="toggle-label"><i class="fa-solid fa-clock"></i> Correr Tiempo</span>
+                                <input type="checkbox" class="toggle" id="simWcTimeRunning" onchange="toggleWcTimer()">
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn-trigger" onclick="resetWcSimMatch()" style="background:var(--bg-2); border:1px solid var(--border); box-shadow:none; color:var(--txt-1); width:100%;"><i class="fa-solid fa-rotate-left"></i> Reiniciar Partido</button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- OBS Preview Screen -->
@@ -1316,12 +1467,44 @@
                                 </div>
                                 <h3 id="simPollQuestion" style="font-size: 1.05rem; font-weight: 600; color: white; margin-bottom: 12px;">¿Qué juego deberíamos jugar hoy en directo?</h3>
                                 <div id="simPollOptions" style="display: flex; flex-direction: column; gap: 8px;">
-                                    <!-- Options filled dynamically -->
                                 </div>
                             </div>
                             <div id="pollPlaceholder" style="font-family: var(--font-head); color: var(--txt-3); text-align: center;">
                                 <i class="fa-solid fa-square-poll-horizontal" style="font-size: 3rem; margin-bottom: 8px; display: block; color: rgba(255,255,255,0.05);"></i>
                                 <p style="font-size: 0.9rem;">Haz clic en "Iniciar Encuesta" para probar el overlay.</p>
+                            </div>
+                        </div>
+
+                        <!-- World Cup Preview Wrapper -->
+                        <div id="preview-worldcup" class="preview-wrapper">
+                            <div id="wcScoreboard" style="width: 100%; max-width: 420px; background: rgba(5, 5, 9, 0.95); border: 2.5px solid rgba(245, 158, 11, 0.4); border-radius: 16px; padding: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; gap: 16px; font-family: var(--font-head); position: relative; overflow: hidden; transition: all 0.3s ease;">
+                                <div style="position: absolute; top:0; left:0; right:0; height:4px; background: linear-gradient(90deg, #009639 0%, #ffd100 50%, #002f6c 100%);"></div>
+                                
+                                <img id="wcLogoPreview" src="https://static.wikia.nocookie.net/logopedia/images/4/44/FWC26_CanMexUSA_hz.png/revision/latest/scale-to-width-down/1000?cb=20260604001303" alt="FIFA 2026" style="height: 50px; object-fit: contain; max-width: 100%; transition: all 0.3s ease;">
+                                
+                                <div style="display: flex; align-items: center; justify-content: center; gap: 20px; width: 100%; margin-top: 10px;">
+                                    <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1;">
+                                        <div id="wcTeamAFlag" style="width: 50px; height: 34px; background: #e11d48; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: white; font-size: 0.9rem; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 4px 10px rgba(0,0,0,0.3);">ESP</div>
+                                        <span id="wcTeamAName" style="font-weight: 800; font-size: 1.1rem; color: white; letter-spacing: 0.05em;">ESP</span>
+                                    </div>
+                                    
+                                    <div style="display: flex; align-items: center; justify-content: center; gap: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 8px 20px; border-radius: 12px; min-width: 120px;">
+                                        <span id="wcScoreAVal" style="font-size: 2.2rem; font-weight: 900; color: white;">2</span>
+                                        <span style="font-size: 1.2rem; color: var(--txt-3); font-weight: 700;">-</span>
+                                        <span id="wcScoreBVal" style="font-size: 2.2rem; font-weight: 900; color: white;">1</span>
+                                    </div>
+                                    
+                                    <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1;">
+                                        <div id="wcTeamBFlag" style="width: 50px; height: 34px; background: #1e3a8a; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: white; font-size: 0.9rem; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 4px 10px rgba(0,0,0,0.3);">USA</div>
+                                        <span id="wcTeamBName" style="font-weight: 800; font-size: 1.1rem; color: white; letter-spacing: 0.05em;">USA</span>
+                                    </div>
+                                </div>
+                                
+                                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; border-top: 1px solid var(--border); padding-top: 14px; margin-top: 4px; font-size: 0.82rem; color: var(--txt-2);">
+                                    <span style="font-weight: 700; color: var(--amber);"><i class="fa-solid fa-circle" style="font-size: 0.5rem; vertical-align: middle; margin-right: 4px; animation: pulseLive 1.5s infinite;"></i> LIVE</span>
+                                    <span id="wcMatchTimer" style="font-family: var(--font-mono); font-weight: 800; font-size: 1.05rem; background: rgba(255,255,255,0.06); padding: 3px 10px; border-radius: 6px; color: white;">45:00</span>
+                                    <span style="font-weight: 700; letter-spacing: 0.05em; color: var(--txt-3);">GRUPO B</span>
+                                </div>
                             </div>
                         </div>
                     </div>
